@@ -1,0 +1,6 @@
+[
+	{
+		"caption": "Reg Replace: Show Reg Replace Menu",
+		"command": "reg_replace_menu"
+	}
+]
