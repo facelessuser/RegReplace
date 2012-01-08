@@ -1,6 +1,7 @@
 [
 	{
-		"caption": "Reg Replace: Show Reg Replace Menu",
-		"command": "reg_replace_menu"
+		"caption": "Reg Replace: Example - Cleanup HTML",
+		"command": "reg_replace",
+		"args": {"replacements": ["html5_remove_deprecated_type_attr", "remove_html_comments"]}
 	}
 ]

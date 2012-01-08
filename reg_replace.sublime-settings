@@ -1,4 +1,17 @@
 {
-	"commands": {
+	"replacements": {
+		// Example replacements
+		"html5_remove_deprecated_type_attr": {
+				"find": "(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
+				"replace": "\\1\\6",
+				"greedy": true,
+				"case": false
+		},
+		"remove_html_comments": {
+				"find": "<!--[\\s\\S]+?-->",
+				"replace": "",
+				"greedy": true,
+				"case": true
+		}
 	}
 }
