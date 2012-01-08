@@ -33,7 +33,6 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
                 # Walk through sequence
                 for pattern in reg_pattern:
-                    offset = 0
                     find = pattern['find']
                     replace = pattern['replace']
                     greedy = bool(pattern['greedy'])
@@ -49,15 +48,11 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                     if greedy:
                         regions = view.find_all(find, flags)
                     else:
-                        region = view.find(find, flags)
+                        # Todo: work from cursor forward
+                        region = view.find(find, 0, flags)
                         if region != None:
                             regions = [region]
 
                     # Replace and account for offset after replace
-                    for region in regions:
-                        orig_size = region.size()
-                        new_size = len(replace)
-                        diff = new_size - orig_size
-                        new_region = sublime.Region(region.begin() + offset, region.end() + offset)
-                        view.replace(edit, new_region, replace)
-                        offset += diff
+                    for region in reversed(regions):
+                        view.replace(edit, region, replace)
