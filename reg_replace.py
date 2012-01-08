@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-rrsettings = hv_settings = sublime.load_settings('reg_replace.sublime-settings')
+rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
 
 class RegReplaceCommand(sublime_plugin.TextCommand):
