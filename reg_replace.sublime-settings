@@ -1,17 +1,38 @@
+// Required parameters:
+//     find:    Regex description of what you would like to target.
+//     replace: description of what you would like to replace target with.
+//              Variables are okay and are done by escaping the selection number \\1 etc.
+//     greedy:  Boolean setting to define whether search is greedy or not.
+//     case:    Boolean defining case sensitivity.  True equals sensitive.
+// Optional parameters:
+//     scope_filter: an array of scope qualifiers for the match.
+//                       - Any instance of scope qualifies match: scope.name
+//                       - Entire match of scope qualifies match: !scope.name
+//                       - Any instance of scope disqualifies match: -scope.name
+//                       - Entire match of scope disqualifies match: -!scope.name
 {
 	"replacements": {
 		// Example replacements
 		"html5_remove_deprecated_type_attr": {
-				"find": "(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
-				"replace": "\\1\\6",
-				"greedy": true,
-				"case": false
+			"find": "(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
+			"replace": "\\1\\6",
+			"greedy": true,
+			"case": false
 		},
 		"remove_html_comments": {
-				"find": "<!--[\\s\\S]+?-->",
-				"replace": "",
-				"greedy": true,
-				"case": true
+			"find": "<!--[\\s\\S]+?-->",
+			"replace": "",
+			"scope_filter": ["!comment"],
+			"greedy": true,
+			"case": true
+		},
+		"remove_trailing_spaces": {
+			"find": "[ \\t]+$",
+			"replace": "",
+			"greedy": true,
+			"case": true
 		}
-	}
+	},
+
+	"results_in_panel": false
 }
