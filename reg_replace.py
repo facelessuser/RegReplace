@@ -137,26 +137,25 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 count += 1
 
         # If regions were already swept till the end, skip calculation relative to cursor
-        if selected_region != None or count < last_region:
+        if selected_region != None and count < last_region and pt != None:
             # Try and find the first qualifying match contained withing the first selection or after
-            if pt != None:
-                reverse_count = last_region
-                for region in reversed(regions):
-                    # Make sure we are not checking previously checked regions
-                    if reverse_count > count:
-                        # Region contained after start of selection?
-                        if region.end() - 1 >= pt:
-                            # Does the scope qualify?
-                            qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
-                            if qualify:
-                                selected_region = region
-                                selection_index = reverse_count
-                            else:
-                                reverse_count -= 1
+            reverse_count = last_region
+            for region in reversed(regions):
+                # Make sure we are not checking previously checked regions
+                if reverse_count > count:
+                    # Region contained after start of selection?
+                    if region.end() - 1 >= pt:
+                        # Does the scope qualify?
+                        qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
+                        if qualify:
+                            selected_region = region
+                            selection_index = reverse_count
                         else:
-                            break
+                            reverse_count -= 1
                     else:
                         break
+                else:
+                    break
 
         # Did we find a suitable region?
         if selected_region != None:
@@ -164,8 +163,6 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             replaced += 1
             self.view.show(selected_region)
             self.view.replace(self.edit, selected_region, replace[selection_index])
-            self.view.sel().clear()
-            self.view.sel().add(sublime.Region(selected_region.begin()))
         return replaced
 
     def apply(self, pattern):
