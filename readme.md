@@ -1,5 +1,5 @@
 # About
-Reg Replace is a plugin for Sublime Text 2 that allows the creating of commands consiting of sequences of find and replace instructions.
+Reg Replace is a plugin for Sublime Text 2 that allows the creating of commands consisting of sequences of find and replace instructions.
 
 # Installation 
 - You can download or clone directly and drop into your Sublime Text 2 packages directory (plugin folder must be named RegReplace)
