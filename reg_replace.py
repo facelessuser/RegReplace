@@ -184,8 +184,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         # Grab pattern definitions
         find = pattern['find']
         replace = pattern['replace']
-        greedy = bool(pattern['greedy'])
-        case = bool(pattern['case'])
+        greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
+        case = bool(pattern['case']) if 'case' in pattern else True
         scope_filter = pattern['scope_filter'] if 'scope_filter' in pattern else []
 
         # Ignore Case?

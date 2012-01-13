@@ -2,9 +2,9 @@
 //     find:    Regex description of what you would like to target.
 //     replace: description of what you would like to replace target with.
 //              Variables are okay and are done by escaping the selection number \\1 etc.
-//     greedy:  Boolean setting to define whether search is greedy or not.
-//     case:    Boolean defining case sensitivity.  True equals sensitive.
 // Optional parameters:
+//     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
+//     case:         Boolean defining case sensitivity.  True equals sensitive. Defualt is true.
 //     scope_filter: an array of scope qualifiers for the match.
 //                       - Any instance of scope qualifies match: scope.name
 //                       - Entire match of scope qualifies match: !scope.name

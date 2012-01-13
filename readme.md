@@ -11,9 +11,9 @@ To use, replacements must be defined in the reg_replace.sublime-settings file.
     //     find:    Regex description of what you would like to target.
     //     replace: description of what you would like to replace target with.
     //              Variables are okay and are done by escaping the selection number \\1 etc.
-    //     greedy:  Boolean setting to define whether search is greedy or not.
-    //     case:    Boolean defining case sensitivity.  True equals sensitive.
     // Optional parameters:
+    //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
+    //     case:         Boolean defining case sensitivity.  True equals sensitive. Defualt is true.
     //     scope_filter: an array of scope qualifiers for the match.
     //                       - Any instance of scope qualifies match: scope.name
     //                       - Entire match of scope qualifies match: !scope.name
@@ -67,6 +67,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+#Version 0.2
+- "greedy" and "case" parameters are now optional and set to "true" by default
 
 #Version 0.1
 - Initial release
