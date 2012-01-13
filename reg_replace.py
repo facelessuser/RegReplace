@@ -13,12 +13,16 @@ rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
 class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run_sequence(self, value):
+        # Parse returned regex sequence
         sequence = [x.strip() for x in value.split(',')]
         view = self.window.active_view()
+
+        # Execute sequence
         if view != None:
             view.run_command('reg_replace', {'replacements': sequence})
 
     def run(self):
+        # Display RegReplace input panel for on the fly regex sequences
         self.window.show_input_panel(
             "Regex Sequence:",
             "",
@@ -33,13 +37,17 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         sublime.status_message(text)
 
     def print_results_panel(self, text):
+        # Get/create output panel
         window = self.view.window()
         view = window.get_output_panel('reg_replace_results')
+
+        #Turn off stylings in panel
         view.settings().set("draw_white_space", "none")
         view.settings().set("draw_indent_guides", False)
         view.settings().set("gutter", "none")
         view.settings().set("line_numbers", False)
-        # Show Results
+
+        # Show Results in read only panel and clear selection in panel
         window.run_command("show_panel", {"panel": "output.reg_replace_results"})
         view.set_read_only(False)
         edit = view.begin_edit()
@@ -58,8 +66,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 end = region.end()
 
                 # Disqualify if entirely of scope
-                if entry.startswith("!-"):
-                    entry = entry.lstrip("!-")
+                if entry.startswith("-!"):
+                    entry = entry.lstrip("-!")
                     qualify = False
                     while pt < end:
                         if self.view.score_selector(pt, entry) == 0:
@@ -90,8 +98,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                             qualify = True
                             break
                         pt += 1
+                # If qualificatin of one fails, bail
                 if qualify == False:
                     return qualify
+        # Qualification completed successfully
         return True
 
     def greedy_replace(self, find, replace, regions, scope_filter):
@@ -103,8 +113,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         for region in reversed(regions):
             # Does the scope qualify?
             qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
-            # Apply replace
             if qualify:
+                # Apply replace
                 replaced += 1
                 self.view.replace(self.edit, region, replace[count])
             count -= 1
@@ -130,6 +140,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Does the scope qualify?
             qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
             if qualify:
+                # Update as new replacement candidate
                 selected_region = region
                 selection_index = count
                 break
@@ -142,18 +153,17 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             reverse_count = last_region
             for region in reversed(regions):
                 # Make sure we are not checking previously checked regions
-                if reverse_count > count:
-                    # Region contained after start of selection?
-                    if region.end() - 1 >= pt:
-                        # Does the scope qualify?
-                        qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
-                        if qualify:
-                            selected_region = region
-                            selection_index = reverse_count
-                        else:
-                            reverse_count -= 1
+                # And check if region contained after start of selection?
+                if reverse_count > count and region.end() - 1 >= pt:
+                    # Does the scope qualify?
+                    qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
+                    if qualify:
+                        # Update as new replacement candidate
+                        selected_region = region
+                        selection_index = reverse_count
                     else:
-                        break
+                        # Walk backwards through replace index
+                        reverse_count -= 1
                 else:
                     break
 
@@ -161,19 +171,22 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         if selected_region != None:
             # Replace and show replaced instance
             replaced += 1
-            self.view.show(selected_region)
+            self.view.show(selected_region.begin())
             self.view.replace(self.edit, selected_region, replace[selection_index])
         return replaced
 
     def apply(self, pattern):
+        # Initialize replacement variables
+        regions = []
+        flags = 0
+        replaced = 0
+
+        # Grab pattern definitions
         find = pattern['find']
         replace = pattern['replace']
         greedy = bool(pattern['greedy'])
         case = bool(pattern['case'])
         scope_filter = pattern['scope_filter'] if 'scope_filter' in pattern else []
-        regions = []
-        flags = 0
-        replaced = 0
 
         # Ignore Case?
         if not case:
@@ -185,7 +198,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Where there any regions found?
         if len(regions) > 0:
-            # Greedy or non-greedy search?
+            # Greedy or non-greedy search? Get replaced instances.
             if greedy:
                 replaced = self.greedy_replace(find, extractions, regions, scope_filter)
             else:
