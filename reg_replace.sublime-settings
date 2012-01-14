@@ -34,5 +34,12 @@
 		}
 	},
 
-	"results_in_panel": false
+	// Show replace results in panel
+	"results_in_panel": false,
+
+	// Color? (scope)
+	"find_highlight_color": "invalid",
+
+	// Highlight style? (outline|solid|underline)
+	"find_highlight_style": "outline"
 }

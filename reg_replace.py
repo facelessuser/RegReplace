@@ -8,8 +8,20 @@ import sublime
 import sublime_plugin
 
 DEFAULT_SHOW_PANEL = False
+DEFAULT_HIGHLIGHT_COLOR = "invalid"
+DEFAULT_HIGHLIGHT_STYLE = "outline"
 rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
+def underline(regions):
+    # Convert to empty regions
+    new_regions = []
+    for region in regions:
+        start = region.begin()
+        end = region.end()
+        while start < end:
+            new_regions.append(sublime.Region(start))
+            start += 1
+    return new_regions
 
 class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run_sequence(self, value):
@@ -33,6 +45,63 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
 
 
 class RegReplaceCommand(sublime_plugin.TextCommand):
+    handshake = None
+
+    def forget_handshake(self):
+        # Forget current view
+        self.handshake = None
+        self.clear_highlights()
+
+    def replace_prompt(self):
+        # Ask if replacements are desired
+        self.view.window().show_input_panel(
+            "Replace targets? (yes | no):",
+            "yes",
+            self.run_replace,
+            None,
+            self.forget_handshake
+        )
+
+    def run_replace(self, answer):
+        # Do we want to replace
+        if answer.strip().lower() != "yes":
+            self.forget_handshake()
+            return
+
+        # See if we know this view
+        window = sublime.active_window()
+        view = window.active_view() if window != None else None
+        if view != None:
+            if self.handshake != None and self.handshake == view.id():
+                self.forget_handshake()
+                # re-run command to actually replace targets
+                view.run_command('reg_replace', {'replacements': self.replacements})
+        else:
+            self.forget_handshake()
+
+    def set_highlights(self):
+        # Process highlight style
+        style = rrsettings.get("find_highlight_style", DEFAULT_HIGHLIGHT_STYLE)
+        highlight_style = 0
+        if style == "outline":
+            highlight_style = sublime.DRAW_OUTLINED
+        elif style == "underline":
+            self.highlight_regions = underline(self.highlight_regions)
+            highlight_style = sublime.DRAW_EMPTY_AS_OVERWRITE
+
+        # higlight all of the found regions
+        self.view.erase_regions('RegReplace')
+        self.view.add_regions(
+            'RegReplace',
+            self.highlight_regions,
+            rrsettings.get('find_highlight_color', DEFAULT_HIGHLIGHT_COLOR),
+            highlight_style
+        )
+
+    def clear_highlights(self):
+        # Clear all highlighted regions
+        self.view.erase_regions('RegReplace')
+
     def print_results_status_bar(self, text):
         sublime.status_message(text)
 
@@ -114,9 +183,13 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Does the scope qualify?
             qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
             if qualify:
-                # Apply replace
                 replaced += 1
-                self.view.replace(self.edit, region, replace[count])
+                if self.find_only:
+                    # If "find only", just track regions
+                    self.highlight_regions.append(region)
+                else:
+                    # Apply replace
+                    self.view.replace(self.edit, region, replace[count])
             count -= 1
         return replaced
 
@@ -169,10 +242,15 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Did we find a suitable region?
         if selected_region != None:
-            # Replace and show replaced instance
+            # Show Instance
             replaced += 1
             self.view.show(selected_region.begin())
-            self.view.replace(self.edit, selected_region, replace[selection_index])
+            if self.find_only:
+                # If "find only", just track regions
+                self.highlight_regions.append(selected_region)
+            else:
+                # Apply replace
+                self.view.replace(self.edit, selected_region, replace[selection_index])
         return replaced
 
     def apply(self, pattern):
@@ -205,7 +283,19 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 replaced = self.non_greedy_replace(find, extractions, regions, scope_filter)
         return replaced
 
-    def run(self, edit, replacements=[]):
+    def run(self, edit, replacements=[], find_only=False, clear=False):
+        self.find_only = find_only
+        self.highlight_regions = []
+        self.replacements = replacements
+
+        # Clear regions and exit
+        if clear:
+            self.clear_highlights()
+            return
+
+        # Establish new run
+        self.handshake = self.view.id()
+
         # Is the sequence empty?
         if len(replacements) > 0:
             replace_list = rrsettings.get('replacements', {})
@@ -220,8 +310,13 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 if replacement in replace_list:
                     results += result_template % (replacement, self.apply(replace_list[replacement]))
 
-            # Report results
-            if panel_display:
-                self.print_results_panel(results)
+            # Higlight regions
+            if self.find_only:
+                self.set_highlights()
+                self.replace_prompt()
             else:
-                self.print_results_status_bar(results)
+                # Report results
+                if panel_display:
+                    self.print_results_panel(results)
+                else:
+                    self.print_results_status_bar(results)

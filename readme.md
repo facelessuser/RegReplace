@@ -5,6 +5,7 @@ Reg Replace is a plugin for Sublime Text 2 that allows the creating of commands 
 - You can download or clone directly and drop into your Sublime Text 2 packages directory (plugin folder must be named RegReplace)
 
 # Usage
+## Create Find and Replace Sequences
 To use, replacements must be defined in the reg_replace.sublime-settings file.
 
     // Required parameters:
@@ -53,6 +54,23 @@ You can also bind a replacement command to a shortcut.
 
 If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.
 
+## View Without Replacing
+If you would simply like to view what the sequence would fine without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
+
+Just add the "find_only" argument and set it to true.
+
+    {
+        "caption": "Reg Replace: Remove Trailing Spaces",
+        "command": "reg_replace",
+        "args": {"replacements": ["remove_trailing_spaces"], "find_only": true}
+    },
+
+A prompt will appear allowing you to replace the highlighted regions.  Regions will be cleared on cancel.
+
+If for any reason the highlights do not get cleared, you can simply run the "RegReplace: Clear Highlights" command from the command palette.
+
+Highlight color and style can be changed in the settings file.
+
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
 
@@ -67,6 +85,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+#Version 0.3
+- Allow option for highlighting find targets without replacing. Show prompt for replacing after highlighting.
+- Add clear command to allow clearing of all highlights if for any reason view looses focus and highlights aren't cleared on cancel.
 
 #Version 0.2
 - "greedy" and "case" parameters are now optional and set to "true" by default

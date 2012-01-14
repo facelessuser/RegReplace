@@ -4,6 +4,12 @@
 		"caption": "Reg Replace: RegEx Input Sequencer",
 		"command": "reg_replace_input"
 	},
+	// Clear all find highlights
+	{
+		"caption": "Reg Replace: Clear Highlights",
+		"command": "reg_replace",
+		"args": {"clear": true}
+	},
 	// Examples commands.
 	{
 		"caption": "Reg Replace: HTML5 Remove Deprecated Type Attr",
