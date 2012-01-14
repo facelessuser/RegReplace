@@ -12,6 +12,7 @@ DEFAULT_HIGHLIGHT_COLOR = "invalid"
 DEFAULT_HIGHLIGHT_STYLE = "outline"
 rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
+
 def underline(regions):
     # Convert to empty regions
     new_regions = []
@@ -22,6 +23,7 @@ def underline(regions):
             new_regions.append(sublime.Region(start))
             start += 1
     return new_regions
+
 
 class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run_sequence(self, value):
