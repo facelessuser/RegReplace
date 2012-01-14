@@ -27,13 +27,20 @@ def underline(regions):
 
 class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run_sequence(self, value):
+        find_only = False
+
+        # Parse find only
+        if value.startswith("?:"):
+            value = value.lstrip("?:")
+            find_only = True
+
         # Parse returned regex sequence
         sequence = [x.strip() for x in value.split(',')]
         view = self.window.active_view()
 
         # Execute sequence
         if view != None:
-            view.run_command('reg_replace', {'replacements': sequence})
+            view.run_command('reg_replace', {'replacements': sequence, 'find_only': find_only})
 
     def run(self):
         # Display RegReplace input panel for on the fly regex sequences
@@ -264,6 +271,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         # Grab pattern definitions
         find = pattern['find']
         replace = pattern['replace']
+        literal = bool(pattern['literal']) if 'literal' in pattern else False
         greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
         scope_filter = pattern['scope_filter'] if 'scope_filter' in pattern else []
@@ -271,6 +279,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         # Ignore Case?
         if not case:
             flags |= sublime.IGNORECASE
+
+        # Literal find?
+        if literal:
+            flags |= sublime.LITERAL
 
         # Find and format replacements
         extractions = []

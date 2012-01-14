@@ -11,8 +11,11 @@ To use, replacements must be defined in the reg_replace.sublime-settings file.
     // Required parameters:
     //     find:    Regex description of what you would like to target.
     //     replace: description of what you would like to replace target with.
-    //              Variables are okay and are done by escaping the selection number \\1 etc.
+    //              Variables are okay for non-literal searches and are done by escaping 
+    //              the selection number \\1 etc.
     // Optional parameters:
+    //     literal:      Boolean setting to define whether the find and replace is literal or not.
+    //                   Default is false.
     //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
     //     case:         Boolean defining case sensitivity.  True equals sensitive. Defualt is true.
     //     scope_filter: an array of scope qualifiers for the match.
@@ -52,10 +55,10 @@ You can also bind a replacement command to a shortcut.
         "args": {"replacements": ["remove_trailing_spaces"]}
     }
 
-If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.
+If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.  If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.
 
 ## View Without Replacing
-If you would simply like to view what the sequence would fine without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
+If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
 
 Just add the "find_only" argument and set it to true.
 
@@ -86,12 +89,16 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#Version 0.3
+# Version 0.4
+- Add support for "literal" boolean parameter for literal find and replaces
+- Allow the Regex Input Sequencer panel to highlight only by preceding the sequence with "?:"
+
+# Version 0.3
 - Allow option for highlighting find targets without replacing. Show prompt for replacing after highlighting.
 - Add clear command to allow clearing of all highlights if for any reason view loses focus and highlights aren't cleared on cancel.
 
-#Version 0.2
+# Version 0.2
 - "greedy" and "case" parameters are now optional and set to "true" by default
 
-#Version 0.1
+# Version 0.1
 - Initial release
