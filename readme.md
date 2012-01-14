@@ -88,7 +88,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #Version 0.3
 - Allow option for highlighting find targets without replacing. Show prompt for replacing after highlighting.
-- Add clear command to allow clearing of all highlights if for any reason view looses focus and highlights aren't cleared on cancel.
+- Add clear command to allow clearing of all highlights if for any reason view loses focus and highlights aren't cleared on cancel.
 
 #Version 0.2
 - "greedy" and "case" parameters are now optional and set to "true" by default
