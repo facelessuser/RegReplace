@@ -1,9 +1,10 @@
 // Required parameters:
 //     find:    Regex description of what you would like to target.
-//     replace: description of what you would like to replace target with.
-//              Variables are okay for non-literal searches and are done by escaping 
-//              the selection number \\1 etc.
+//
 // Optional parameters:
+//     replace:      description of what you would like to replace target with.
+//                   Variables are okay for non-literal searches and are done by escaping 
+//                   the selection number \\1 etc.  Default value is "" (empty string)
 //     literal:      Boolean setting to define whether the find and replace is literal or not.
 //                   Default is false.
 //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.

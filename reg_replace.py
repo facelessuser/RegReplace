@@ -6,6 +6,7 @@ Copyright (c) 2011 Isaac Muse <isaacmuse@gmail.com>
 
 import sublime
 import sublime_plugin
+import re
 
 DEFAULT_SHOW_PANEL = False
 DEFAULT_HIGHLIGHT_COLOR = "invalid"
@@ -28,11 +29,21 @@ def underline(regions):
 class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run_sequence(self, value):
         find_only = False
+        action = None
 
-        # Parse find only
-        if value.startswith("?:"):
-            value = value.lstrip("?:")
-            find_only = True
+        # Parse Input
+        matches = re.match(r"(\?)?([\w\W]*):([\w\W]*)", value)
+        if matches != None:
+            # Sequence
+            value = matches.group(3)
+
+            # Find Only?
+            if matches.group(1) == "?":
+                find_only = True
+            
+            # Action?
+            if matches.group(2) != '':
+                action = matches.group(2)
 
         # Parse returned regex sequence
         sequence = [x.strip() for x in value.split(',')]
@@ -40,7 +51,10 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
 
         # Execute sequence
         if view != None:
-            view.run_command('reg_replace', {'replacements': sequence, 'find_only': find_only})
+            view.run_command(
+                'reg_replace',
+                {'replacements': sequence, 'find_only': find_only, 'action': action}
+            )
 
     def run(self):
         # Display RegReplace input panel for on the fly regex sequences
@@ -84,7 +98,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             if self.handshake != None and self.handshake == view.id():
                 self.forget_handshake()
                 # re-run command to actually replace targets
-                view.run_command('reg_replace', {'replacements': self.replacements})
+                view.run_command(
+                    'reg_replace',
+                    {'replacements': self.replacements, "action": self.action}
+                )
         else:
             self.forget_handshake()
 
@@ -95,14 +112,14 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         if style == "outline":
             highlight_style = sublime.DRAW_OUTLINED
         elif style == "underline":
-            self.highlight_regions = underline(self.highlight_regions)
+            self.target_regions = underline(self.target_regions)
             highlight_style = sublime.DRAW_EMPTY_AS_OVERWRITE
 
         # higlight all of the found regions
         self.view.erase_regions('RegReplace')
         self.view.add_regions(
             'RegReplace',
-            self.highlight_regions,
+            self.target_regions,
             rrsettings.get('find_highlight_color', DEFAULT_HIGHLIGHT_COLOR),
             highlight_style
         )
@@ -133,6 +150,13 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         view.end_edit(edit)
         view.set_read_only(True)
         view.sel().clear()
+
+    def perform_action(self, action):
+        if action == "fold":
+            self.view.fold(self.target_regions)
+        elif action == "unfold":
+            for region in self.target_regions:
+                self.view.unfold(region)
 
     def qualify_by_scope(self, region, pattern):
         for entry in pattern:
@@ -193,9 +217,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
             if qualify:
                 replaced += 1
-                if self.find_only:
-                    # If "find only", just track regions
-                    self.highlight_regions.append(region)
+                if self.find_only or self.action != None:
+                    # If "find only" or replace action is overridden, just track regions
+                    self.target_regions.append(region)
                 else:
                     # Apply replace
                     self.view.replace(self.edit, region, replace[count])
@@ -254,9 +278,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Show Instance
             replaced += 1
             self.view.show(selected_region.begin())
-            if self.find_only:
-                # If "find only", just track regions
-                self.highlight_regions.append(selected_region)
+            if self.find_only or self.action != None:
+                # If "find only" or replace action is overridden, just track regions
+                self.target_regions.append(selected_region)
             else:
                 # Apply replace
                 self.view.replace(self.edit, selected_region, replace[selection_index])
@@ -270,7 +294,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Grab pattern definitions
         find = pattern['find']
-        replace = pattern['replace']
+        replace = pattern['replace'] if 'replace' in pattern else ''
         literal = bool(pattern['literal']) if 'literal' in pattern else False
         greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
@@ -297,9 +321,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 replaced = self.non_greedy_replace(find, extractions, regions, scope_filter)
         return replaced
 
-    def run(self, edit, replacements=[], find_only=False, clear=False):
+    def run(self, edit, replacements=[], find_only=False, clear=False, action=None):
         self.find_only = find_only
-        self.highlight_regions = []
+        self.action = action
+        self.target_regions = []
         self.replacements = replacements
 
         # Clear regions and exit
@@ -329,6 +354,11 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.set_highlights()
                 self.replace_prompt()
             else:
+                # Perform action
+                if action != None:
+                    self.view.erase_regions('RegReplace')
+                    self.perform_action(action)
+
                 # Report results
                 if panel_display:
                     self.print_results_panel(results)

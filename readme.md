@@ -11,10 +11,11 @@ To use, replacements must be defined in the reg_replace.sublime-settings file.
 
     // Required parameters:
     //     find:    Regex description of what you would like to target.
-    //     replace: description of what you would like to replace target with.
-    //              Variables are okay for non-literal searches and are done by escaping 
-    //              the selection number \\1 etc.
+    //
     // Optional parameters:
+    //     replace:      description of what you would like to replace target with.
+    //                   Variables are okay for non-literal searches and are done by escaping 
+    //                   the selection number \\1 etc.  Default value is "" (empty string)
     //     literal:      Boolean setting to define whether the find and replace is literal or not.
     //                   Default is false.
     //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
@@ -56,7 +57,7 @@ You can also bind a replacement command to a shortcut.
         "args": {"replacements": ["remove_trailing_spaces"]}
     }
 
-If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.  If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.
+If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.  If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.  Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence ```fold:```.  If you would like to highlight only and then optionally perform action you can precede the sequence like this ```?fold:```.
 
 ## View Without Replacing
 If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
@@ -75,6 +76,24 @@ If for any reason the highlights do not get cleared, you can simply run the "Reg
 
 Highlight color and style can be changed in the settings file.
 
+## Override Actions
+If instead of replacing you would like to do something else, you can override the action.
+
+    {
+        "caption": "Reg Replace: Fold HTML Comments",
+        "command": "reg_replace",
+        "args": {"replacements": ["remove_html_comments"], "action": "fold"}
+    },
+    {
+        "caption": "Reg Replace: Unfold HTML Comments",
+        "command": "reg_replace",
+        "args": {"replacements": ["remove_html_comments"], "action": "unfold"}
+    },
+
+###Supported override actions:
+- fold
+- unfold
+
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
 
@@ -89,6 +108,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 0.5
+- Make replace an optional parameter defaulted to "" (empty string)
+- Allow override actions to use instead of replace: fold and unfold
 
 # Version 0.4
 - Add support for "literal" boolean parameter for literal find and replaces
