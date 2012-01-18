@@ -11,6 +11,7 @@ import re
 DEFAULT_SHOW_PANEL = False
 DEFAULT_HIGHLIGHT_COLOR = "invalid"
 DEFAULT_HIGHLIGHT_STYLE = "outline"
+DEFAULT_MULTI_PASS_MAX_SWEEP = 100
 rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
 
@@ -30,9 +31,10 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run_sequence(self, value):
         find_only = False
         action = None
+        multi_pass = False
 
         # Parse Input
-        matches = re.match(r"(\?)?([\w\W]*):([\w\W]*)", value)
+        matches = re.match(r"(\?)?([^\+][\w\W]*|\+?):([\w\W]*)", value)
         if matches != None:
             # Sequence
             value = matches.group(3)
@@ -40,9 +42,13 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
             # Find Only?
             if matches.group(1) == "?":
                 find_only = True
-            
+
+            # Multi-Pass?
+            if matches.group(2) == "+":
+                multi_pass = True
+
             # Action?
-            if matches.group(2) != '':
+            elif matches.group(2) != '':
                 action = matches.group(2)
 
         # Parse returned regex sequence
@@ -53,7 +59,12 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
         if view != None:
             view.run_command(
                 'reg_replace',
-                {'replacements': sequence, 'find_only': find_only, 'action': action}
+                {
+                    'replacements': sequence,
+                    'find_only': find_only,
+                    'action': action,
+                    'multi_pass': multi_pass
+                }
             )
 
     def run(self):
@@ -100,7 +111,11 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 # re-run command to actually replace targets
                 view.run_command(
                     'reg_replace',
-                    {'replacements': self.replacements, "action": self.action}
+                    {
+                        'replacements': self.replacements,
+                        'action': self.action,
+                        'multi_pass': self.multi_pass
+                    }
                 )
         else:
             self.forget_handshake()
@@ -152,11 +167,15 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         view.sel().clear()
 
     def perform_action(self, action):
+        status = True
         if action == "fold":
             self.view.fold(self.target_regions)
         elif action == "unfold":
             for region in self.target_regions:
                 self.view.unfold(region)
+        else:
+            status = False
+        return status
 
     def qualify_by_scope(self, region, pattern):
         for entry in pattern:
@@ -321,11 +340,12 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 replaced = self.non_greedy_replace(find, extractions, regions, scope_filter)
         return replaced
 
-    def run(self, edit, replacements=[], find_only=False, clear=False, action=None):
+    def run(self, edit, replacements=[], find_only=False, clear=False, action=None, multi_pass=False):
         self.find_only = find_only
         self.action = action
         self.target_regions = []
         self.replacements = replacements
+        self.multi_pass = multi_pass
 
         # Clear regions and exit
         if clear:
@@ -344,10 +364,36 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             results = ""
 
             # Walk the sequence
-            for replacement in replacements:
-                # Is replacement available in the list?
-                if replacement in replace_list:
-                    results += result_template % (replacement, self.apply(replace_list[replacement]))
+            # Multi-pass only if requested and will be occuring
+            if multi_pass and not find_only and action == None:
+                # Multi-pass initialization
+                current_replacements = 0
+                total_replacements = 0
+                count = 0
+                max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
+
+                # Sweep file until all instances are found
+                # Avoid infinite loop and break out if sweep threshold is met
+                while count < max_sweeps:
+                    count += 1
+                    current_replacements = 0
+
+                    for replacement in replacements:
+                        # Is replacement available in the list?
+                        if replacement in replace_list:
+                            current_replacements = self.apply(replace_list[replacement])
+                    total_replacements += current_replacements
+
+                    # No more regions found?
+                    if current_replacements == 0:
+                        break
+                # Record total regions found
+                results += "Regions Found: %d regions;" % total_replacements
+            else:
+                for replacement in replacements:
+                    # Is replacement available in the list?
+                    if replacement in replace_list:
+                        results += result_template % (replacement, self.apply(replace_list[replacement]))
 
             # Higlight regions
             if self.find_only:
@@ -357,7 +403,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 # Perform action
                 if action != None:
                     self.view.erase_regions('RegReplace')
-                    self.perform_action(action)
+                    if not self.perform_action(action):
+                        results = "Error: Bad Action!"
 
                 # Report results
                 if panel_display:

@@ -41,6 +41,9 @@
 	// Show replace results in panel
 	"results_in_panel": false,
 
+	// Maximum sweep threshold for multi-pass
+	"multi_pass_max_sweeps": 100,
+
 	// Color? (scope)
 	"find_highlight_color": "invalid",
 

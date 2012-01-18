@@ -57,7 +57,7 @@ You can also bind a replacement command to a shortcut.
         "args": {"replacements": ["remove_trailing_spaces"]}
     }
 
-If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.  If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.  Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence ```fold:```.  If you would like to highlight only and then optionally perform action you can precede the sequence like this ```?fold:```.
+If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.  If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.  Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence ```fold:```.  If you would like to highlight only and then optionally perform action you can precede the sequence like this ```?fold:```. If multiple sweeps are needed to find and replace all targets, you can use multi-pass (explained later) using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
 ## View Without Replacing
 If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
@@ -94,6 +94,17 @@ If instead of replacing you would like to do something else, you can override th
 - fold
 - unfold
 
+## Multi-Pass
+Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
+
+Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with ```find_only```.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed mult-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
+
+    {
+        "caption": "Reg Replace: Remove Trailing Spaces",
+        "command": "reg_replace",
+        "args": {"replacements": ["example"], "multi_pass": true}
+    },
+
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
 
@@ -108,6 +119,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 0.6
+- Add multi-pass sweeps
+- Report bad actions
 
 # Version 0.5
 - Make replace an optional parameter defaulted to "" (empty string)
