@@ -58,7 +58,7 @@
 		// Delete a comment or comment blocks
 		"remove_comments": {
 			"scope": "comment",
-			"find" : "(([^\\n\\r]*)(\\r\\n|\\n))*([^\\n\\r]+)",
+			"find" : "([^\\n\\r]+)",
 			"replace": "",
 			"greedy_replace": true
 		}
