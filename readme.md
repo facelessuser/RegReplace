@@ -9,6 +9,8 @@ Reg Replace is a plugin for Sublime Text 2 that allows the creating of commands 
 ## Create Find and Replace Sequences
 To use, replacements must be defined in the reg_replace.sublime-settings file.
 
+There are two kinds of definitions.  The first uses regex to find regions, and then you can use scopes to qualify the regions before applying the replace.
+
     // Required parameters:
     //     find:    Regex description of what you would like to target.
     //
@@ -35,6 +37,30 @@ To use, replacements must be defined in the reg_replace.sublime-settings file.
                 "case": false
             },
 
+The second kind of definition allows you to search for a scope type and then apply regex to the regions to filter the matches and make replaces.
+
+    // Required parameters:
+    //     scope:    scope you would like to target
+    //
+    // Optional parameters:
+    //     find:            regex description that is to be applied to the scope 
+    //                      to qualify.  Also can be used to find and replace
+    //                      within the found scope.  Default is None.
+    //     replace:         description of what you would like to replace within the scope.
+    //                      Default value is "\\0".
+    //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
+    //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
+    //     case:            Boolean setting to define whether regex search is case sensitive. Default is true.
+    // Delete a comment or comment block
+    {
+            "replacements": {
+                "remove_comments": {
+                    "scope": "comment",
+                    "find" : "(([^\\n\\r]*)(\\r\\n|\\n))*([^\\n\\r]+)",
+                    "replace": "",
+                    "greedy_replace": true
+                }
+
 Once you have replacements defined, there are a number of ways you can run a sequence.  One way is to create a command in the command palette by editing/creating a Default.sublime-commands in your User folder and adding your command.  RegReplace comes with its own Default.sublime-commands file and includes some examples showing simple replacement commands and an example showing the chaining of multiple replacements.
 
     {
@@ -57,8 +83,6 @@ You can also bind a replacement command to a shortcut.
         "args": {"replacements": ["remove_trailing_spaces"]}
     }
 
-If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.  If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.  Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence ```fold:```.  If you would like to highlight only and then optionally perform action you can precede the sequence like this ```?fold:```. If multiple sweeps are needed to find and replace all targets, you can use multi-pass (explained later) using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
-
 ## View Without Replacing
 If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
 
@@ -77,7 +101,7 @@ If for any reason the highlights do not get cleared, you can simply run the "Reg
 Highlight color and style can be changed in the settings file.
 
 ## Override Actions
-If instead of replacing you would like to do something else, you can override the action.
+If instead of replacing you would like to do something else, you can override the action. Actions are defined in commands by setting the ```action``` parameter.  Some actions may require additional parameters be set in the ```options``` parameter.  See examples below.
 
     {
         "caption": "Reg Replace: Fold HTML Comments",
@@ -89,10 +113,65 @@ If instead of replacing you would like to do something else, you can override th
         "command": "reg_replace",
         "args": {"replacements": ["remove_html_comments"], "action": "unfold"}
     },
+    {
+        "caption": "Reg Replace: Mark Example",
+        "command": "reg_replace",
+        "args": {
+            "replacements": ["example"],
+            "action": "mark",
+            "options": {"key": "name", "scope": "invalid", "underline"}
+        }
+    },
+    {
+        "caption": "Reg Replace: Unmark Example",
+        "command": "reg_replace",
+        "args": {
+            "action": "unmark",
+            "options": {"key": "name"}
+        }
+    },
 
 ###Supported override actions:
 - fold
 - unfold
+- mark
+- unmark
+
+### Fold Override
+action = fold
+
+This action overides the folds the given find target.  This action has no parameters.
+
+### Unfold Override
+action = unfold
+
+This action unfolds the all regions that match the given find target.  This action has no parameters
+
+### Mark Override
+action = mark
+
+This action highlights the regions of the given find target.
+
+####Required Parameters:
+- key = unique name for highlighted regions
+
+####Optional Parameters:
+- scope = scope name to use as the color. Default is ```invalid```
+- style = highlight style (solid|underline|outline). Default is ```outline```.
+
+####Input Sequencer order:
+- ```mark=key,scope,style:replacements```
+
+### Unmark Override
+action = unmark
+
+This action removes the highlights of a given ```key```.  Replacements can be ommitted with this command.
+
+####Required Parameters:
+- key = unique name of highlighted regions to clear
+
+####Input Sequencer order:
+- ```unmark=key,scope,style:``` (replacements do not need to be defined)
 
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
@@ -104,6 +183,18 @@ Multi-pass cannot be paired with override actions (it will be ignored), but it c
         "command": "reg_replace",
         "args": {"replacements": ["example"], "multi_pass": true}
     },
+
+## Regex Input Sequencer
+If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.
+
+If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.  This will highlight the regions it can find to give you an idea of what regions will be targeted.  Afterwards, a panel will pop up allowing you to replace if you choose.
+
+Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence ```fold:```.  If you would like to highlight the selections only and then optionally perform the replace/action, you can precede the sequence like this ```?fold:```.
+
+Some actions might have parameters.  In this case, you can follow the actions with an equal sign and the paramters separated by commas. ```mark=key,string,outline:```.  If some parameters are optional, you can leave them out: ```?mark=key,string``` or ```?mark=key,,outline:```.  The important thing is that the parameters are in the order outlined by the command.
+
+If multiple sweeps are needed to find and replace all targets, you can use multi-pass (explained later) using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
+
 
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
@@ -119,6 +210,15 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 0.8
+- New "mark" and "unmark" actions
+- Return error dialog showing regex issue
+- Add support for scope search with regex find and replace in scope region
+- Smarter folding of regex regions for "fold" action
+- Small tweak to non-greedy algorithm
+- Change default of optional replace parameter to "\\\\0"; do not delete by default, leave unchanged by default.
+- Allow spaces in the "Regex Input Sequencer"
 
 # Version 0.7
 - Replace command examples now commented out by default

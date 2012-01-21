@@ -1,10 +1,13 @@
+////////////////////////////////
+// Regex with scope qualifiers//
+////////////////////////////////
 // Required parameters:
 //     find:    Regex description of what you would like to target.
 //
 // Optional parameters:
 //     replace:      description of what you would like to replace target with.
 //                   Variables are okay for non-literal searches and are done by escaping 
-//                   the selection number \\1 etc.  Default value is "" (empty string)
+//                   the selection number \\1 etc.  Default value is "\\0".
 //     literal:      Boolean setting to define whether the find and replace is literal or not.
 //                   Default is false.
 //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
@@ -14,6 +17,22 @@
 //                       - Entire match of scope qualifies match: !scope.name
 //                       - Any instance of scope disqualifies match: -scope.name
 //                       - Entire match of scope disqualifies match: -!scope.name
+
+//////////////////////////////////////////////////////////////
+// Scope search with regex qualifier (also find and replace)//
+//////////////////////////////////////////////////////////////
+// Required parameters:
+//     scope:    scope you would like to target
+//
+// Optional parameters:
+//     find:            regex description that is to be applied to the scope 
+//                      to qualify.  Also can be used to find and replace
+//                      within the found scope.  Default is None.
+//     replace:         description of what you would like to replace within the scope.
+//                      Default value is "\\0".
+//     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
+//     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
+//     case:            Boolean setting to define whether regex search is case sensitive. Default is true.
 {
 	"replacements": {
 		// Example replacements
@@ -35,6 +54,13 @@
 			"replace": "",
 			"greedy": true,
 			"case": true
+		},
+		// Delete a comment or comment blocks
+		"remove_comments": {
+			"scope": "comment",
+			"find" : "(([^\\n\\r]*)(\\r\\n|\\n))*([^\\n\\r]+)",
+			"replace": "",
+			"greedy_replace": true
 		}
 	},
 
