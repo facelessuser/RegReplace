@@ -51,7 +51,9 @@ The second kind of definition allows you to search for a scope type and then app
     //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
     //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
     //     case:            Boolean setting to define whether regex search is case sensitive. Default is true.
-    // Delete a comment or comment block
+    //     multi_pass_regex:Boolean setting to define whether there will be multiple sweeps on the scope region
+    //                      region to find and replace all instances of the regex, when regex cannot be formatted
+    //                      to find all instances in a greedy fashion.  Default is false.
     {
             "replacements": {
                 "remove_comments": {
@@ -210,6 +212,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 0.9
+- Allow multipass on a scope region with regex with new "mult_pass_regex" parameter
 
 # Version 0.8
 - New "mark" and "unmark" actions

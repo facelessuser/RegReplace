@@ -9,10 +9,10 @@ import sublime_plugin
 import re
 
 DEFAULT_SHOW_PANEL = False
-DEFAULT_HIGHLIGHT_COLOR = "invalid"
-DEFAULT_HIGHLIGHT_STYLE = "outline"
+DEFAULT_HIGHLIGHT_COLOR = 'invalid'
+DEFAULT_HIGHLIGHT_STYLE = 'outline'
 DEFAULT_MULTI_PASS_MAX_SWEEP = 100
-MODULE_NAME = "RegReplace"
+MODULE_NAME = 'RegReplace'
 rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
 
@@ -42,11 +42,11 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
             value = matches.group(3)
 
             # Find Only?
-            if matches.group(1) == "?":
+            if matches.group(1) == '?':
                 find_only = True
 
             # Multi-Pass?
-            if matches.group(2) == "+":
+            if matches.group(2) == '+':
                 multi_pass = True
 
             # Action?
@@ -56,7 +56,7 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
                 if params != None:
                     if params.group(2) != '' and params.group(2) != None:
                         # Mark options
-                        if params.group(1) == "mark":
+                        if params.group(1) == 'mark':
                             options['key'] = params.group(2).strip()
                             if params.group(3) != '' and params.group(3) != None:
                                 options['scope'] = params.group(3).strip()
@@ -64,7 +64,7 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
                                 options['style'] = params.group(4).strip()
                             action = params.group(1)
                         # Unmark options
-                        elif params.group(1) == "unmark":
+                        elif params.group(1) == 'unmark':
                             options['key'] = params.group(2)
                             action = params.group(1)
                 else:
@@ -91,8 +91,8 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run(self):
         # Display RegReplace input panel for on the fly regex sequences
         self.window.show_input_panel(
-            "Regex Sequence:",
-            "",
+            'Regex Sequence:',
+            '',
             self.run_sequence,
             None,
             None
@@ -110,8 +110,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
     def replace_prompt(self):
         # Ask if replacements are desired
         self.view.window().show_input_panel(
-            "Replace targets / perform action? (yes | no):",
-            "yes",
+            'Replace targets / perform action? (yes | no):',
+            'yes',
             self.run_replace,
             None,
             self.forget_handshake
@@ -119,7 +119,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
     def run_replace(self, answer):
         # Do we want to replace
-        if answer.strip().lower() != "yes":
+        if answer.strip().lower() != 'yes':
             self.forget_handshake()
             return
 
@@ -145,9 +145,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
     def set_highlights(self, key, style, color):
         # Process highlight style
         highlight_style = 0
-        if style == "outline":
+        if style == 'outline':
             highlight_style = sublime.DRAW_OUTLINED
-        elif style == "underline":
+        elif style == 'underline':
             self.target_regions = underline(self.target_regions)
             highlight_style = sublime.DRAW_EMPTY_AS_OVERWRITE
 
@@ -169,9 +169,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         for region in regions:
             offset = 0
             size = region.size()
-            if size > offset and self.view.substr(region.end() - 1) == "\n":
+            if size > offset and self.view.substr(region.end() - 1) == '\n':
                 offset += 1
-            if size > offset and self.view.substr(region.end() - offset - 1) == "\r":
+            if size > offset and self.view.substr(region.end() - offset - 1) == '\r':
                 offset += 1
             new_regions.append(sublime.Region(region.begin(), region.end() - offset))
         return new_regions
@@ -185,35 +185,35 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         view = window.get_output_panel('reg_replace_results')
 
         #Turn off stylings in panel
-        view.settings().set("draw_white_space", "none")
-        view.settings().set("draw_indent_guides", False)
-        view.settings().set("gutter", "none")
-        view.settings().set("line_numbers", False)
-        view.set_syntax_file("Packages/Text/Plain text.tmLanguage")
+        view.settings().set('draw_white_space', 'none')
+        view.settings().set('draw_indent_guides', False)
+        view.settings().set('gutter', 'none')
+        view.settings().set('line_numbers', False)
+        view.set_syntax_file('Packages/Text/Plain text.tmLanguage')
 
         # Show Results in read only panel and clear selection in panel
-        window.run_command("show_panel", {"panel": "output.reg_replace_results"})
+        window.run_command('show_panel', {'panel': 'output.reg_replace_results'})
         view.set_read_only(False)
         edit = view.begin_edit()
-        view.replace(edit, sublime.Region(0, view.size()), "RegReplace Results\n\n" + text)
+        view.replace(edit, sublime.Region(0, view.size()), 'RegReplace Results\n\n' + text)
         view.end_edit(edit)
         view.set_read_only(True)
         view.sel().clear()
 
     def perform_action(self, action, options={}):
         status = True
-        if action == "fold":
+        if action == 'fold':
             self.target_regions = self.ignore_ending_newlines(self.target_regions)
             self.view.fold(self.target_regions)
-        elif action == "unfold":
+        elif action == 'unfold':
             for region in self.target_regions:
                 self.view.unfold(region)
-        elif action == "mark":
+        elif action == 'mark':
             if 'key' in options:
                 color = options['scope'].strip() if 'scope' in options else DEFAULT_HIGHLIGHT_COLOR
                 style = options['style'].strip() if 'style' in options else DEFAULT_HIGHLIGHT_STYLE
                 self.set_highlights(options['key'].strip(), style, color)
-        elif action == "unmark":
+        elif action == 'unmark':
             if 'key' in options:
                 self.clear_highlights(options['key'].strip())
         else:
@@ -236,8 +236,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 end = region.end()
 
                 # Disqualify if entirely of scope
-                if entry.startswith("-!"):
-                    entry = entry.lstrip("-!")
+                if entry.startswith('-!'):
+                    entry = entry.lstrip('-!')
                     qualify = False
                     while pt < end:
                         if self.view.score_selector(pt, entry) == 0:
@@ -245,16 +245,16 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                             break
                         pt += 1
                 # Disqualify if one or more instances of scope
-                elif entry.startswith("-"):
-                    entry = entry.lstrip("-")
+                elif entry.startswith('-'):
+                    entry = entry.lstrip('-')
                     while pt < end:
                         if self.view.score_selector(pt, entry):
                             qualify = False
                             break
                         pt += 1
                 # Qualify if entirely of scope
-                elif entry.startswith("!"):
-                    entry = entry.lstrip("!")
+                elif entry.startswith('!'):
+                    entry = entry.lstrip('!')
                     while pt < end:
                         if self.view.score_selector(pt, entry) == 0:
                             qualify = False
@@ -349,12 +349,24 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.view.replace(self.edit, selected_region, replace[selection_index])
         return replaced
 
-    def greedy_scope_replace(self, regions, re_find, replace, greedy_replace):
+    def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
         total_replaced = 0
         try:
             for region in reversed(regions):
+                replaced = 0
                 string = self.view.substr(region)
-                extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
+                if multi and not self.find_only and self.action == None:
+                    multi_replaced = 0
+                    count = 0
+                    extraction = string
+                    while count < self.max_sweeps:
+                        count += 1
+                        extraction, multi_replaced = re.subn(re_find, replace, extraction) if greedy_replace else re.subn(re_find, replace, extraction, 1)
+                        if multi_replaced == 0:
+                            break
+                        replaced += multi_replaced
+                else:
+                    extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
                 if replaced > 0:
                     total_replaced += 1
                     if self.find_only or self.action != None:
@@ -367,7 +379,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         return total_replaced
 
-    def non_greedy_scope_replace(self, regions, re_find, replace, greedy_replace):
+    def non_greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
         # Initialize replace
         total_replaced = 0
         replaced = 0
@@ -383,7 +395,18 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         try:
             for region in regions:
                 string = self.view.substr(region)
-                extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
+                if multi and not self.find_only and self.action == None:
+                    multi_replaced = 0
+                    count = 0
+                    extraction = string
+                    while count < self.max_sweeps:
+                        count += 1
+                        extraction, multi_replaced = re.subn(re_find, replace, extraction) if greedy_replace else re.subn(re_find, replace, extraction, 1)
+                        if multi_replaced == 0:
+                            break
+                        replaced += multi_replaced
+                else:
+                    extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
                 if replaced > 0:
                     selected_region = region
                     selected_extraction = extraction
@@ -404,7 +427,18 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                     # And check if region contained after start of selection?
                     if reverse_count >= count and region.end() - 1 >= pt:
                         string = self.view.substr(region)
-                        extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
+                        if multi and not self.find_only and self.action == None:
+                            multi_replaced = 0
+                            count = 0
+                            extraction = string
+                            while count < self.max_sweeps:
+                                count += 1
+                                extraction, multi_replaced = re.subn(re_find, replace, extraction) if greedy_replace else re.subn(re_find, replace, extraction, 1)
+                                if multi_replaced == 0:
+                                    break
+                                replaced += multi_replaced
+                        else:
+                            extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
                         if replaced > 0:
                             selected_region = region
                             selected_extraction = extraction
@@ -434,10 +468,11 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         scope = pattern['scope']
         find = pattern['find'] if 'find' in pattern else None
-        replace = pattern['replace'] if 'replace' in pattern else "\\0"
+        replace = pattern['replace'] if 'replace' in pattern else '\\0'
         greedy_scope = bool(pattern['greedy_scope']) if 'greedy_scope' in pattern else True
         greedy_replace = bool(pattern['greedy_replace']) if 'greedy_replace' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
+        multi = bool(pattern['multi_pass_regex']) if 'multi_pass_regex' in pattern else False
         # literal = bool(pattern['literal']) if 'literal' in pattern else False
 
         if scope == None or scope == '':
@@ -457,9 +492,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
                 #Greedy Scope?
                 if greedy_scope:
-                    replaced = self.greedy_scope_replace(regions, re_find, replace, greedy_replace)
+                    replaced = self.greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
                 else:
-                    replaced = self.non_greedy_scope_replace(regions, re_find, replace, greedy_replace)
+                    replaced = self.non_greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
         else:
             if greedy_scope:
                 # Greedy scope; return all scopes
@@ -505,7 +540,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Grab pattern definitions
         find = pattern['find']
-        replace = pattern['replace'] if 'replace' in pattern else "\\0"
+        replace = pattern['replace'] if 'replace' in pattern else '\\0'
         literal = bool(pattern['literal']) if 'literal' in pattern else False
         greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
@@ -543,12 +578,13 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         self.replacements = replacements
         self.multi_pass = multi_pass
         self.options = options
+        self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
 
         # Clear regions and exit
         if clear:
             self.clear_highlights(MODULE_NAME)
             return
-        elif action == "unmark" and "key" in options:
+        elif action == 'unmark' and 'key' in options:
             self.perform_action(action, options)
 
         # Establish new run
@@ -557,10 +593,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         # Is the sequence empty?
         if len(replacements) > 0:
             replace_list = rrsettings.get('replacements', {})
-            panel_display = rrsettings.get("results_in_panel", DEFAULT_SHOW_PANEL)
-            result_template = "%s: %d regions;\n" if panel_display else "%s: %d regions; "
+            panel_display = rrsettings.get('results_in_panel', DEFAULT_SHOW_PANEL)
+            result_template = '%s: %d regions;\n' if panel_display else '%s: %d regions; '
             self.edit = edit
-            results = ""
+            results = ''
 
             # Walk the sequence
             # Multi-pass only if requested and will be occuring
@@ -569,11 +605,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 current_replacements = 0
                 total_replacements = 0
                 count = 0
-                max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
 
                 # Sweep file until all instances are found
                 # Avoid infinite loop and break out if sweep threshold is met
-                while count < max_sweeps:
+                while count < self.max_sweeps:
                     count += 1
                     current_replacements = 0
 
@@ -592,7 +627,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                     if current_replacements == 0:
                         break
                 # Record total regions found
-                results += "Regions Found: %d regions;" % total_replacements
+                results += 'Regions Found: %d regions;' % total_replacements
             else:
                 for replacement in replacements:
                     # Is replacement available in the list?
@@ -606,7 +641,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
             # Higlight regions
             if self.find_only:
-                style = rrsettings.get("find_highlight_style", DEFAULT_HIGHLIGHT_STYLE)
+                style = rrsettings.get('find_highlight_style', DEFAULT_HIGHLIGHT_STYLE)
                 color = rrsettings.get('find_highlight_color', DEFAULT_HIGHLIGHT_COLOR)
                 self.set_highlights(MODULE_NAME, style, color)
                 self.replace_prompt()
@@ -615,7 +650,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 if action != None:
                     self.clear_highlights(MODULE_NAME)
                     if not self.perform_action(action, options):
-                        results = "Error: Bad Action!"
+                        results = 'Error: Bad Action!'
 
                 # Report results
                 if panel_display:

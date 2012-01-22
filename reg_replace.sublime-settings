@@ -33,6 +33,9 @@
 //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
 //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
 //     case:            Boolean setting to define whether regex search is case sensitive. Default is true.
+//     multi_pass_regex:Boolean setting to define whether there will be multiple sweeps on the scope region
+//                      region to find and replace all instances of the regex, when regex cannot be formatted
+//                      to find all instances in a greedy fashion.  Default is false.
 {
 	"replacements": {
 		// Example replacements
