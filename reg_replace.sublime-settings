@@ -30,6 +30,8 @@
 //                      within the found scope.  Default is None.
 //     replace:         description of what you would like to replace within the scope.
 //                      Default value is "\\0".
+//     literal:         Boolean setting to define whether the find and replace is literal or not.
+//                      Default is false.
 //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
 //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
 //     case:            Boolean setting to define whether regex search is case sensitive. Default is true.

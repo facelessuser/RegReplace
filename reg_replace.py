@@ -52,7 +52,10 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
             # Action?
             elif matches.group(2) != '' and matches.group(2) != None:
                 # Mark or unmark: parse options?
-                params = re.match(r"^(unmark|mark)\s*=\s*([\w\s\.\-]*)\s*(?:,\s*([\w\s\.\-]*)\s*)?(?:,\s*([\w\s\.\-]*))?\s*", matches.group(2))
+                params = re.match(
+                    r"^(unmark|mark)\s*=\s*([\w\s\.\-]*)\s*(?:,\s*([\w\s\.\-]*)\s*)?(?:,\s*([\w\s\.\-]*))?\s*",
+                    matches.group(2)
+                )
                 if params != None:
                     if params.group(2) != '' and params.group(2) != None:
                         # Mark options
@@ -203,17 +206,21 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
     def perform_action(self, action, options={}):
         status = True
         if action == 'fold':
+            # Ignore newlines at the end of the region; newlines okay in the middle of region
             self.target_regions = self.ignore_ending_newlines(self.target_regions)
             self.view.fold(self.target_regions)
         elif action == 'unfold':
+            # Unfold targeted regions
             for region in self.target_regions:
                 self.view.unfold(region)
         elif action == 'mark':
+            # Mark targeted regions
             if 'key' in options:
                 color = options['scope'].strip() if 'scope' in options else DEFAULT_HIGHLIGHT_COLOR
                 style = options['style'].strip() if 'style' in options else DEFAULT_HIGHLIGHT_STYLE
                 self.set_highlights(options['key'].strip(), style, color)
         elif action == 'unmark':
+            # Unmark targeted regions
             if 'key' in options:
                 self.clear_highlights(options['key'].strip())
         else:
@@ -349,24 +356,133 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.view.replace(self.edit, selected_region, replace[selection_index])
         return replaced
 
+    def apply_scope_regex(self, string, re_find, replace, greedy_replace, multi):
+        replaced = 0
+        extraction = string
+        if multi and not self.find_only and self.action == None:
+            extraction, replaced = self.apply_multi_pass_scope_regex(string, extraction, re_find, replace, greedy_replace)
+        else:
+            if greedy_replace:
+                extraction, replaced = re.subn(re_find, replace, string)
+            else:
+                extraction, replaced = re.subn(re_find, replace, string, 1)
+        return extraction, replaced
+
+    def apply_multi_pass_scope_regex(self, string, extraction, re_find, replace, greedy_replace):
+        multi_replaced = 0
+        count = 0
+        total_replaced = 0
+        while count < self.max_sweeps:
+            count += 1
+            if greedy_replace:
+                extraction, multi_replaced = re.subn(re_find, replace, extraction)
+            else:
+                extraction, multi_replaced = re.subn(re_find, replace, extraction, 1)
+            if multi_replaced == 0:
+                break
+            total_replaced += multi_replaced
+        return extraction, total_replaced
+
+    def greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
+        total_replaced = 0
+        for region in reversed(regions):
+            extraction = self.view.substr(region)
+            replaced = 0
+            try:
+                extraction.index(find)
+                replaced = 1
+                if greedy_replace:
+                    extraction = extraction.replace(find, replace)
+                else:
+                    extraction = extraction.replace(find, replace, 1)
+            except ValueError:
+                pass
+            if replaced > 0:
+                total_replaced += 1
+                if self.find_only or self.action != None:
+                    self.target_regions.append(region)
+                else:
+                    self.view.replace(self.edit, region, extraction)
+        return total_replaced
+
+    def non_greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
+        # Initialize replace
+        total_replaced = 0
+        replaced = 0
+        last_region = len(regions) - 1
+        selected_region = None
+        selected_extraction = None
+
+        # See if there is a cursor and get the first selections starting point
+        pt = self.get_sel_point()
+
+        # Intialize with first qualifying region for wrapping and the case of no cursor in view
+        count = 0
+        for region in regions:
+            extraction = self.view.substr(region)
+            replaced = 0
+            try:
+                extraction.index(find)
+                replaced = 1
+                if greedy_replace:
+                    extraction = extraction.replace(find, replace)
+                else:
+                    extraction = extraction.replace(find, replace, 1)
+            except ValueError:
+                pass
+            if replaced > 0:
+                selected_region = region
+                selected_extraction = extraction
+                break
+            else:
+                count += 1
+
+        # If regions were already swept till the end, skip calculation relative to cursor
+        if selected_region != None and count < last_region and pt != None:
+            # Try and find the first qualifying match contained withing the first selection or after
+            reverse_count = last_region
+            for region in reversed(regions):
+                # Make sure we are not checking previously checked regions
+                # And check if region contained after start of selection?
+                if reverse_count >= count and region.end() - 1 >= pt:
+                    extraction = self.view.substr(region)
+                    replaced = 0
+                    try:
+                        extraction.index(find)
+                        replaced = 1
+                        if greedy_replace:
+                            extraction = extraction.replace(find, replace)
+                        else:
+                            extraction = extraction.replace(find, replace, 1)
+                    except ValueError:
+                        pass
+                    if replaced > 0:
+                        selected_region = region
+                        selected_extraction = extraction
+                    reverse_count -= 1
+                else:
+                    break
+
+        # Did we find a suitable region?
+        if selected_region != None:
+            # Show Instance
+            total_replaced += 1
+            self.view.show(selected_region.begin())
+            if self.find_only or self.action != None:
+                # If "find only" or replace action is overridden, just track regions
+                self.target_regions.append(selected_region)
+            else:
+                # Apply replace
+                self.view.replace(self.edit, selected_region, selected_extraction)
+        return total_replaced
+
     def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
         total_replaced = 0
         try:
             for region in reversed(regions):
                 replaced = 0
                 string = self.view.substr(region)
-                if multi and not self.find_only and self.action == None:
-                    multi_replaced = 0
-                    count = 0
-                    extraction = string
-                    while count < self.max_sweeps:
-                        count += 1
-                        extraction, multi_replaced = re.subn(re_find, replace, extraction) if greedy_replace else re.subn(re_find, replace, extraction, 1)
-                        if multi_replaced == 0:
-                            break
-                        replaced += multi_replaced
-                else:
-                    extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
+                extraction, replaced = self.apply_scope_regex(string, re_find, replace, greedy_replace, multi)
                 if replaced > 0:
                     total_replaced += 1
                     if self.find_only or self.action != None:
@@ -395,18 +511,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         try:
             for region in regions:
                 string = self.view.substr(region)
-                if multi and not self.find_only and self.action == None:
-                    multi_replaced = 0
-                    count = 0
-                    extraction = string
-                    while count < self.max_sweeps:
-                        count += 1
-                        extraction, multi_replaced = re.subn(re_find, replace, extraction) if greedy_replace else re.subn(re_find, replace, extraction, 1)
-                        if multi_replaced == 0:
-                            break
-                        replaced += multi_replaced
-                else:
-                    extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
+                extraction, replaced = self.apply_scope_regex(string, re_find, replace, greedy_replace, multi)
                 if replaced > 0:
                     selected_region = region
                     selected_extraction = extraction
@@ -427,18 +532,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                     # And check if region contained after start of selection?
                     if reverse_count >= count and region.end() - 1 >= pt:
                         string = self.view.substr(region)
-                        if multi and not self.find_only and self.action == None:
-                            multi_replaced = 0
-                            count = 0
-                            extraction = string
-                            while count < self.max_sweeps:
-                                count += 1
-                                extraction, multi_replaced = re.subn(re_find, replace, extraction) if greedy_replace else re.subn(re_find, replace, extraction, 1)
-                                if multi_replaced == 0:
-                                    break
-                                replaced += multi_replaced
-                        else:
-                            extraction, replaced = re.subn(re_find, replace, string) if greedy_replace else re.subn(re_find, replace, string, 1)
+                        extraction, replaced = self.apply_scope_regex(string, re_find, replace, greedy_replace, multi)
                         if replaced > 0:
                             selected_region = region
                             selected_extraction = extraction
@@ -462,10 +556,49 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.view.replace(self.edit, selected_region, selected_extraction)
         return total_replaced
 
+    def select_scope_regions(self, regions, greedy_scope):
+        if greedy_scope:
+            # Greedy scope; return all scopes
+            replaced = len(regions)
+            self.target_regions = regions
+        else:
+            # Non-greedy scope; return first valid scope
+            # If cannot find first valid scope after cursor
+            number_regions = len(regions)
+            selected_region = None
+            first_region = 0
+            last_region = number_regions - 1
+            pt = self.get_sel_point()
+
+            # Find first scope
+            if number_regions > 0:
+                selected_region = regions[0]
+
+            # Walk backwards seeing which scope is valid
+            # Quit if you reach the already selected first scope
+            if selected_region != None and last_region > first_region and pt != None:
+                reverse_count = last_region
+                for region in reversed(regions):
+                    if reverse_count >= first_region and region.end() - 1 >= pt:
+                        selected_region = region
+                        reverse_count -= 1
+                    else:
+                        break
+
+            # Store the scope if we found one
+            if selected_region != None:
+                replaced += 1
+                self.view.show(selected_region.begin())
+                self.target_regions = [selected_region]
+
+        return replaced
+
     def scope_apply(self, pattern):
+        # Initialize replacement variables
         replaced = 0
         regions = []
 
+        # Grab pattern definitions
         scope = pattern['scope']
         find = pattern['find'] if 'find' in pattern else None
         replace = pattern['replace'] if 'replace' in pattern else '\\0'
@@ -473,7 +606,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         greedy_replace = bool(pattern['greedy_replace']) if 'greedy_replace' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
         multi = bool(pattern['multi_pass_regex']) if 'multi_pass_regex' in pattern else False
-        # literal = bool(pattern['literal']) if 'literal' in pattern else False
+        literal = bool(pattern['literal']) if 'literal' in pattern else False
 
         if scope == None or scope == '':
             return replace
@@ -481,9 +614,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         regions = self.view.find_by_selector(scope)
         # Find supplied?
         if find != None:
-            # Regex replace
-            if find != None:
-                # Compile regex: Ignore case flag?
+            # Compile regex: Ignore case flag?
+            if not literal:
                 try:
                     re_find = re.compile(find, re.IGNORECASE) if case else re.compile(find)
                 except Exception, err:
@@ -495,40 +627,13 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                     replaced = self.greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
                 else:
                     replaced = self.non_greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
-        else:
-            if greedy_scope:
-                # Greedy scope; return all scopes
-                replaced = len(regions)
-                self.target_regions = regions
             else:
-                # Non-greedy scope; return first valid scope
-                # If cannot find first valid scope after cursor
-                number_regions = len(regions)
-                selected_region = None
-                first_region = 0
-                last_region = number_regions - 1
-                pt = self.get_sel_point()
-
-                # Find first scope
-                if number_regions > 0:
-                    selected_region = regions[0]
-
-                # Walk backwards seeing which scope is valid
-                # Quit if you reach the already selected first scope
-                if selected_region != None and last_region > first_region and pt != None:
-                    reverse_count = last_region
-                    for region in reversed(regions):
-                        if reverse_count >= first_region and region.end() - 1 >= pt:
-                            selected_region = region
-                            reverse_count -= 1
-                        else:
-                            break
-
-                # Store the scope if we found one
-                if selected_region != None:
-                    replaced += 1
-                    self.view.show(selected_region.begin())
-                    self.target_regions = [selected_region]
+                if greedy_scope:
+                    replaced = self.greedy_scope_literal_replace(regions, find, replace, greedy_replace)
+                else:
+                    replaced = self.non_greedy_scope_literal_replace(regions, find, replace, greedy_replace)
+        else:
+            replaced = self.select_scope_regions(regions, greedy_scope)
 
         return replaced
 
@@ -571,6 +676,53 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 replaced = self.non_greedy_replace(find, extractions, regions, scope_filter)
         return replaced
 
+    def find_and_replace(self):
+        replace_list = rrsettings.get('replacements', {})
+        result_template = '%s: %d regions;\n' if self.panel_display else '%s: %d regions; '
+        results = ''
+
+        # Walk the sequence
+        # Multi-pass only if requested and will be occuring
+        if self.multi_pass and not self.find_only and self.action == None:
+            # Multi-pass initialization
+            current_replacements = 0
+            total_replacements = 0
+            count = 0
+
+            # Sweep file until all instances are found
+            # Avoid infinite loop and break out if sweep threshold is met
+            while count < self.max_sweeps:
+                count += 1
+                current_replacements = 0
+
+                for replacement in self.replacements:
+                    # Is replacement available in the list?
+                    if replacement in replace_list:
+                        pattern = replace_list[replacement]
+                        # Search within a specific scope or search and qualify with scopes
+                        if 'scope' in pattern:
+                            current_replacements = self.scope_apply(pattern)
+                        else:
+                            current_replacements = self.apply(pattern)
+                total_replacements += current_replacements
+
+                # No more regions found?
+                if current_replacements == 0:
+                    break
+            # Record total regions found
+            results += 'Regions Found: %d regions;' % total_replacements
+        else:
+            for replacement in self.replacements:
+                # Is replacement available in the list?
+                if replacement in replace_list:
+                    pattern = replace_list[replacement]
+                    # Search within a specific scope or search and qualify with scopes
+                    if 'scope' in pattern:
+                        results += result_template % (replacement, self.scope_apply(pattern))
+                    else:
+                        results += result_template % (replacement, self.apply(pattern))
+        return results
+
     def run(self, edit, replacements=[], find_only=False, clear=False, action=None, multi_pass=False, options={}):
         self.find_only = find_only
         self.action = action.strip() if action != None else action
@@ -579,6 +731,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         self.multi_pass = multi_pass
         self.options = options
         self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
+        self.panel_display = rrsettings.get('results_in_panel', DEFAULT_SHOW_PANEL)
+        self.edit = edit
 
         # Clear regions and exit
         if clear:
@@ -592,52 +746,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Is the sequence empty?
         if len(replacements) > 0:
-            replace_list = rrsettings.get('replacements', {})
-            panel_display = rrsettings.get('results_in_panel', DEFAULT_SHOW_PANEL)
-            result_template = '%s: %d regions;\n' if panel_display else '%s: %d regions; '
-            self.edit = edit
-            results = ''
-
-            # Walk the sequence
-            # Multi-pass only if requested and will be occuring
-            if multi_pass and not find_only and action == None:
-                # Multi-pass initialization
-                current_replacements = 0
-                total_replacements = 0
-                count = 0
-
-                # Sweep file until all instances are found
-                # Avoid infinite loop and break out if sweep threshold is met
-                while count < self.max_sweeps:
-                    count += 1
-                    current_replacements = 0
-
-                    for replacement in replacements:
-                        # Is replacement available in the list?
-                        if replacement in replace_list:
-                            pattern = replace_list[replacement]
-                            # Search within a specific scope or search and qualify with scopes
-                            if 'scope' in pattern:
-                                current_replacements = self.scope_apply(pattern)
-                            else:
-                                current_replacements = self.apply(pattern)
-                    total_replacements += current_replacements
-
-                    # No more regions found?
-                    if current_replacements == 0:
-                        break
-                # Record total regions found
-                results += 'Regions Found: %d regions;' % total_replacements
-            else:
-                for replacement in replacements:
-                    # Is replacement available in the list?
-                    if replacement in replace_list:
-                        pattern = replace_list[replacement]
-                        # Search within a specific scope or search and qualify with scopes
-                        if 'scope' in pattern:
-                            results += result_template % (replacement, self.scope_apply(pattern))
-                        else:
-                            results += result_template % (replacement, self.apply(pattern))
+            # Find targets and replace if applicable
+            results = self.find_and_replace()
 
             # Higlight regions
             if self.find_only:
@@ -653,7 +763,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                         results = 'Error: Bad Action!'
 
                 # Report results
-                if panel_display:
+                if self.panel_display:
                     self.print_results_panel(results)
                 else:
                     self.print_results_status_bar(results)

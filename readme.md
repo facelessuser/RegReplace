@@ -48,6 +48,8 @@ The second kind of definition allows you to search for a scope type and then app
     //                      within the found scope.  Default is None.
     //     replace:         description of what you would like to replace within the scope.
     //                      Default value is "\\0".
+    //     literal:         Boolean setting to define whether the find and replace is literal or not.
+    //                      Default is false.
     //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
     //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
     //     case:            Boolean setting to define whether regex search is case sensitive. Default is true.
@@ -212,6 +214,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 1.0
+- Add "literal" param for scope search defines.
+- Reduce code complexity
 
 # Version 0.9
 - Allow multipass on a scope region with regex with new "multi_pass_regex" parameter
