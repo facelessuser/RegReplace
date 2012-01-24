@@ -16,6 +16,15 @@ MODULE_NAME = 'RegReplace'
 rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
 
+def tupled_set(regions):
+    return set((r.begin(), r.end()) for r in regions)
+
+
+def subtract_exacts(a, b):
+    a_map = dict(((r.begin(), r.end()), r) for r in  a)
+    return [a_map[t] for t in (set(a_map) - tupled_set(b))]
+
+
 def underline(regions):
     # Convert to empty regions
     new_regions = []
@@ -207,12 +216,18 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         status = True
         if action == 'fold':
             # Ignore newlines at the end of the region; newlines okay in the middle of region
-            self.target_regions = self.ignore_ending_newlines(self.target_regions)
-            self.view.fold(self.target_regions)
+            self.view.fold(self.ignore_ending_newlines(self.target_regions))
         elif action == 'unfold':
-            # Unfold targeted regions
-            for region in self.target_regions:
-                self.view.unfold(region)
+            # Compare regions to unfold with currently unfolded regions
+            # Return all regions that are not identical
+            folds_to_keep = subtract_exacts(
+                self.view.folded_regions(),
+                self.ignore_ending_newlines(self.target_regions)
+            )
+            # Unfold all and then fold what we want to keep
+            # A workaround for quick unfold
+            self.view.unfold(sublime.Region(0, self.view.size()))
+            self.view.fold(folds_to_keep)
         elif action == 'mark':
             # Mark targeted regions
             if 'key' in options:
