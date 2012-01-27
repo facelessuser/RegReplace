@@ -218,16 +218,22 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Ignore newlines at the end of the region; newlines okay in the middle of region
             self.view.fold(self.ignore_ending_newlines(self.target_regions))
         elif action == 'unfold':
-            # Compare regions to unfold with currently unfolded regions
-            # Return all regions that are not identical
-            folds_to_keep = subtract_exacts(
-                self.view.folded_regions(),
-                self.ignore_ending_newlines(self.target_regions)
-            )
-            # Unfold all and then fold what we want to keep
-            # A workaround for quick unfold
-            self.view.unfold(sublime.Region(0, self.view.size()))
-            self.view.fold(folds_to_keep)
+            self.target_regions = self.ignore_ending_newlines(self.target_regions)
+            try:
+                # Unfold regions API added in build 2170
+                self.view.unfold(self.target_regions)
+            except:
+                # Unfold workaround using old unfold single region (will be deprecated when new offical beta is released)
+                # Compare regions to unfold with currently unfolded regions
+                # Return all regions that are not identical
+                folds_to_keep = subtract_exacts(
+                    self.view.folded_regions(),
+                    self.target_regions
+                )
+                # Unfold all and then fold what we want to keep
+                # A workaround for quick unfold
+                self.view.unfold(sublime.Region(0, self.view.size()))
+                self.view.fold(folds_to_keep)
         elif action == 'mark':
             # Mark targeted regions
             if 'key' in options:
