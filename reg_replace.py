@@ -12,6 +12,7 @@ DEFAULT_SHOW_PANEL = False
 DEFAULT_HIGHLIGHT_COLOR = 'invalid'
 DEFAULT_HIGHLIGHT_STYLE = 'outline'
 DEFAULT_MULTI_PASS_MAX_SWEEP = 100
+MAX_UNFOLD_THRESHOLD = 1000
 MODULE_NAME = 'RegReplace'
 rrsettings = sublime.load_settings('reg_replace.sublime-settings')
 
@@ -219,21 +220,34 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             self.view.fold(self.ignore_ending_newlines(self.target_regions))
         elif action == 'unfold':
             self.target_regions = self.ignore_ending_newlines(self.target_regions)
-            try:
-                # Unfold regions API added in build 2170
-                self.view.unfold(self.target_regions)
-            except:
-                # Unfold workaround using old unfold single region (will be deprecated when new offical beta is released)
-                # Compare regions to unfold with currently unfolded regions
-                # Return all regions that are not identical
-                folds_to_keep = subtract_exacts(
-                    self.view.folded_regions(),
-                    self.target_regions
-                )
-                # Unfold all and then fold what we want to keep
-                # A workaround for quick unfold
-                self.view.unfold(sublime.Region(0, self.view.size()))
-                self.view.fold(folds_to_keep)
+            if int(sublime.version()) >= 2167:
+                try:
+                    # Unfold regions API added in build 2170
+                    self.view.unfold(self.target_regions)
+                except:
+                    # Unfold workaround using old unfold single region (will be deprecated when new offical beta is released)
+                    # Compare regions to unfold with currently unfolded regions
+                    # Return all regions that are not identical
+                    folds_to_keep = subtract_exacts(
+                        self.view.folded_regions(),
+                        self.target_regions
+                    )
+                    # Unfold all and then fold what we want to keep
+                    # A workaround for quick unfold
+                    self.view.unfold(sublime.Region(0, self.view.size()))
+                    self.view.fold(folds_to_keep)
+            else:
+                # Slow method for build before 2167
+                count = 0
+                for region in self.target_regions:
+                    count += 1
+                    self.view.unfold(region)
+                    if count >= MAX_UNFOLD_THRESHOLD:
+                        sublime.error_message(
+                            'Too many regions to unfold!\n' +
+                            'Please upgrade to Sublime Text version 2167 or greater to remove this message.'
+                        )
+                        break
         elif action == 'mark':
             # Mark targeted regions
             if 'key' in options:
