@@ -6,7 +6,7 @@
 //
 // Optional parameters:
 //     replace:      description of what you would like to replace target with.
-//                   Variables are okay for non-literal searches and are done by escaping 
+//                   Variables are okay for non-literal searches and are done by escaping
 //                   the selection number \\1 etc.  Default value is "\\0".
 //     literal:      Boolean setting to define whether the find and replace is literal or not.
 //                   Default is false.
@@ -25,7 +25,7 @@
 //     scope:    scope you would like to target
 //
 // Optional parameters:
-//     find:            regex description that is to be applied to the scope 
+//     find:            regex description that is to be applied to the scope
 //                      to qualify.  Also can be used to find and replace
 //                      within the found scope.  Default is None.
 //     replace:         description of what you would like to replace within the scope.

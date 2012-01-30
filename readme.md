@@ -1,7 +1,7 @@
 # About
 Reg Replace is a plugin for Sublime Text 2 that allows the creating of commands consisting of sequences of find and replace instructions.
 
-# Installation 
+# Installation
 - Use Package Control to install
 - Or you can download or clone directly and drop into your Sublime Text 2 packages directory (plugin folder must be named RegReplace)
 
@@ -16,7 +16,7 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
     //
     // Optional parameters:
     //     replace:      description of what you would like to replace target with.
-    //                   Variables are okay for non-literal searches and are done by escaping 
+    //                   Variables are okay for non-literal searches and are done by escaping
     //                   the selection number \\1 etc.  Default value is "" (empty string)
     //     literal:      Boolean setting to define whether the find and replace is literal or not.
     //                   Default is false.
@@ -43,7 +43,7 @@ The second kind of definition allows you to search for a scope type and then app
     //     scope:    scope you would like to target
     //
     // Optional parameters:
-    //     find:            regex description that is to be applied to the scope 
+    //     find:            regex description that is to be applied to the scope
     //                      to qualify.  Also can be used to find and replace
     //                      within the found scope.  Default is None.
     //     replace:         description of what you would like to replace within the scope.
@@ -123,7 +123,7 @@ If instead of replacing you would like to do something else, you can override th
         "args": {
             "replacements": ["example"],
             "action": "mark",
-            "options": {"key": "name", "scope": "invalid", "underline"}
+            "options": {"key": "name", "scope": "invalid", "style": "underline"}
         }
     },
     {
@@ -144,7 +144,7 @@ If instead of replacing you would like to do something else, you can override th
 ### Fold Override
 action = fold
 
-This action overides the folds the given find target.  This action has no parameters.
+This action folds the given find target.  This action has no parameters.
 
 ### Unfold Override
 action = unfold
@@ -175,7 +175,7 @@ This action removes the highlights of a given ```key```.  Replacements can be om
 - key = unique name of highlighted regions to clear
 
 ####Input Sequencer order:
-- ```unmark=key,scope,style:``` (replacements do not need to be defined)
+- ```unmark=key:``` (replacements do not need to be defined)
 
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
@@ -197,7 +197,7 @@ Also you can override the replace action with other actions like "fold" or "unfo
 
 Some actions might have parameters.  In this case, you can follow the actions with an equal sign and the paramters separated by commas. ```mark=key,string,outline:```.  If some parameters are optional, you can leave them out: ```?mark=key,string``` or ```?mark=key,,outline:```.  The important thing is that the parameters are in the order outlined by the command.
 
-If multiple sweeps are needed to find and replace all targets, you can use multi-pass (explained later) using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
+If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
 
 # Source Code
