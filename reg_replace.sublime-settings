@@ -69,6 +69,17 @@
 		}
 	},
 
+	// If on_save is true, RegReplace will search through the file patterns listed below right before a file is saved,
+	// if the file name matches a file pattern, the sequence will be applied before the file is saved.
+	// RegReplace will apply all sequences that apply to a given file in the order they appear below.
+	"on_save": false,
+	"on_save_sequences": [
+		// An example on_save_sequence that targets all files and trims trailing spaces
+		// - file_pattern: an array of file patterns that must match for the sequence to be applied
+		// - sequence: an array of replacement definitions to be applied on saving the file
+		{"file_pattern": ["*"], "sequence": ["remove_trailing_spaces"]}
+	],
+
 	// Show replace results in panel
 	"results_in_panel": false,
 

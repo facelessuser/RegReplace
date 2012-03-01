@@ -7,6 +7,7 @@ Copyright (c) 2011 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 import sublime_plugin
 import re
+from fnmatch import fnmatch
 
 DEFAULT_SHOW_PANEL = False
 DEFAULT_HIGHLIGHT_COLOR = 'invalid'
@@ -110,6 +111,30 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
             None,
             None
         )
+
+
+class RegReplaceListenerCommand(sublime_plugin.EventListener):
+    replacements = []
+
+    def find_replacements(self, view):
+        match = False
+        file_name = view.file_name()
+        if file_name != None and rrsettings.get('on_save', False):
+            replacements = rrsettings.get('on_save_sequences', [])
+            for item in replacements:
+                for pattern in item['file_pattern']:
+                    if fnmatch(file_name, pattern):
+                        match |= True
+                        self.replacements += item['sequence']
+                        break
+        return match
+
+    def on_pre_save(self, view):
+        self.replacements = []
+        if self.find_replacements(view):
+            edit = view.begin_edit()
+            RegReplaceCommand(view).run(edit, replacements=self.replacements)
+            view.end_edit(edit)
 
 
 class RegReplaceCommand(sublime_plugin.TextCommand):

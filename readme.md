@@ -199,6 +199,21 @@ Some actions might have parameters.  In this case, you can follow the actions wi
 
 If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
+## Apply Regex Right Before File Save Event
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each on save sequence will be applied to the files you sepcify by file patterns.  Also, you must have ```on_save``` set to ```true```.
+
+Example:
+
+    // If on_save is true, RegReplace will search through the file patterns listed below right before a file is saved,
+    // if the file name matches a file pattern, the sequence will be applied before the file is saved.
+    // RegReplace will apply all sequences that apply to a given file in the order they appear below.
+    "on_save": true,
+    "on_save_sequences": [
+        // An example on_save_sequence that targets all files and trims trailing spaces
+        // - file_pattern: an array of file patterns that must match for the sequence to be applied
+        // - sequence: an array of replacement definitions to be applied on saving the file
+        {"file_pattern": ["*"], "sequence": ["remove_trailing_spaces"]}
+    ],
 
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
@@ -214,6 +229,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 1.3
+- Add the ability to apply regex sequences right before a file save event.  Files are targeted with user defined file patterns
 
 # Version 1.2.1
 - Account for people still on the last offical beta since view.folded_regions() is not included in that release.  This method of unfold will be deprecated on new ST2 offical beta release.
