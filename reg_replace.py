@@ -122,11 +122,25 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         if file_name != None and rrsettings.get('on_save', False):
             replacements = rrsettings.get('on_save_sequences', [])
             for item in replacements:
-                for pattern in item['file_pattern']:
-                    if fnmatch(file_name, pattern):
-                        match |= True
-                        self.replacements += item['sequence']
-                        break
+                found = False
+                if 'file_pattern' in item:
+                    for pattern in item['file_pattern']:
+                        if fnmatch(file_name, pattern):
+                            found = True
+                            self.replacements += item['sequence']
+                            break
+                if not found and 'file_regex' in item:
+                    for regex in item['file_regex']:
+                        print regex
+                        try:
+                            r = re.compile(regex, re.IGNORECASE) if not 'case' in item or not bool(item['case']) else re.compile(regex)
+                            if r.match(file_name) != None:
+                                found = True
+                                self.replacements += item['sequence']
+                                break
+                        except:
+                            pass
+                match |= found
         return match
 
     def on_pre_save(self, view):

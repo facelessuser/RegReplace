@@ -200,7 +200,7 @@ Some actions might have parameters.  In this case, you can follow the actions wi
 If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
 ## Apply Regex Right Before File Save Event
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each on save sequence will be applied to the files you sepcify by file patterns.  Also, you must have ```on_save``` set to ```true```.
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.
 
 Example:
 
@@ -209,6 +209,15 @@ Example:
     // RegReplace will apply all sequences that apply to a given file in the order they appear below.
     "on_save": true,
     "on_save_sequences": [
+        // An example on_save event that removes dangling commas from json files
+        // - file_regex: an array of regex strings that must match the file for the sequence to be applied
+        // - file_pattern: an array of file patterns that must match for the sequence to be applied
+        // - sequence: an array of replacement definitions to be applied on saving the file
+        {
+            "file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
+            "file_pattern": ["*.json"],
+            "sequence": ["remove_json_dangling_commas"]
+        },
         // An example on_save_sequence that targets all files and trims trailing spaces
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
@@ -229,6 +238,11 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 1.4
+- Allow on save regex sequences to define target files with regex as well as unix file name pattern matching
+- Add example "remove_dangling_commas" replacement definition
+- Add example on_save sequence using file regex pattern to remove dangling commas from sublime json files
 
 # Version 1.3
 - Add the ability to apply regex sequences right before a file save event.  Files are targeted with user defined file patterns

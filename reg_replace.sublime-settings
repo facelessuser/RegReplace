@@ -47,6 +47,13 @@
 			"greedy": true,
 			"case": false
 		},
+		// remove_json_dangling_commas
+		"remove_json_dangling_commas": {
+			"find": ",([\\r\\n\\s]*)(\\]|\\})",
+			"replace": "\\1\\2",
+			"greedy": true,
+			"scope_filter": ["-string", "-comment"]
+		},
 		"remove_html_comments": {
 			"find": "<!--[\\s\\S]+?-->",
 			"replace": "",
@@ -74,6 +81,15 @@
 	// RegReplace will apply all sequences that apply to a given file in the order they appear below.
 	"on_save": false,
 	"on_save_sequences": [
+		// An example on_save event that removes dangling commas from json files
+		// - file_regex: an array of regex strings that must match the file for the sequence to be applied
+		// - file_pattern: an array of file patterns that must match for the sequence to be applied
+		// - sequence: an array of replacement definitions to be applied on saving the file
+		{
+			"file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
+			"file_pattern": ["*.json"],
+			"sequence": ["remove_json_dangling_commas"]
+		},
 		// An example on_save_sequence that targets all files and trims trailing spaces
 		// - file_pattern: an array of file patterns that must match for the sequence to be applied
 		// - sequence: an array of replacement definitions to be applied on saving the file
