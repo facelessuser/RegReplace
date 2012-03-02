@@ -211,6 +211,7 @@ Example:
     "on_save_sequences": [
         // An example on_save event that removes dangling commas from json files
         // - file_regex: an array of regex strings that must match the file for the sequence to be applied
+        // - case: regex case sensitivity (true|false) false is default (this setting is optional)
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
         {
