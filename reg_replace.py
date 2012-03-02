@@ -131,7 +131,6 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                             break
                 if not found and 'file_regex' in item:
                     for regex in item['file_regex']:
-                        print regex
                         try:
                             r = re.compile(regex, re.IGNORECASE) if not 'case' in item or not bool(item['case']) else re.compile(regex)
                             if r.match(file_name) != None:
