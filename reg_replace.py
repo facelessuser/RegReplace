@@ -1,7 +1,7 @@
 '''
 Reg Replace
 Licensed under MIT
-Copyright (c) 2011 Isaac Muse <isaacmuse@gmail.com>
+Copyright (c) 2011 - 2012 Isaac Muse <isaacmuse@gmail.com>
 '''
 
 import sublime
@@ -741,9 +741,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                         pattern = replace_list[replacement]
                         # Search within a specific scope or search and qualify with scopes
                         if 'scope' in pattern:
-                            current_replacements = self.scope_apply(pattern)
+                            current_replacements += self.scope_apply(pattern)
                         else:
-                            current_replacements = self.apply(pattern)
+                            current_replacements += self.apply(pattern)
                 total_replacements += current_replacements
 
                 # No more regions found?
