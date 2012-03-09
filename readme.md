@@ -200,7 +200,7 @@ Some actions might have parameters.  In this case, you can follow the actions wi
 If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
 ## Apply Regex Right Before File Save Event
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.  You can also just highlight by regex by using the ```on_save_highlights``` instead of ```on_save_sequences```.  Both can be used at the same time. Highlights are performed after replacements.
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.  You can also just highlight by regex by adding the ```"highlight": true``` key/value pair. Both types can be used at the same time. Highlights are performed after replacements.
 
 Example:
 
@@ -227,15 +227,15 @@ Example:
             "file_pattern": ["*.json"],
             "sequence": ["remove_json_dangling_commas"]
         },
-        // An example on_save_sequence that targets all files and trims trailing spaces
+        // An example on_save_sequence that targets all files and highlights trailing spaces
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
-        {"file_pattern": ["*"], "sequence": ["remove_trailing_spaces"]}
-    ],
-
-    // on_save highlights
-    "on_save_highlights": [
-        // Use the same syntax as on_save replacements
+        // - highlight: highlight instead of replace
+        {
+            "file_pattern": ["*"],
+            "sequence": ["remove_trailing_spaces"],
+            "highlight": true
+        }
     ],
 
 # Source Code
@@ -252,6 +252,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 1.5.1
+- Fix some small issues with highlight on save
+- Merge highlight on save sequences and on save replacements under same object.  Specify highlight with the highlight key.
 
 # Version 1.5
 - Allow for highlighting on save

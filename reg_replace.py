@@ -111,51 +111,26 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         if file_name != None and rrsettings.get('on_save', False):
             replacements = rrsettings.get('on_save_sequences', [])
             multi_pass = rrsettings.get('on_save_multi_pass', None)
-            if multi_pass != None:
-                self.multi_pass = bool(multi_pass)
-            for item in replacements:
-                found = False
-                if 'file_pattern' in item:
-                    for pattern in item['file_pattern']:
-                        if fnmatch(file_name, pattern):
-                            found = True
-                            self.replacements += item['sequence']
-                            break
-                if not found and 'file_regex' in item:
-                    for regex in item['file_regex']:
-                        try:
-                            r = re.compile(regex, re.IGNORECASE) if not 'case' in item or not bool(item['case']) else re.compile(regex)
-                            if r.match(file_name) != None:
-                                found = True
-                                self.replacements += item['sequence']
-                                break
-                        except:
-                            pass
-                match |= found
-        return match
-
-    def find_highlights(self, view):
-        match = False
-        file_name = view.file_name()
-        if file_name != None and rrsettings.get('on_save', False):
-            replacements = rrsettings.get('on_save_highlights', [])
-            self.action = "mark"
-            self.options["key"] = "reg_replace_auto_highlight"
             scope = rrsettings.get('on_save_highlight_scope', None)
             style = rrsettings.get('on_save_highlight_style', None)
+            self.action = "mark"
+            self.options["key"] = "reg_replace_auto_highlight"
+            if multi_pass != None:
+                self.multi_pass = bool(multi_pass)
             if scope != None:
                 self.options["scope"] = scope
             if style != None:
                 self.options["style"] = style
-            else:
-                return match
             for item in replacements:
                 found = False
                 if 'file_pattern' in item:
                     for pattern in item['file_pattern']:
                         if fnmatch(file_name, pattern):
                             found = True
-                            self.highlights += item['sequence']
+                            if "highlight" in item and bool(item['highlight']):
+                                self.highlights += item['sequence']
+                            else:
+                                self.replacements += item['sequence']
                             break
                 if not found and 'file_regex' in item:
                     for regex in item['file_regex']:
@@ -163,7 +138,10 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                             r = re.compile(regex, re.IGNORECASE) if not 'case' in item or not bool(item['case']) else re.compile(regex)
                             if r.match(file_name) != None:
                                 found = True
-                                self.highlights += item['sequence']
+                                if "highlight" in item and bool(item['highlight']):
+                                    self.highlights += item['sequence']
+                                else:
+                                    self.replacements += item['sequence']
                                 break
                         except:
                             pass
@@ -178,9 +156,10 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         self.options = {}
         if self.find_replacements(view):
             edit = view.begin_edit()
-            RegReplaceCommand(view).run(edit, replacements=self.replacements, multi_pass=self.multi_pass)
+            if len(self.replacements) > 0:
+                RegReplaceCommand(view).run(edit, replacements=self.replacements, multi_pass=self.multi_pass)
             view.erase_regions("reg_replace_auto_highlight")
-            if self.find_highlights(view):
+            if len(self.highlights) > 0:
                 RegReplaceCommand(view).run(
                     edit,
                     replacements=self.highlights,
