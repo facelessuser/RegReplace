@@ -209,9 +209,6 @@ Example:
     // RegReplace will apply all sequences that apply to a given file in the order they appear below.
     "on_save": true,
 
-    // Do multi_passes (replacements only)
-    "on_save_multi_pass": false,
-
     // Highlight visual settings
     "on_save_highlight_scope": "invalid",
     "on_save_highlight_style": "outline",
@@ -222,6 +219,7 @@ Example:
         // - case: regex case sensitivity (true|false) false is default (this setting is optional)
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
+        // - multi_pass: perform multiple passes on file to catch all regex instances
         {
             "file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
             "file_pattern": ["*.json"],
@@ -252,6 +250,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 1.5.2
+- Do each on save replace sequence separate allowing multi_pass to be only applied to specific sequence.
+- Add per on save sequence multi_pass key/value pair option
 
 # Version 1.5.1
 - Fix some small issues with highlight on save

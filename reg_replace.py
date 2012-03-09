@@ -110,13 +110,10 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         file_name = view.file_name()
         if file_name != None and rrsettings.get('on_save', False):
             replacements = rrsettings.get('on_save_sequences', [])
-            multi_pass = rrsettings.get('on_save_multi_pass', None)
             scope = rrsettings.get('on_save_highlight_scope', None)
             style = rrsettings.get('on_save_highlight_style', None)
             self.action = "mark"
             self.options["key"] = "reg_replace_auto_highlight"
-            if multi_pass != None:
-                self.multi_pass = bool(multi_pass)
             if scope != None:
                 self.options["scope"] = scope
             if style != None:
@@ -130,7 +127,8 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                             if "highlight" in item and bool(item['highlight']):
                                 self.highlights += item['sequence']
                             else:
-                                self.replacements += item['sequence']
+                                multi_pass = True if "multi_pass" in item and bool(item['multi_pass']) else False
+                                self.replacements.append({"sequence": item['sequence'], "multi_pass": multi_pass})
                             break
                 if not found and 'file_regex' in item:
                     for regex in item['file_regex']:
@@ -141,7 +139,8 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                                 if "highlight" in item and bool(item['highlight']):
                                     self.highlights += item['sequence']
                                 else:
-                                    self.replacements += item['sequence']
+                                    multi_pass = True if "multi_pass" in item and bool(item['multi_pass']) else False
+                                    self.replacements.append({"sequence": item['sequence'], "multi_pass": multi_pass})
                                 break
                         except:
                             pass
@@ -156,11 +155,12 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         self.options = {}
         if self.find_replacements(view):
             edit = view.begin_edit()
-            if len(self.replacements) > 0:
-                RegReplaceCommand(view).run(edit, replacements=self.replacements, multi_pass=self.multi_pass)
+            reg_replace_cmd = RegReplaceCommand(view)
+            for replacements in self.replacements:
+                reg_replace_cmd.run(edit, replacements=replacements['sequence'], multi_pass=replacements['multi_pass'])
             view.erase_regions("reg_replace_auto_highlight")
             if len(self.highlights) > 0:
-                RegReplaceCommand(view).run(
+                reg_replace_cmd.run(
                     edit,
                     replacements=self.highlights,
                     action=self.action,
