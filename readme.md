@@ -200,7 +200,7 @@ Some actions might have parameters.  In this case, you can follow the actions wi
 If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
 ## Apply Regex Right Before File Save Event
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.  You can also just highlight by regex by using the ```on_save_highlights``` instead of ```on_save_sequences```.  Both can be used at the same time. Highlights are performed after replacements.
 
 Example:
 
@@ -208,6 +208,14 @@ Example:
     // if the file name matches a file pattern, the sequence will be applied before the file is saved.
     // RegReplace will apply all sequences that apply to a given file in the order they appear below.
     "on_save": true,
+
+    // Do multi_passes (replacements only)
+    "on_save_multi_pass": false,
+
+    // Highlight visual settings
+    "on_save_highlight_scope": "invalid",
+    "on_save_highlight_style": "outline",
+
     "on_save_sequences": [
         // An example on_save event that removes dangling commas from json files
         // - file_regex: an array of regex strings that must match the file for the sequence to be applied
@@ -225,6 +233,11 @@ Example:
         {"file_pattern": ["*"], "sequence": ["remove_trailing_spaces"]}
     ],
 
+    // on_save highlights
+    "on_save_highlights": [
+        // Use the same syntax as on_save replacements
+    ],
+
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
 
@@ -239,6 +252,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 1.5
+- Allow for highlighting on save
+- Allow on save replacements to use multi_pass
 
 # Version 1.4.2
 - Fix regression with multi-pass

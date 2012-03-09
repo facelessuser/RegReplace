@@ -80,6 +80,15 @@
 	// if the file name matches a file pattern, the sequence will be applied before the file is saved.
 	// RegReplace will apply all sequences that apply to a given file in the order they appear below.
 	"on_save": false,
+
+	// Do multi_passes (replacements only)
+	"on_save_multi_pass": false,
+
+	// Highlight visual settings
+	"on_save_highlight_scope": "invalid",
+	"on_save_highlight_style": "outline",
+
+	// on_save replacements
 	"on_save_sequences": [
 		// An example on_save event that removes dangling commas from json files
 		// - file_regex: an array of regex strings that must match the file for the sequence to be applied
@@ -95,6 +104,11 @@
 		// - file_pattern: an array of file patterns that must match for the sequence to be applied
 		// - sequence: an array of replacement definitions to be applied on saving the file
 		{"file_pattern": ["*"], "sequence": ["remove_trailing_spaces"]}
+	],
+
+	// on_save highlights
+	"on_save_highlights": [
+		// Use the same syntax as on_save replacements
 	],
 
 	// Show replace results in panel
