@@ -183,15 +183,15 @@ Sometimes a regular expression cannot be made to find all instances in one pass.
 Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with ```find_only```.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed mult-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
 
     {
-        "caption": "Reg Replace: Remove Trailing Spaces",    
+        "caption": "Reg Replace: Remove Trailing Spaces",
         "command": "reg_replace",
-        "args": {"replacements": ["example"], "multi_pass": true}    
+        "args": {"replacements": ["example"], "multi_pass": true}
     },
 
 ## Replace Only Under Selection(s)
 Sometimes you only want to search under selections.  This can be done by enabling the ```selection_only``` setting in the settings file.  By enabling this setting, regex targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the ```no_selection``` argument to ```true```.  Highlight style will be forced to underline under selections if ```find_only``` is set to ensure they will show up.
 
-    // Ignore "selection_only" setting    
+    // Ignore "selection_only" setting
     {
         "caption": "Reg Replace: Remove Trailing Spaces",
         "command": "reg_replace",
