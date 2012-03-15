@@ -157,14 +157,20 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
             edit = view.begin_edit()
             reg_replace_cmd = RegReplaceCommand(view)
             for replacements in self.replacements:
-                reg_replace_cmd.run(edit, replacements=replacements['sequence'], multi_pass=replacements['multi_pass'])
-            view.erase_regions("reg_replace_auto_highlight")
+                reg_replace_cmd.run(
+                    edit,
+                    replacements=replacements['sequence'],
+                    multi_pass=replacements['multi_pass'],
+                    no_selection=True
+                )
+
             if len(self.highlights) > 0:
                 reg_replace_cmd.run(
                     edit,
                     replacements=self.highlights,
                     action=self.action,
-                    options=self.options
+                    options=self.options,
+                    no_selection=True
                 )
             view.end_edit(edit)
 
@@ -215,11 +221,15 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
     def set_highlights(self, key, style, color):
         # Process highlight style
         highlight_style = 0
-        if style == 'outline':
-            highlight_style = sublime.DRAW_OUTLINED
-        elif style == 'underline':
+        print self.find_only
+        print self.selection_only
+        if (self.find_only and self.selection_only) or style == 'underline':
+            # Use underline if explicity requested,
+            # or if doing a find only when under a selection only (only underline can be seen through a selection)
             self.target_regions = underline(self.target_regions)
             highlight_style = sublime.DRAW_EMPTY_AS_OVERWRITE
+        elif style == 'outline':
+            highlight_style = sublime.DRAW_OUTLINED
 
         # higlight all of the found regions
         self.view.erase_regions(key)
@@ -680,6 +690,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             return replace
 
         regions = self.view.find_by_selector(scope)
+
+        if self.selection_only:
+            regions = self.filter_by_selection(regions)
+
         # Find supplied?
         if find != None:
             # Compile regex: Ignore case flag?
@@ -734,6 +748,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         except Exception, err:
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return replaced
+
+        if self.selection_only:
+            regions, extractions = self.filter_by_selection(regions, extractions)
 
         # Where there any regions found?
         if len(regions) > 0:
@@ -791,16 +808,44 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                         results += result_template % (replacement, self.apply(pattern))
         return results
 
-    def run(self, edit, replacements=[], find_only=False, clear=False, action=None, multi_pass=False, options={}):
+    def filter_by_selection(self, regions, extractions=None):
+        new_regions = []
+        new_extractions = []
+        idx = 0
+        sels = self.view.sel()
+        for region in regions:
+            for sel in sels:
+                if region.begin() >= sel.begin() and region.end() <= sel.end():
+                    new_regions.append(region)
+                    if extractions != None:
+                        new_extractions.append(extractions[idx])
+                        break
+            idx += 1
+        if extractions == None:
+            return new_regions
+        else:
+            return new_regions, new_extractions
+
+    def is_selection_available(self):
+        available = False
+        for sel in self.view.sel():
+            if sel.size() > 0:
+                available = True
+                break
+        return available
+
+    def run(self, edit, replacements=[], find_only=False, clear=False, action=None, multi_pass=False, no_selection=False, options={}):
         self.find_only = find_only
         self.action = action.strip() if action != None else action
         self.target_regions = []
         self.replacements = replacements
         self.multi_pass = multi_pass
         self.options = options
+        self.selection_only = True if not no_selection and rrsettings.get('selection_only', False) and self.is_selection_available() else False
         self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
         self.panel_display = rrsettings.get('results_in_panel', DEFAULT_SHOW_PANEL)
         self.edit = edit
+        self.clear_highlights("reg_replace_auto_highlight")
 
         # Clear regions and exit
         if clear:

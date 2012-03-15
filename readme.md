@@ -183,9 +183,19 @@ Sometimes a regular expression cannot be made to find all instances in one pass.
 Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with ```find_only```.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed mult-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
 
     {
+        "caption": "Reg Replace: Remove Trailing Spaces",    
+        "command": "reg_replace",
+        "args": {"replacements": ["example"], "multi_pass": true}    
+    },
+
+## Replace Only Under Selection(s)
+Sometimes you only want to search under selections.  This can be done by enabling the ```selection_only``` setting in the settings file.  By enabling this setting, regex targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the ```no_selection``` argument to ```true```.  Highlight style will be forced to underline under selections if ```find_only``` is set to ensure they will show up.
+
+    // Ignore "selection_only" setting    
+    {
         "caption": "Reg Replace: Remove Trailing Spaces",
         "command": "reg_replace",
-        "args": {"replacements": ["example"], "multi_pass": true}
+        "args": {"replacements": ["example"], "multi_pass": true, "no_selection": true}
     },
 
 ## Regex Input Sequencer
@@ -250,6 +260,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Version 1.6
+- Save under selection added (limits searches to selections if and only if selection exists)
+- Cleanup "highlight on save regions" when performing other regex searches
 
 # Version 1.5.2
 - Do each on save replace sequence separate allowing multi_pass to be only applied to specific sequence.

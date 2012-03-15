@@ -39,80 +39,83 @@
 //                      region to find and replace all instances of the regex, when regex cannot be formatted
 //                      to find all instances in a greedy fashion.  Default is false.
 {
-	"replacements": {
-		// Example replacements
-		"html5_remove_deprecated_type_attr": {
-			"find": "(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
-			"replace": "\\1\\6",
-			"greedy": true,
-			"case": false
-		},
-		// remove_json_dangling_commas
-		"remove_json_dangling_commas": {
-			"find": ",([\\r\\n\\s]*)(\\]|\\})",
-			"replace": "\\1\\2",
-			"greedy": true,
-			"scope_filter": ["-string", "-comment"]
-		},
-		"remove_html_comments": {
-			"find": "<!--[\\s\\S]+?-->",
-			"replace": "",
-			"scope_filter": ["!comment"],
-			"greedy": true,
-			"case": true
-		},
-		"remove_trailing_spaces": {
-			"find": "[ \\t]+$",
-			"replace": "",
-			"greedy": true,
-			"case": true
-		},
-		// Delete a comment or comment blocks
-		"remove_comments": {
-			"scope": "comment",
-			"find" : "([^\\n\\r]+)",
-			"replace": "",
-			"greedy_replace": true
-		}
-	},
+    "replacements": {
+        // Example replacements
+        "html5_remove_deprecated_type_attr": {
+            "find": "(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
+            "replace": "\\1\\6",
+            "greedy": true,
+            "case": false
+        },
+        // remove_json_dangling_commas
+        "remove_json_dangling_commas": {
+            "find": ",([\\r\\n\\s]*)(\\]|\\})",
+            "replace": "\\1\\2",
+            "greedy": true,
+            "scope_filter": ["-string", "-comment"]
+        },
+        "remove_html_comments": {
+            "find": "<!--[\\s\\S]+?-->",
+            "replace": "",
+            "scope_filter": ["!comment"],
+            "greedy": true,
+            "case": true
+        },
+        "remove_trailing_spaces": {
+            "find": "[ \\t]+$",
+            "replace": "",
+            "greedy": true,
+            "case": true
+        },
+        // Delete a comment or comment blocks
+        "remove_comments": {
+            "scope": "comment",
+            "find" : "([^\\n\\r]+)",
+            "replace": "",
+            "greedy_replace": true
+        }
+    },
 
-	// If on_save is true, RegReplace will search through the file patterns listed below right before a file is saved,
-	// if the file name matches a file pattern, the sequence will be applied before the file is saved.
-	// RegReplace will apply all sequences that apply to a given file in the order they appear below.
-	"on_save": false,
+    // If on_save is true, RegReplace will search through the file patterns listed below right before a file is saved,
+    // if the file name matches a file pattern, the sequence will be applied before the file is saved.
+    // RegReplace will apply all sequences that apply to a given file in the order they appear below.
+    "on_save": false,
 
-	// Highlight visual settings
-	"on_save_highlight_scope": "invalid",
-	"on_save_highlight_style": "outline",
+    // Highlight visual settings
+    "on_save_highlight_scope": "invalid",
+    "on_save_highlight_style": "outline",
 
-	// on_save replacements
-	"on_save_sequences": [
-		// An example on_save event that removes dangling commas from json files
-		// - file_regex: an array of regex strings that must match the file for the sequence to be applied
-		// - case: regex case sensitivity (true|false) false is default (this setting is optional)
-		// - file_pattern: an array of file patterns that must match for the sequence to be applied
-		// - sequence: an array of replacement definitions to be applied on saving the file
-		// - multi_pass: perform multiple passes on file to catch all regex instances
-		{
-			"file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
-			"file_pattern": ["*.json"],
-			"sequence": ["remove_json_dangling_commas"]
-		},
-		// An example on_save_sequence that targets all files and trims trailing spaces
-		// - file_pattern: an array of file patterns that must match for the sequence to be applied
-		// - sequence: an array of replacement definitions to be applied on saving the file
-		{"file_pattern": ["*"], "sequence": ["remove_trailing_spaces"]}
-	],
+    // on_save replacements
+    "on_save_sequences": [
+        // An example on_save event that removes dangling commas from json files
+        // - file_regex: an array of regex strings that must match the file for the sequence to be applied
+        // - case: regex case sensitivity (true|false) false is default (this setting is optional)
+        // - file_pattern: an array of file patterns that must match for the sequence to be applied
+        // - sequence: an array of replacement definitions to be applied on saving the file
+        // - multi_pass: perform multiple passes on file to catch all regex instances
+        {
+            "file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
+            "file_pattern": ["*.json"],
+            "sequence": ["remove_json_dangling_commas"]
+        },
+        // An example on_save_sequence that targets all files and trims trailing spaces
+        // - file_pattern: an array of file patterns that must match for the sequence to be applied
+        // - sequence: an array of replacement definitions to be applied on saving the file
+        {"file_pattern": ["*"], "sequence": ["remove_trailing_spaces"]}
+    ],
 
-	// Show replace results in panel
-	"results_in_panel": false,
+    // Show replace results in panel
+    "results_in_panel": false,
 
-	// Maximum sweep threshold for multi-pass
-	"multi_pass_max_sweeps": 100,
+    // Maximum sweep threshold for multi-pass
+    "multi_pass_max_sweeps": 100,
 
-	// Color? (scope)
-	"find_highlight_color": "invalid",
+    // Color? (scope)
+    "find_highlight_color": "invalid",
 
-	// Highlight style? (outline|solid|underline)
-	"find_highlight_style": "outline"
+    // Highlight style? (outline|solid|underline)
+    "find_highlight_style": "outline",
+
+    // Search under selection(s) if and only if exists
+    "selection_only": false
 }
