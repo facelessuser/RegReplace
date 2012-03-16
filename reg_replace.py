@@ -113,7 +113,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
             scope = rrsettings.get('on_save_highlight_scope', None)
             style = rrsettings.get('on_save_highlight_style', None)
             self.action = "mark"
-            self.options["key"] = "reg_replace_auto_highlight"
+            self.options["key"] = MODULE_NAME
             if scope != None:
                 self.options["scope"] = scope
             if style != None:
@@ -845,7 +845,6 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
         self.panel_display = rrsettings.get('results_in_panel', DEFAULT_SHOW_PANEL)
         self.edit = edit
-        self.clear_highlights("reg_replace_auto_highlight")
 
         # Clear regions and exit
         if clear:
@@ -869,9 +868,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.set_highlights(MODULE_NAME, style, color)
                 self.replace_prompt()
             else:
+                self.clear_highlights(MODULE_NAME)
                 # Perform action
                 if action != None:
-                    self.clear_highlights(MODULE_NAME)
                     if not self.perform_action(action, options):
                         results = 'Error: Bad Action!'
 
