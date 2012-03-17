@@ -221,8 +221,6 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
     def set_highlights(self, key, style, color):
         # Process highlight style
         highlight_style = 0
-        print self.find_only
-        print self.selection_only
         if (self.find_only and self.selection_only) or style == 'underline':
             # Use underline if explicity requested,
             # or if doing a find only when under a selection only (only underline can be seen through a selection)
