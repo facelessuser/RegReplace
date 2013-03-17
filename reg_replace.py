@@ -126,7 +126,6 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
             replacements = rrsettings.get('on_save_sequences', [])
             scope = rrsettings.get('on_save_highlight_scope', None)
             style = rrsettings.get('on_save_highlight_style', None)
-            self.action = "mark"
             self.options["key"] = MODULE_NAME
             if scope != None:
                 self.options["scope"] = scope
@@ -138,11 +137,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                     for pattern in item['file_pattern']:
                         if fnmatch(file_name, pattern):
                             found = True
-                            if "highlight" in item and bool(item['highlight']):
-                                self.highlights += item['sequence']
-                            else:
-                                multi_pass = True if "multi_pass" in item and bool(item['multi_pass']) else False
-                                self.replacements.append({"sequence": item['sequence'], "multi_pass": multi_pass})
+                            self.select(item)
                             break
                 if not found and 'file_regex' in item:
                     for regex in item['file_regex']:
@@ -150,44 +145,67 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                             r = re.compile(regex, re.IGNORECASE) if not 'case' in item or not bool(item['case']) else re.compile(regex)
                             if r.match(file_name) != None:
                                 found = True
-                                if "highlight" in item and bool(item['highlight']):
-                                    self.highlights += item['sequence']
-                                else:
-                                    multi_pass = True if "multi_pass" in item and bool(item['multi_pass']) else False
-                                    self.replacements.append({"sequence": item['sequence'], "multi_pass": multi_pass})
+                                self.select(item)
                                 break
                         except:
                             pass
                 match |= found
         return match
 
+    def select(self, item):
+        if "action" in item:  
+            if item['action'] == "fold":
+                self.folds += item["sequence"]
+            elif item['action'] == "unfold":
+                self.unfolds += item["sequence"]
+            elif item['action'] == "mark":
+                self.highlights += item['sequence']
+            else:
+                sublime.error_message("action %s is not a valid action" % item["action"])
+        elif "highlight" in item and bool(item['highlight']):
+            sublime.message_dialog(
+                "\"on_save_sequence\" setting option '\"highlight\": true' is deprecated!\nPlease use '\"action\": \"mark\"'."
+            )
+            self.highlights += item['sequence']
+        else:
+            self.replacements.append(
+                {
+                    "sequence": item['sequence'],
+                    "multi_pass": True if "multi_pass" in item and bool(item['multi_pass']) else False
+                }
+            )
+
+    def apply(self, view, replacements, options={}, multi_pass=False, action=None):
+        view.run_command(
+            'reg_replace',
+            {
+                "replacements": replacements,    
+                'action': action,
+                'options': options,
+                'multi_pass': multi_pass,
+                'no_selection': True
+            }
+        )
+
     def on_pre_save(self, view):
         self.replacements = []
         self.highlights = []
-        self.action = None
+        self.folds = []
+        self.unfolds = []
         self.multi_pass = False
         self.options = {}
         if self.find_replacements(view):
             for replacements in self.replacements:
-                view.run_command(
-                    'reg_replace',
-                    {
-                        "replacements": replacements['sequence'],
-                        "multi_pass": replacements["multi_pass"],
-                        "no_selection": True
-                    }
-                )
+                self.apply(view, replacements['sequence'], multi_pass=replacements["multi_pass"])
 
             if len(self.highlights) > 0:
-                view.run_command(
-                    'reg_replace',
-                    {
-                        "replacements": self.highlights,
-                        "action": self.action,
-                        "options": self.options,
-                        "no_selection": True
-                    }
-                )
+                self.apply(view, self.highlights, action="mark", options=self.options)
+
+            if len(self.folds) > 0:
+                self.apply(view, self.folds, action="fold")
+
+            if len(self.unfolds) > 0:
+                self.apply(view, self.unfolds, action="unfold")
 
 
 class RegReplaceCommand(sublime_plugin.TextCommand):

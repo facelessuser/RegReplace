@@ -238,11 +238,11 @@ Example:
         // An example on_save_sequence that targets all files and highlights trailing spaces
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
-        // - highlight: highlight instead of replace
+        // - action: (mark|fold|unfold) instead of replace
         {
             "file_pattern": ["*"],
             "sequence": ["remove_trailing_spaces"],
-            "highlight": true
+            "action": "mark"
         }
     ],
 

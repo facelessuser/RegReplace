@@ -93,6 +93,7 @@
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
         // - multi_pass: perform multiple passes on file to catch all regex instances
+        // - action: (mark|fold|unfold) instead of replace.  Only one action can be used
         {
             "file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
             "file_pattern": ["*.json"],
