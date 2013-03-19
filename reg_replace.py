@@ -722,6 +722,14 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         if scope == None or scope == '':
             return replace
 
+        if self.selection_only:
+            sels = self.view.sel()
+            sel_start = []
+            sel_size = []
+            for s in sels:
+                sel_start.append(s.begin())
+                sel_size.append(s.size())
+
         regions = self.view.find_by_selector(scope)
 
         if self.selection_only:
@@ -750,6 +758,18 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         else:
             replaced = self.select_scope_regions(regions, greedy_scope)
 
+        if self.selection_only:
+            new_sels = []
+            count = 0
+            offset = 0
+            for s in sels:
+                r = sublime.Region(sel_start[count] + offset, s.end())
+                new_sels.append(r)
+                offset += r.size() - sel_size[count]
+                count += 1
+            sels.clear()
+            sels.add_all(new_sels)
+
         return replaced
 
     def apply(self, pattern):
@@ -768,22 +788,36 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Ignore Case?
         if not case:
-            flags |= sublime.IGNORECASE
+            # flags |= sublime.IGNORECASE
+            flags |= re.IGNORECASE
 
         # Literal find?
-        if literal:
-            flags |= sublime.LITERAL
+        # if literal:
+        #     flags |= sublime.LITERAL
+
+        if self.selection_only:
+            sels = self.view.sel()
+            sel_start = []
+            sel_size = []
+            for s in sels:
+                sel_start.append(s.begin())
+                sel_size.append(s.size())
 
         # Find and format replacements
         extractions = []
         try:
-            regions = self.view.find_all(find, flags, replace, extractions)
+            # regions = self.view.find_all(find, flags, replace, extractions)
+            if self.selection_only:
+                for sel in sels:
+                    regions += self.regex_findall(find, flags, replace, extractions, literal, sel)
+            else:
+                regions = self.regex_findall(find, flags, replace, extractions, literal)
         except Exception as err:
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return replaced
 
-        if self.selection_only:
-            regions, extractions = self.filter_by_selection(regions, extractions)
+        # if self.selection_only:
+        #     regions, extractions = self.filter_by_selection(regions, extractions)
 
         # Where there any regions found?
         if len(regions) > 0:
@@ -792,7 +826,36 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 replaced = self.greedy_replace(find, extractions, regions, scope_filter)
             else:
                 replaced = self.non_greedy_replace(find, extractions, regions, scope_filter)
+
+        if self.selection_only:
+            new_sels = []
+            count = 0
+            offset = 0
+            for s in sels:
+                r = sublime.Region(sel_start[count] + offset, s.end())
+                new_sels.append(r)
+                offset += r.size() - sel_size[count]
+                count += 1
+            sels.clear()
+            sels.add_all(new_sels)
+
         return replaced
+
+    def regex_findall(self, find, flags, replace, extractions, literal=False, sel=None):
+        regions = []
+        offset = 0
+        if sel is not None:
+            offset = sel.begin()
+            bfr = self.view.substr(sublime.Region(offset, sel.end()))
+        else:
+            bfr = self.view.substr(sublime.Region(0, self.view.size()))
+        flags |= re.MULTILINE
+        if literal:
+            find = re.escape(find)
+        for m in re.compile(find, flags).finditer(bfr):
+            regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
+            extractions.append(m.expand(replace))
+        return regions
 
     def find_and_replace(self):
         replace_list = rrsettings.get('replacements', {})
