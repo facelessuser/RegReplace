@@ -245,6 +245,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                         'replacements': self.replacements,
                         'action': self.action,
                         'multi_pass': self.multi_pass,
+                        'regex_full_file_with_selections': self.full_file,
                         'options': self.options
                     }
                 )
@@ -788,12 +789,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Ignore Case?
         if not case:
-            # flags |= sublime.IGNORECASE
             flags |= re.IGNORECASE
-
-        # Literal find?
-        # if literal:
-        #     flags |= sublime.LITERAL
 
         if self.selection_only:
             sels = self.view.sel()
@@ -807,7 +803,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         extractions = []
         try:
             # regions = self.view.find_all(find, flags, replace, extractions)
-            if self.selection_only:
+            if self.selection_only and not self.full_file:
                 for sel in sels:
                     regions += self.regex_findall(find, flags, replace, extractions, literal, sel)
             else:
@@ -816,8 +812,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return replaced
 
-        # if self.selection_only:
-        #     regions, extractions = self.filter_by_selection(regions, extractions)
+        if self.selection_only and self.full_file:
+            regions, extractions = self.filter_by_selection(regions, extractions)
 
         # Where there any regions found?
         if len(regions) > 0:
@@ -930,12 +926,18 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 break
         return available
 
-    def run(self, edit, replacements=[], find_only=False, clear=False, action=None, multi_pass=False, no_selection=False, options={}):
-        self.find_only = find_only
+    def run(
+            self, edit, replacements=[],
+            find_only=False, clear=False, action=None,
+            multi_pass=False, no_selection=False, regex_full_file_with_selections = False,
+            options={}
+        ):
+        self.find_only = bool(find_only)
         self.action = action.strip() if action != None else action
         self.target_regions = []
         self.replacements = replacements
-        self.multi_pass = multi_pass
+        self.full_file = bool(regex_full_file_with_selections)
+        self.multi_pass = bool(multi_pass)
         self.options = options
         self.selection_only = True if not no_selection and rrsettings.get('selection_only', False) and self.is_selection_available() else False
         self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
