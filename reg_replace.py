@@ -164,7 +164,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                 sublime.error_message("action %s is not a valid action" % item["action"])
         elif "highlight" in item and bool(item['highlight']):
             sublime.message_dialog(
-                "\"on_save_sequence\" setting option '\"highlight\": true' is deprecated!\nPlease use '\"action\": \"mark\"'."
+                "RegReplace:\n\"on_save_sequence\" setting option '\"highlight\": true' is deprecated!\nPlease use '\"action\": \"mark\"'."
             )
             self.highlights += item['sequence']
         else:
