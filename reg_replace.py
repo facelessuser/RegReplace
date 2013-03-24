@@ -153,7 +153,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         return match
 
     def select(self, item):
-        if "action" in item:  
+        if "action" in item:
             if item['action'] == "fold":
                 self.folds += item["sequence"]
             elif item['action'] == "unfold":
@@ -179,7 +179,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         view.run_command(
             'reg_replace',
             {
-                "replacements": replacements,    
+                "replacements": replacements,
                 'action': action,
                 'options': options,
                 'multi_pass': multi_pass,
@@ -927,11 +927,11 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         return available
 
     def run(
-            self, edit, replacements=[],
-            find_only=False, clear=False, action=None,
-            multi_pass=False, no_selection=False, regex_full_file_with_selections = False,
-            options={}
-        ):
+        self, edit, replacements=[],
+        find_only=False, clear=False, action=None,
+        multi_pass=False, no_selection=False, regex_full_file_with_selections=False,
+        options={}
+    ):
         self.find_only = bool(find_only)
         self.action = action.strip() if action != None else action
         self.target_regions = []
