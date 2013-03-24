@@ -253,7 +253,8 @@ Some actions might have parameters.  In this case, you can follow the actions wi
 If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
 ## Apply Regex Right Before File Save Event
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.  You can also just highlight by regex by adding the ```"highlight": true``` key/value pair. Both types can be used at the same time. Highlights are performed after replacements.
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.  You can also just highlight, fold, or unfold by regex by adding the ```"action": "mark"``` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
+
 
 Example:
 
