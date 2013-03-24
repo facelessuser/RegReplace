@@ -763,7 +763,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 offset += r.size() - sel_size[count]
                 count += 1
             sels.clear()
-            sels.add_all(new_sels)
+            map(lambda x: self.view.sel().add(x), new_sels)
 
         return replaced
 
@@ -826,7 +826,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 offset += r.size() - sel_size[count]
                 count += 1
             sels.clear()
-            sels.add_all(new_sels)
+            map(lambda x: self.view.sel().add(x), new_sels)
 
         return replaced
 
