@@ -112,7 +112,6 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
             replacements = rrsettings.get('on_save_sequences', [])
             scope = rrsettings.get('on_save_highlight_scope', None)
             style = rrsettings.get('on_save_highlight_style', None)
-            self.action = "mark"
             self.options["key"] = MODULE_NAME
             if scope != None:
                 self.options["scope"] = scope
@@ -124,11 +123,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                     for pattern in item['file_pattern']:
                         if fnmatch(file_name, pattern):
                             found = True
-                            if "highlight" in item and bool(item['highlight']):
-                                self.highlights += item['sequence']
-                            else:
-                                multi_pass = True if "multi_pass" in item and bool(item['multi_pass']) else False
-                                self.replacements.append({"sequence": item['sequence'], "multi_pass": multi_pass})
+                            self.select(item)
                             break
                 if not found and 'file_regex' in item:
                     for regex in item['file_regex']:
@@ -136,20 +131,53 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                             r = re.compile(regex, re.IGNORECASE) if not 'case' in item or not bool(item['case']) else re.compile(regex)
                             if r.match(file_name) != None:
                                 found = True
-                                if "highlight" in item and bool(item['highlight']):
-                                    self.highlights += item['sequence']
-                                else:
-                                    multi_pass = True if "multi_pass" in item and bool(item['multi_pass']) else False
-                                    self.replacements.append({"sequence": item['sequence'], "multi_pass": multi_pass})
+                                self.select(item)
                                 break
                         except:
                             pass
                 match |= found
         return match
 
+    def select(self, item):
+        if "action" in item:
+            if item['action'] == "fold":
+                self.folds += item["sequence"]
+            elif item['action'] == "unfold":
+                self.unfolds += item["sequence"]
+            elif item['action'] == "mark":
+                self.highlights += item['sequence']
+            else:
+                sublime.error_message("action %s is not a valid action" % item["action"])
+        elif "highlight" in item and bool(item['highlight']):
+            sublime.message_dialog(
+                "RegReplace:\n\"on_save_sequence\" setting option '\"highlight\": true' is deprecated!\nPlease use '\"action\": \"mark\"'."
+            )
+            self.highlights += item['sequence']
+        else:
+            self.replacements.append(
+                {
+                    "sequence": item['sequence'],
+                    "multi_pass": True if "multi_pass" in item and bool(item['multi_pass']) else False
+                }
+            )
+
+    def apply(self, view, replacements, options={}, multi_pass=False, action=None):
+        view.run_command(
+            'reg_replace',
+            {
+                "replacements": replacements,
+                'action': action,
+                'options': options,
+                'multi_pass': multi_pass,
+                'no_selection': True
+            }
+        )
+
     def on_pre_save(self, view):
         self.replacements = []
         self.highlights = []
+        self.folds = []
+        self.unfolds = []
         self.action = None
         self.multi_pass = False
         self.options = {}
@@ -165,13 +193,14 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                 )
 
             if len(self.highlights) > 0:
-                reg_replace_cmd.run(
-                    edit,
-                    replacements=self.highlights,
-                    action=self.action,
-                    options=self.options,
-                    no_selection=True
-                )
+                self.apply(view, self.highlights, action="mark", options=self.options)
+
+            if len(self.folds) > 0:
+                self.apply(view, self.folds, action="fold")
+
+            if len(self.unfolds) > 0:
+                self.apply(view, self.unfolds, action="unfold")
+
             view.end_edit(edit)
 
 
@@ -212,6 +241,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                         'replacements': self.replacements,
                         'action': self.action,
                         'multi_pass': self.multi_pass,
+                        'regex_full_file_with_selections': self.full_file,
                         'options': self.options
                     }
                 )
@@ -687,6 +717,14 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         if scope == None or scope == '':
             return replace
 
+        if self.selection_only:
+            sels = self.view.sel()
+            sel_start = []
+            sel_size = []
+            for s in sels:
+                sel_start.append(s.begin())
+                sel_size.append(s.size())
+
         regions = self.view.find_by_selector(scope)
 
         if self.selection_only:
@@ -715,6 +753,18 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         else:
             replaced = self.select_scope_regions(regions, greedy_scope)
 
+        if self.selection_only:
+            new_sels = []
+            count = 0
+            offset = 0
+            for s in sels:
+                r = sublime.Region(sel_start[count] + offset, s.end())
+                new_sels.append(r)
+                offset += r.size() - sel_size[count]
+                count += 1
+            sels.clear()
+            sels.add_all(new_sels)
+
         return replaced
 
     def apply(self, pattern):
@@ -733,21 +783,29 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Ignore Case?
         if not case:
-            flags |= sublime.IGNORECASE
+            flags |= re.IGNORECASE
 
-        # Literal find?
-        if literal:
-            flags |= sublime.LITERAL
+        if self.selection_only:
+            sels = self.view.sel()
+            sel_start = []
+            sel_size = []
+            for s in sels:
+                sel_start.append(s.begin())
+                sel_size.append(s.size())
 
         # Find and format replacements
         extractions = []
         try:
-            regions = self.view.find_all(find, flags, replace, extractions)
+            if self.selection_only and not self.full_file:
+                for sel in sels:
+                    regions += self.regex_findall(find, flags, replace, extractions, literal, sel)
+            else:
+                regions = self.regex_findall(find, flags, replace, extractions, literal)
         except Exception, err:
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return replaced
 
-        if self.selection_only:
+        if self.selection_only and self.full_file:
             regions, extractions = self.filter_by_selection(regions, extractions)
 
         # Where there any regions found?
@@ -757,7 +815,36 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 replaced = self.greedy_replace(find, extractions, regions, scope_filter)
             else:
                 replaced = self.non_greedy_replace(find, extractions, regions, scope_filter)
+
+        if self.selection_only:
+            new_sels = []
+            count = 0
+            offset = 0
+            for s in sels:
+                r = sublime.Region(sel_start[count] + offset, s.end())
+                new_sels.append(r)
+                offset += r.size() - sel_size[count]
+                count += 1
+            sels.clear()
+            sels.add_all(new_sels)
+
         return replaced
+
+    def regex_findall(self, find, flags, replace, extractions, literal=False, sel=None):
+        regions = []
+        offset = 0
+        if sel is not None:
+            offset = sel.begin()
+            bfr = self.view.substr(sublime.Region(offset, sel.end()))
+        else:
+            bfr = self.view.substr(sublime.Region(0, self.view.size()))
+        flags |= re.MULTILINE
+        if literal:
+            find = re.escape(find)
+        for m in re.compile(find, flags).finditer(bfr):
+            regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
+            extractions.append(m.expand(replace))
+        return regions
 
     def find_and_replace(self):
         replace_list = rrsettings.get('replacements', {})
@@ -832,12 +919,18 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 break
         return available
 
-    def run(self, edit, replacements=[], find_only=False, clear=False, action=None, multi_pass=False, no_selection=False, options={}):
-        self.find_only = find_only
+    def run(
+        self, edit, replacements=[],
+        find_only=False, clear=False, action=None,
+        multi_pass=False, no_selection=False, regex_full_file_with_selections=False,
+        options={}
+    ):
+        self.find_only = bool(find_only)
         self.action = action.strip() if action != None else action
         self.target_regions = []
         self.replacements = replacements
-        self.multi_pass = multi_pass
+        self.full_file = bool(regex_full_file_with_selections)
+        self.multi_pass = bool(multi_pass)
         self.options = options
         self.selection_only = True if not no_selection and rrsettings.get('selection_only', False) and self.is_selection_available() else False
         self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
