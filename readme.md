@@ -11,7 +11,7 @@ To use, replacements must be defined in the reg_replace.sublime-settings file.
 
 There are two kinds of definitions.  The first uses regex to find regions, and then you can use scopes to qualify the regions before applying the replace.
 
-```
+```javascript
     // Required parameters:
     //     find:    Regex description of what you would like to target.
     //
@@ -28,9 +28,8 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
     //                       - Entire match of scope qualifies match: !scope.name
     //                       - Any instance of scope disqualifies match: -scope.name
     //                       - Entire match of scope disqualifies match: -!scope.name
-```
 
-```javascript
+
     {
         "replacements": {
             "html5_remove_deprecated_type_attr": {
@@ -43,7 +42,7 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
 
 The second kind of definition allows you to search for a scope type and then apply regex to the regions to filter the matches and make replaces.
 
-```
+```javascript
     // Required parameters:
     //     scope:    scope you would like to target
     //
@@ -61,9 +60,8 @@ The second kind of definition allows you to search for a scope type and then app
     //     multi_pass_regex:Boolean setting to define whether there will be multiple sweeps on the scope region
     //                      region to find and replace all instances of the regex, when regex cannot be formatted
     //                      to find all instances in a greedy fashion.  Default is false.
-```
 
-```javascript
+
     {
             "replacements": {
                 "remove_comments": {
@@ -124,7 +122,7 @@ If for any reason the highlights do not get cleared, you can simply run the "Reg
 Highlight color and style can be changed in the settings file.
 
 ## Override Actions
-If instead of replacing you would like to do something else, you can override the action. Actions are defined in commands by setting the ```action``` parameter.  Some actions may require additional parameters be set in the ```options``` parameter.  See examples below.
+If instead of replacing you would like to do something else, you can override the action. Actions are defined in commands by setting the `action` parameter.  Some actions may require additional parameters be set in the `options` parameter.  See examples below.
 
 ```javascript
     {
@@ -181,27 +179,27 @@ This action highlights the regions of the given find target.
 - key = unique name for highlighted regions
 
 ####Optional Parameters:
-- scope = scope name to use as the color. Default is ```invalid```
-- style = highlight style (solid|underline|outline). Default is ```outline```.
+- scope = scope name to use as the color. Default is `invalid`.
+- style = highlight style (solid|underline|outline). Default is `outline`.
 
 ####Input Sequencer order:
-- ```mark=key,scope,style:replacements```
+- `mark=key,scope,style:replacements`.
 
 ### Unmark Override
 action = unmark
 
-This action removes the highlights of a given ```key```.  Replacements can be ommitted with this command.
+This action removes the highlights of a given `key`.  Replacements can be ommitted with this command.
 
 ####Required Parameters:
 - key = unique name of highlighted regions to clear
 
 ####Input Sequencer order:
-- ```unmark=key:``` (replacements do not need to be defined)
+- `unmark=key:` (replacements do not need to be defined)
 
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
 
-Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with ```find_only```.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed mult-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
+Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with `find_only`.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed mult-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
 
 ```javascript
     {
@@ -212,7 +210,7 @@ Multi-pass cannot be paired with override actions (it will be ignored), but it c
 ```
 
 ## Replace Only Under Selection(s)
-Sometimes you only want to search under selections.  This can be done by enabling the ```selection_only``` setting in the settings file.  By enabling this setting, regex targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the ```no_selection``` argument to ```true```.  Highlight style will be forced to underline under selections if ```find_only``` is set to ensure they will show up.
+Sometimes you only want to search under selections.  This can be done by enabling the `selection_only` setting in the settings file.  By enabling this setting, regex targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to underline under selections if `find_only` is set to ensure they will show up.
 
 ```javascript
     // Ignore "selection_only" setting
@@ -224,7 +222,7 @@ Sometimes you only want to search under selections.  This can be done by enablin
 ```
 
 ## Use Regex on Entire File Buffer when Using Selections
-Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections opposed the default behaviour of applying the regex directly to the selection buffer.  To do this, you can use the option ```regex_full_file_with_selections```.
+Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections opposed the default behaviour of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
 
 ```javascript
     {
@@ -242,23 +240,23 @@ Sometimes you might have a regex chain that lends itself better to performing th
 ```
 
 ## Regex Input Sequencer
-If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.
+If you haven't created a command yet, but you want to quickly run a sequence, you can search for `Reg Replace: RegEx Input Sequencer` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.
 
-If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.  This will highlight the regions it can find to give you an idea of what regions will be targeted.  Afterwards, a panel will pop up allowing you to replace if you choose.
+If you only want to highlight the searches and not replace them, precede the sequence with `?:`.  This will highlight the regions it can find to give you an idea of what regions will be targeted.  Afterwards, a panel will pop up allowing you to replace if you choose.
 
-Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence ```fold:```.  If you would like to highlight the selections only and then optionally perform the replace/action, you can precede the sequence like this ```?fold:```.
+Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence `fold:`.  If you would like to highlight the selections only and then optionally perform the replace/action, you can precede the sequence like this `?fold:`.
 
-Some actions might have parameters.  In this case, you can follow the actions with an equal sign and the paramters separated by commas. ```mark=key,string,outline:```.  If some parameters are optional, you can leave them out: ```?mark=key,string``` or ```?mark=key,,outline:```.  The important thing is that the parameters are in the order outlined by the command.
+Some actions might have parameters.  In this case, you can follow the actions with an equal sign and the paramters separated by commas. `mark=key,string,outline:`.  If some parameters are optional, you can leave them out: `?mark=key,string` or `?mark=key,,outline:`.  The important thing is that the parameters are in the order outlined by the command.
 
-If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
+If multiple sweeps are needed to find and replace all targets, you can use multi-pass using `+:`. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches `?+:`.
 
 ## Apply Regex Right Before File Save Event
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.  You can also just highlight, fold, or unfold by regex by adding the ```"action": "mark"``` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regex by adding the `"action": "mark"` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
 
 
 Example:
 
-```
+```javascript
     // If on_save is true, RegReplace will search through the file patterns listed below right before a file is saved,
     // if the file name matches a file pattern, the sequence will be applied before the file is saved.
     // RegReplace will apply all sequences that apply to a given file in the order they appear below.
