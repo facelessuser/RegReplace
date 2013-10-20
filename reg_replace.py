@@ -145,7 +145,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                             flags = 0
                             if not 'case' in item or not bool(item['case']):
                                 flags |= re.IGNORECASE
-                            if 'dotall' in item or bool(item['dotall']):
+                            if 'dotall' in item and bool(item['dotall']):
                                 flags |= re.DOTALL
                             r = re.compile(regex, flags)
                             if r.match(file_name) != None:
