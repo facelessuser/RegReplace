@@ -23,6 +23,8 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
     //                   Default is false.
     //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
     //     case:         Boolean defining case sensitivity.  True equals sensitive. Defualt is true.
+    //     dotall:       Boolean defining whether to use dotall flag in regex (include \n etc. when using dot).
+    //                   Default is False
     //     scope_filter: an array of scope qualifiers for the match.
     //                       - Any instance of scope qualifies match: scope.name
     //                       - Entire match of scope qualifies match: !scope.name
@@ -58,6 +60,8 @@ The second kind of definition allows you to search for a scope type and then app
     //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
     //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
     //     case:            Boolean setting to define whether regex search is case sensitive. Default is true.
+    //     dotall:          Boolean defining whether to use dotall flag in regex (include \n etc. when using dot).
+    //                      Default is False
     //     multi_pass_regex:Boolean setting to define whether there will be multiple sweeps on the scope region
     //                      region to find and replace all instances of the regex, when regex cannot be formatted
     //                      to find all instances in a greedy fashion.  Default is false.
