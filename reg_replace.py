@@ -142,7 +142,12 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                 if not found and 'file_regex' in item:
                     for regex in item['file_regex']:
                         try:
-                            r = re.compile(regex, re.IGNORECASE) if not 'case' in item or not bool(item['case']) else re.compile(regex)
+                            flags = 0
+                            if not 'case' in item or not bool(item['case']):
+                                flags |= re.IGNORECASE
+                            if 'dotall' in item or bool(item['dotall']):
+                                flags |= re.DOTALL
+                            r = re.compile(regex, flags)
                             if r.match(file_name) != None:
                                 found = True
                                 self.select(item)
@@ -719,6 +724,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         case = bool(pattern['case']) if 'case' in pattern else True
         multi = bool(pattern['multi_pass_regex']) if 'multi_pass_regex' in pattern else False
         literal = bool(pattern['literal']) if 'literal' in pattern else False
+        dotall = bool(pattern['dotall']) if 'dotall' in pattern else False
 
         if scope == None or scope == '':
             return replace
@@ -741,7 +747,12 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Compile regex: Ignore case flag?
             if not literal:
                 try:
-                    re_find = re.compile(find, re.IGNORECASE) if case else re.compile(find)
+                    flags = 0
+                    if not case:
+                        flags |= re.IGNORECASE
+                    if dotall:
+                        flags |= re.DOTALL
+                    re_find = re.compile(find, flags)
                 except Exception as err:
                     sublime.error_message('REGEX ERROR: %s' % str(err))
                     return replaced
@@ -783,6 +794,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         find = pattern['find']
         replace = pattern['replace'] if 'replace' in pattern else '\\0'
         literal = bool(pattern['literal']) if 'literal' in pattern else False
+        dotall = bool(pattern['dotall']) if 'dotall' in pattern else False
         greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
         scope_filter = pattern['scope_filter'] if 'scope_filter' in pattern else []
@@ -790,6 +802,8 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         # Ignore Case?
         if not case:
             flags |= re.IGNORECASE
+        if dotall:
+            flags |= re.DOTALL
 
         if self.selection_only:
             sels = self.view.sel()
