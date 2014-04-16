@@ -28,6 +28,26 @@ def underline(regions):
             start += 1
     return new_regions
 
+def expand(text):
+    return re.sub(r"(\\u.|\\l.|\\U.*?\\E|\\L.*?\\E)", repl, text)
+
+def repl(m):
+    s = m.group(0)
+    l = len(s)
+    # print ('Check: {} ({})'.format(s, l))
+    if s[1] == "u":
+        return s[2].upper()
+    elif s[1] == "l":
+        return s[2].lower()
+    elif s[1] == "U":
+        return s[2:l-2].upper() if l > 3 else ""
+    elif s[1] == "L":
+        return s[2:l-2].lower() if l > 3 else ""
+    else:
+        print ('Expansion identification failed for {} ({})'.format(s, l))
+        return s
+
+
 
 class RegReplaceGlobal(object):
     bfr = None
@@ -41,7 +61,7 @@ class RegReplaceGlobal(object):
 
 class RegReplaceApplyCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.replace(edit, RegReplaceGlobal.region, RegReplaceGlobal.bfr)
+        self.view.replace(edit, RegReplaceGlobal.region, expand(RegReplaceGlobal.bfr))
 
 
 class RegReplaceInputCommand(sublime_plugin.WindowCommand):
@@ -414,7 +434,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                     self.target_regions.append(region)
                 else:
                     # Apply replace
-                    self.view.replace(self.edit, region, replace[count])
+                    self.view.replace(self.edit, region, expand(replace[count]))
             count -= 1
         return replaced
 
@@ -470,7 +490,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, replace[selection_index])
+                self.view.replace(self.edit, selected_region, expand(replace[selection_index]))
         return replaced
 
     def apply_scope_regex(self, string, re_find, replace, greedy_replace, multi):
@@ -519,7 +539,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 if self.find_only or self.action != None:
                     self.target_regions.append(region)
                 else:
-                    self.view.replace(self.edit, region, extraction)
+                    self.view.replace(self.edit, region, expand(extraction))
         return total_replaced
 
     def non_greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
@@ -590,7 +610,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, selected_extraction)
+                self.view.replace(self.edit, selected_region, expand(selected_extraction))
         return total_replaced
 
     def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
@@ -605,7 +625,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                     if self.find_only or self.action != None:
                         self.target_regions.append(region)
                     else:
-                        self.view.replace(self.edit, region, extraction)
+                        self.view.replace(self.edit, region, expand(extraction))
         except Exception as err:
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return total_replaced
@@ -670,7 +690,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, selected_extraction)
+                self.view.replace(self.edit, selected_region, expand(selected_extraction))
         return total_replaced
 
     def select_scope_regions(self, regions, greedy_scope):
