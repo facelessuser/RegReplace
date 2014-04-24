@@ -40,7 +40,7 @@ class FindReplace(object):
             except:
                 print(str(traceback.format_exc()))
             if module is not None:
-                text = module.run(text)
+                text = module.run(text, **self.plugin_args)
         return text
 
     def filter_by_selection(self, regions, extractions=None):
@@ -247,7 +247,8 @@ class FindReplace(object):
         greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
         scope_filter = pattern['scope_filter'] if 'scope_filter' in pattern else []
-        self.plugin =  pattern.get("plugin", None)
+        self.plugin = pattern.get("plugin", None)
+        self.plugin_args = pattern.get("args", {})
 
         # Ignore Case?
         if not case:
@@ -586,6 +587,7 @@ class FindReplace(object):
         literal = bool(pattern['literal']) if 'literal' in pattern else False
         dotall = bool(pattern['dotall']) if 'dotall' in pattern else False
         self.plugin =  pattern.get("plugin", None)
+        self.plugin_args = pattern.get("args", {})
 
         if scope == None or scope == '':
             return replace
