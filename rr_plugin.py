@@ -44,7 +44,10 @@ class Plugin(object):
 
     @classmethod
     def load(cls, module_name, loaded=None):
-        path_name = join("Packages", normpath(module_name.replace('.', '/')))
+        if module_name.startswith("rr_modules."):
+            path_name = join("Packages", "RegReplace", normpath(module_name.replace('.', '/')))
+        else:
+            path_name = join("Packages", normpath(module_name.replace('.', '/')))
         path_name += ".py"
         module = None
         if module_name in cls.loaded:
