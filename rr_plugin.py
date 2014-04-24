@@ -1,6 +1,16 @@
+import sublime
 import imp
 import sys
 import traceback
+from os.path import join, normpath
+import re
+
+
+def sublime_format_path(pth):
+    m = re.match(r"^([A-Za-z]{1}):(?:/|\\)(.*)", pth)
+    if sublime.platform() == "windows" and m != None:
+        pth = m.group(1) + "/" + m.group(2)
+    return pth.replace("\\", "/")
 
 
 class Plugin(object):

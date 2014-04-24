@@ -1,6 +1,7 @@
 import sublime
 import re
 from RegReplace.rr_plugin import Plugin
+import traceback
 
 
 class FindReplace(object):
@@ -37,8 +38,7 @@ class FindReplace(object):
             try:
                 module = Plugin.load(self.plugin)
             except:
-                print("Plugin Fail!")
-                pass
+                print(str(traceback.format_exc()))
             if module is not None:
                 text = module.run(text)
         return text
