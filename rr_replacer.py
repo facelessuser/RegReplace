@@ -1,5 +1,6 @@
 import sublime
 import re
+from RegReplace.rr_plugin import Plugin
 
 
 class FindReplace(object):
@@ -8,6 +9,7 @@ class FindReplace(object):
         Initialize find replace object
         """
 
+        Plugin.purge()
         self.view = view
         self.edit = edit
         self.find_only = find_only
@@ -16,12 +18,30 @@ class FindReplace(object):
         self.max_sweeps = max_sweeps
         self.action = action
         self.target_regions = []
+        self.plugin = None
 
     def close(self):
         """
-        Clean up for the object.
+        Clean up for the object.  Mainly clean up the tracked loaded plugins.
         """
-        pass
+
+        Plugin.purge()
+
+    def run_plugin(self, text):
+        """
+        Run the associated plugin on text
+        """
+
+        if self.plugin != None:
+            module = None
+            try:
+                module = Plugin.load(self.plugin)
+            except:
+                print("Plugin Fail!")
+                pass
+            if module is not None:
+                text = module.run(text)
+        return text
 
     def filter_by_selection(self, regions, extractions=None):
         """
@@ -126,7 +146,7 @@ class FindReplace(object):
                     self.target_regions.append(region)
                 else:
                     # Apply replace
-                    self.view.replace(self.edit, region, replace[count])
+                    self.view.replace(self.edit, region, self.run_plugin(replace[count]))
             count -= 1
         return replaced
 
@@ -186,7 +206,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, replace[selection_index])
+                self.view.replace(self.edit, selected_region, self.run_plugin(replace[selection_index]))
         return replaced
 
     def regex_findall(self, find, flags, replace, extractions, literal=False, sel=None):
@@ -338,7 +358,7 @@ class FindReplace(object):
                 if self.find_only or self.action != None:
                     self.target_regions.append(region)
                 else:
-                    self.view.replace(self.edit, region, extraction)
+                    self.view.replace(self.edit, region, self.run_plugin(extraction))
         return total_replaced
 
     def non_greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
@@ -413,7 +433,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, selected_extraction)
+                self.view.replace(self.edit, selected_region, self.run_plugin(selected_extraction))
         return total_replaced
 
     def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
@@ -432,7 +452,7 @@ class FindReplace(object):
                     if self.find_only or self.action != None:
                         self.target_regions.append(region)
                     else:
-                        self.view.replace(self.edit, region, extraction)
+                        self.view.replace(self.edit, region, self.run_plugin(extraction))
         except Exception as err:
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return total_replaced
@@ -501,7 +521,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, selected_extraction)
+                self.view.replace(self.edit, selected_region, self.run_plugin(selected_extraction))
         return total_replaced
 
     def select_scope_regions(self, regions, greedy_scope):
@@ -564,6 +584,7 @@ class FindReplace(object):
         multi = bool(pattern['multi_pass_regex']) if 'multi_pass_regex' in pattern else False
         literal = bool(pattern['literal']) if 'literal' in pattern else False
         dotall = bool(pattern['dotall']) if 'dotall' in pattern else False
+        self.plugin =  pattern.get("plugin", None)
 
         if scope == None or scope == '':
             return replace
