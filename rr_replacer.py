@@ -247,6 +247,7 @@ class FindReplace(object):
         greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
         case = bool(pattern['case']) if 'case' in pattern else True
         scope_filter = pattern['scope_filter'] if 'scope_filter' in pattern else []
+        self.plugin =  pattern.get("plugin", None)
 
         # Ignore Case?
         if not case:
