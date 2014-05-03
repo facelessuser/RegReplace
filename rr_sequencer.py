@@ -32,6 +32,29 @@ def underline(regions):
     return new_regions
 
 
+class RegReplaceGlobal(object):
+    bfr = None
+    region = None
+
+    @classmethod
+    def clear(cls):
+        """
+        Clear buffer and region
+        """
+
+        cls.bfr = None
+        cls.region = None
+
+
+class RegReplaceApplyCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        """
+        Workaround replace text with info from RegReplaceGlobal
+        """
+
+        self.view.replace(edit, RegReplaceGlobal.region, RegReplaceGlobal.bfr)
+
+
 class RegReplaceListenerCommand(sublime_plugin.EventListener):
     def find_replacements(self, view):
         """

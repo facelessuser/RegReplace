@@ -3,29 +3,6 @@ import sublime_plugin
 import re
 
 
-class RegReplaceGlobal(object):
-    bfr = None
-    region = None
-
-    @classmethod
-    def clear(cls):
-        """
-        Clear buffer and region
-        """
-
-        cls.bfr = None
-        cls.region = None
-
-
-class RegReplaceApplyCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        """
-        Workaround replace text with info from RegReplaceGlobal
-        """
-
-        self.view.replace(edit, RegReplaceGlobal.region, RegReplaceGlobal.bfr)
-
-
 class RegReplaceInputCommand(sublime_plugin.WindowCommand):
     def run_sequence(self, value):
         """
