@@ -1,4 +1,3 @@
-import sublime
 import sublime_plugin
 import re
 
@@ -16,7 +15,7 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
 
         # Parse Input
         matches = re.match(r"(\?)?\s*([^\+][\w\W]*|\+?)\s*:\s*([\w\W]*)\s*", value)
-        if matches != None:
+        if matches is not None:
             # Sequence
             value = matches.group(3)
 
@@ -29,20 +28,20 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
                 multi_pass = True
 
             # Action?
-            elif matches.group(2) != '' and matches.group(2) != None:
+            elif matches.group(2) != '' and matches.group(2) is not None:
                 # Mark or unmark: parse options?
                 params = re.match(
                     r"^(unmark|mark)\s*=\s*([\w\s\.\-]*)\s*(?:,\s*([\w\s\.\-]*)\s*)?(?:,\s*([\w\s\.\-]*))?\s*",
                     matches.group(2)
                 )
-                if params != None:
-                    if params.group(2) != '' and params.group(2) != None:
+                if params is not None:
+                    if params.group(2) != '' and params.group(2) is not None:
                         # Mark options
                         if params.group(1) == 'mark':
                             options['key'] = params.group(2).strip()
-                            if params.group(3) != '' and params.group(3) != None:
+                            if params.group(3) != '' and params.group(3) is not None:
                                 options['scope'] = params.group(3).strip()
-                            if params.group(4) != '' and params.group(4) != None:
+                            if params.group(4) != '' and params.group(4) is not None:
                                 options['style'] = params.group(4).strip()
                             action = params.group(1)
                         # Unmark options
@@ -58,7 +57,7 @@ class RegReplaceInputCommand(sublime_plugin.WindowCommand):
         view = self.window.active_view()
 
         # Execute sequence
-        if view != None:
+        if view is not None:
             view.run_command(
                 'reg_replace',
                 {

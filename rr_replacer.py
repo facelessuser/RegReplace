@@ -33,7 +33,7 @@ class FindReplace(object):
         Run the associated plugin on text
         """
 
-        if self.plugin != None:
+        if self.plugin is not None:
             module = None
             try:
                 module = Plugin.load(self.plugin)
@@ -56,11 +56,11 @@ class FindReplace(object):
             for sel in sels:
                 if region.begin() >= sel.begin() and region.end() <= sel.end():
                     new_regions.append(region)
-                    if extractions != None:
+                    if extractions is not None:
                         new_extractions.append(extractions[idx])
                         break
             idx += 1
-        if extractions == None:
+        if extractions is None:
             return new_regions
         else:
             return new_regions, new_extractions
@@ -121,7 +121,7 @@ class FindReplace(object):
                             break
                         pt += 1
                 # If qualificatin of one fails, bail
-                if qualify == False:
+                if qualify is False:
                     return qualify
         # Qualification completed successfully
         return True
@@ -138,10 +138,10 @@ class FindReplace(object):
         # Step through all targets and qualify them for replacement
         for region in reversed(regions):
             # Does the scope qualify?
-            qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
+            qualify = self.qualify_by_scope(region, scope_filter) if scope_filter is not None else True
             if qualify:
                 replaced += 1
-                if self.find_only or self.action != None:
+                if self.find_only or self.action is not None:
                     # If "find only" or replace action is overridden, just track regions
                     self.target_regions.append(region)
                 else:
@@ -168,7 +168,7 @@ class FindReplace(object):
         count = 0
         for region in regions:
             # Does the scope qualify?
-            qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
+            qualify = self.qualify_by_scope(region, scope_filter) if scope_filter is not None else True
             if qualify:
                 # Update as new replacement candidate
                 selected_region = region
@@ -178,7 +178,7 @@ class FindReplace(object):
                 count += 1
 
         # If regions were already swept till the end, skip calculation relative to cursor
-        if selected_region != None and count < last_region and pt != None:
+        if selected_region is not None and count < last_region and pt is not None:
             # Try and find the first qualifying match contained withing the first selection or after
             reverse_count = last_region
             for region in reversed(regions):
@@ -186,7 +186,7 @@ class FindReplace(object):
                 # And check if region contained after start of selection?
                 if reverse_count >= count and region.end() - 1 >= pt:
                     # Does the scope qualify?
-                    qualify = self.qualify_by_scope(region, scope_filter) if scope_filter != None else True
+                    qualify = self.qualify_by_scope(region, scope_filter) if scope_filter is not None else True
                     if qualify:
                         # Update as new replacement candidate
                         selected_region = region
@@ -197,11 +197,11 @@ class FindReplace(object):
                     break
 
         # Did we find a suitable region?
-        if selected_region != None:
+        if selected_region is not None:
             # Show Instance
             replaced += 1
             self.view.show(selected_region.begin())
-            if self.find_only or self.action != None:
+            if self.find_only or self.action is not None:
                 # If "find only" or replace action is overridden, just track regions
                 self.target_regions.append(selected_region)
             else:
@@ -309,7 +309,7 @@ class FindReplace(object):
 
         replaced = 0
         extraction = string
-        if multi and not self.find_only and self.action == None:
+        if multi and not self.find_only and self.action is None:
             extraction, replaced = self.apply_multi_pass_scope_regex(string, extraction, re_find, replace, greedy_replace)
         else:
             if greedy_replace:
@@ -357,7 +357,7 @@ class FindReplace(object):
                 pass
             if replaced > 0:
                 total_replaced += 1
-                if self.find_only or self.action != None:
+                if self.find_only or self.action is not None:
                     self.target_regions.append(region)
                 else:
                     self.view.replace(self.edit, region, self.run_plugin(extraction))
@@ -400,7 +400,7 @@ class FindReplace(object):
                 count += 1
 
         # If regions were already swept till the end, skip calculation relative to cursor
-        if selected_region != None and count < last_region and pt != None:
+        if selected_region is not None and count < last_region and pt is not None:
             # Try and find the first qualifying match contained withing the first selection or after
             reverse_count = last_region
             for region in reversed(regions):
@@ -426,11 +426,11 @@ class FindReplace(object):
                     break
 
         # Did we find a suitable region?
-        if selected_region != None:
+        if selected_region is not None:
             # Show Instance
             total_replaced += 1
             self.view.show(selected_region.begin())
-            if self.find_only or self.action != None:
+            if self.find_only or self.action is not None:
                 # If "find only" or replace action is overridden, just track regions
                 self.target_regions.append(selected_region)
             else:
@@ -451,7 +451,7 @@ class FindReplace(object):
                 extraction, replaced = self.apply_scope_regex(string, re_find, replace, greedy_replace, multi)
                 if replaced > 0:
                     total_replaced += 1
-                    if self.find_only or self.action != None:
+                    if self.find_only or self.action is not None:
                         self.target_regions.append(region)
                     else:
                         self.view.replace(self.edit, region, self.run_plugin(extraction))
@@ -494,7 +494,7 @@ class FindReplace(object):
 
         try:
             # If regions were already swept till the end, skip calculation relative to cursor
-            if selected_region != None and count < last_region and pt != None:
+            if selected_region is not None and count < last_region and pt is not None:
                 # Try and find the first qualifying match contained withing the first selection or after
                 reverse_count = last_region
                 for region in reversed(regions):
@@ -514,11 +514,11 @@ class FindReplace(object):
             return total_replaced
 
         # Did we find a suitable region?
-        if selected_region != None:
+        if selected_region is not None:
             # Show Instance
             total_replaced += 1
             self.view.show(selected_region.begin())
-            if self.find_only or self.action != None:
+            if self.find_only or self.action is not None:
                 # If "find only" or replace action is overridden, just track regions
                 self.target_regions.append(selected_region)
             else:
@@ -550,7 +550,7 @@ class FindReplace(object):
 
             # Walk backwards seeing which scope is valid
             # Quit if you reach the already selected first scope
-            if selected_region != None and last_region > first_region and pt != None:
+            if selected_region is not None and last_region > first_region and pt is not None:
                 reverse_count = last_region
                 for region in reversed(regions):
                     if reverse_count >= first_region and region.end() - 1 >= pt:
@@ -560,7 +560,7 @@ class FindReplace(object):
                         break
 
             # Store the scope if we found one
-            if selected_region != None:
+            if selected_region is not None:
                 replaced += 1
                 self.view.show(selected_region.begin())
                 self.target_regions += [selected_region]
@@ -586,10 +586,10 @@ class FindReplace(object):
         multi = bool(pattern['multi_pass_regex']) if 'multi_pass_regex' in pattern else False
         literal = bool(pattern['literal']) if 'literal' in pattern else False
         dotall = bool(pattern['dotall']) if 'dotall' in pattern else False
-        self.plugin =  pattern.get("plugin", None)
+        self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
 
-        if scope == None or scope == '':
+        if scope is None or scope == '':
             return replace
 
         if self.selection_only:
@@ -606,7 +606,7 @@ class FindReplace(object):
             regions = self.filter_by_selection(regions)
 
         # Find supplied?
-        if find != None:
+        if find is not None:
             # Compile regex: Ignore case flag?
             if not literal:
                 try:
@@ -620,7 +620,7 @@ class FindReplace(object):
                     sublime.error_message('REGEX ERROR: %s' % str(err))
                     return replaced
 
-                #Greedy Scope?
+                # Greedy Scope?
                 if greedy_scope:
                     replaced = self.greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
                 else:

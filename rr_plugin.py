@@ -1,14 +1,14 @@
 import sublime
 import imp
 import sys
-import traceback
+# import traceback
 from os.path import join, normpath
 import re
 
 
 def sublime_format_path(pth):
     m = re.match(r"^([A-Za-z]{1}):(?:/|\\)(.*)", pth)
-    if sublime.platform() == "windows" and m != None:
+    if sublime.platform() == "windows" and m is not None:
         pth = m.group(1) + "/" + m.group(2)
     return pth.replace("\\", "/")
 
@@ -18,7 +18,7 @@ class Plugin(object):
 
     @classmethod
     def purge(cls):
-        loaded = []
+        cls.loaded = []
 
     @classmethod
     def get_module(cls, module_name, path_name):
@@ -27,6 +27,7 @@ class Plugin(object):
             module = sys.modules[module_name]
         except:
             module = cls.load_module(module_name, path_name)
+        return module
 
     @classmethod
     def load_module(cls, module_name, path_name):

@@ -16,6 +16,8 @@ DEFAULT_HIGHLIGHT_STYLE = 'outline'
 DEFAULT_MULTI_PASS_MAX_SWEEP = 100
 MODULE_NAME = 'RegReplace'
 
+rrsettings = {}
+
 
 def underline(regions):
     """
@@ -63,14 +65,14 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
 
         match = False
         file_name = view.file_name()
-        if file_name != None and rrsettings.get('on_save', False):
+        if file_name is not None and rrsettings.get('on_save', False):
             replacements = rrsettings.get('on_save_sequences', [])
             scope = rrsettings.get('on_save_highlight_scope', None)
             style = rrsettings.get('on_save_highlight_style', None)
             self.options["key"] = MODULE_NAME
-            if scope != None:
+            if scope is not None:
                 self.options["scope"] = scope
-            if style != None:
+            if style is not None:
                 self.options["style"] = style
             for item in replacements:
                 found = False
@@ -84,12 +86,12 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                     for regex in item['file_regex']:
                         try:
                             flags = 0
-                            if not 'case' in item or not bool(item['case']):
+                            if 'case' not in item or not bool(item['case']):
                                 flags |= re.IGNORECASE
                             if 'dotall' in item and bool(item['dotall']):
                                 flags |= re.DOTALL
                             r = re.compile(regex, flags)
-                            if r.match(file_name) != None:
+                            if r.match(file_name) is not None:
                                 found = True
                                 self.select(item)
                                 break
@@ -202,9 +204,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # See if we know this view
         window = sublime.active_window()
-        view = window.active_view() if window != None else None
-        if view != None:
-            if self.handshake != None and self.handshake == view.id():
+        view = window.active_view() if window is not None else None
+        if view is not None:
+            if self.handshake is not None and self.handshake == view.id():
                 self.forget_handshake()
                 # re-run command to actually replace targets
                 view.run_command(
@@ -313,7 +315,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         window = self.view.window()
         view = window.get_output_panel('reg_replace_results')
 
-        #Turn off stylings in panel
+        # Turn off stylings in panel
         view.settings().set('draw_white_space', 'none')
         view.settings().set('draw_indent_guides', False)
         view.settings().set('gutter', 'none')
@@ -372,7 +374,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
         # Walk the sequence
         # Multi-pass only if requested and will be occuring
-        if self.multi_pass and not self.find_only and self.action == None:
+        if self.multi_pass and not self.find_only and self.action is None:
             # Multi-pass initialization
             current_replacements = 0
             total_replacements = 0
@@ -421,7 +423,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         else:
             self.clear_highlights(MODULE_NAME)
             # Perform action
-            if self.action != None:
+            if self.action is not None:
                 if not self.perform_action():
                     results = 'Error: Bad Action!'
 
@@ -443,7 +445,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         """
 
         self.find_only = bool(find_only)
-        self.action = action.strip() if action != None else action
+        self.action = action.strip() if action is not None else action
         self.full_file = bool(regex_full_file_with_selections)
         self.selection_only = True if not no_selection and rrsettings.get('selection_only', False) and self.is_selection_available() else False
         self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
@@ -473,6 +475,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             self.start_sequence()
         else:
             self.replace_obj.close()
+
 
 def plugin_loaded():
     global rrsettings
