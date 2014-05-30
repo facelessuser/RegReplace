@@ -1,54 +1,48 @@
 [
-	// Input Sequencer command
-	{
-		"caption": "Reg Replace: RegEx Input Sequencer",
-		"command": "reg_replace_input"
-	},
+    // Clear all find highlights
+    {
+        "caption": "Reg Replace: Clear Highlights",
+        "command": "reg_replace",
+        "args": {"clear": true}
+    },
 
-	// Clear all find highlights
-	{
-		"caption": "Reg Replace: Clear Highlights",
-		"command": "reg_replace",
-		"args": {"clear": true}
-	},
+    // Example commands.
+    // {
+    //     "caption": "Reg Replace: HTML5 Remove Deprecated Type Attr",
+    //     "command": "reg_replace",
+    //     "args": {"replacements": ["html5_remove_deprecated_type_attr"]}
+    // },
+    // {
+    //     "caption": "Reg Replace: Remove Trailing Spaces",
+    //     "command": "reg_replace",
+    //     "args": {"replacements": ["remove_trailing_spaces"]}
+    // },
+    // // Chained replacements in one command
+    // {
+    //     "caption": "Reg Replace: Remove HTML Comments and Trailing Spaces",
+    //     "command": "reg_replace",
+    //     "args": {"replacements": ["remove_html_comments", "remove_trailing_spaces"]}
+    // },
 
-	// Example commands.
-	// {
-	// 	"caption": "Reg Replace: HTML5 Remove Deprecated Type Attr",
-	// 	"command": "reg_replace",
-	// 	"args": {"replacements": ["html5_remove_deprecated_type_attr"]}
-	// },
-	// {
-	// 	"caption": "Reg Replace: Remove Trailing Spaces",
-	// 	"command": "reg_replace",
-	// 	"args": {"replacements": ["remove_trailing_spaces"]}
-	// },
-	// // Chained replacements in one command
-	// {
-	// 	"caption": "Reg Replace: Remove HTML Comments and Trailing Spaces",
-	// 	"command": "reg_replace",
-	// 	"args": {"replacements": ["remove_html_comments", "remove_trailing_spaces"]}
-	// },
-
-	// Preferences
-	{
-		"caption": "Preferences: Reg Replace Settings – Default",
-		"command": "open_file",
-		"args": { "file": "${packages}/RegReplace/reg_replace.sublime-settings" }
-	},
-	{
-		"caption": "Preferences: Reg Replace Settings – User",
-		"command": "open_file",
-		"args": { "file": "${packages}/User/reg_replace.sublime-settings" }
-	},
-	{
-		"caption": "Preferences: Reg Replace Commands – Default",
-		"command": "open_file",
-		"args": { "file": "${packages}/RegReplace/Default.sublime-commands" }
-	},
-	{
-		"caption": "Preferences: Reg Replace Commands – User",
-		"command": "open_file",
-		"args": { "file": "${packages}/User/Default.sublime-commands" }
-	}
+    // Preferences
+    {
+        "caption": "Preferences: Reg Replace Settings – Default",
+        "command": "open_file",
+        "args": { "file": "${packages}/RegReplace/reg_replace.sublime-settings" }
+    },
+    {
+        "caption": "Preferences: Reg Replace Settings – User",
+        "command": "open_file",
+        "args": { "file": "${packages}/User/reg_replace.sublime-settings" }
+    },
+    {
+        "caption": "Preferences: Reg Replace Commands – Default",
+        "command": "open_file",
+        "args": { "file": "${packages}/RegReplace/Default.sublime-commands" }
+    },
+    {
+        "caption": "Preferences: Reg Replace Commands – User",
+        "command": "open_file",
+        "args": { "file": "${packages}/User/Default.sublime-commands" }
+    }
 ]
