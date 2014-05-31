@@ -186,9 +186,6 @@ This action highlights the regions of the given find target.
 - scope = scope name to use as the color. Default is `invalid`.
 - style = highlight style (solid|underline|outline). Default is `outline`.
 
-####Input Sequencer order:
-- `mark=key,scope,style:replacements`.
-
 ### Unmark Override
 action = unmark
 
@@ -196,9 +193,6 @@ This action removes the highlights of a given `key`.  Replacements can be ommitt
 
 ####Required Parameters:
 - key = unique name of highlighted regions to clear
-
-####Input Sequencer order:
-- `unmark=key:` (replacements do not need to be defined)
 
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
@@ -242,17 +236,6 @@ Sometimes you might have a regex chain that lends itself better to performing th
         }
     },
 ```
-
-## Regex Input Sequencer
-If you haven't created a command yet, but you want to quickly run a sequence, you can search for `Reg Replace: RegEx Input Sequencer` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.
-
-If you only want to highlight the searches and not replace them, precede the sequence with `?:`.  This will highlight the regions it can find to give you an idea of what regions will be targeted.  Afterwards, a panel will pop up allowing you to replace if you choose.
-
-Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence `fold:`.  If you would like to highlight the selections only and then optionally perform the replace/action, you can precede the sequence like this `?fold:`.
-
-Some actions might have parameters.  In this case, you can follow the actions with an equal sign and the paramters separated by commas. `mark=key,string,outline:`.  If some parameters are optional, you can leave them out: `?mark=key,string` or `?mark=key,,outline:`.  The important thing is that the parameters are in the order outlined by the command.
-
-If multiple sweeps are needed to find and replace all targets, you can use multi-pass using `+:`. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches `?+:`.
 
 ## Apply Regex Right Before File Save Event
 If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regex by adding the `"action": "mark"` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
@@ -308,93 +291,3 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-# Version 1.7.0
-- Add fold and unfold options for on_save
-- Remove "highlgight": true option in favor of "action": "mark"  (also can use "fold" and "unfold")
-- Allow each selection to be treated as its own buffer when applying regex
-- Add option "regex_full_file_with_selections" to regex entire file and then pick matches from selection when using selections
-
-# Version 1.6.1
-- Auto highlight on save now uses same region label as find_only so it can be cleaned with the clean command and gets clean up with it
-
-# Version 1.6
-- Save under selection added (limits searches to selections if and only if selection exists)
-- Cleanup "highlight on save regions" when performing other regex searches
-
-# Version 1.5.2
-- Do each on save replace sequence separate allowing multi_pass to be only applied to specific sequence.
-- Add per on save sequence multi_pass key/value pair option
-
-# Version 1.5.1
-- Fix some small issues with highlight on save
-- Merge highlight on save sequences and on save replacements under same object.  Specify highlight with the highlight key.
-
-# Version 1.5
-- Allow for highlighting on save
-- Allow on save replacements to use multi_pass
-
-# Version 1.4.2
-- Fix regression with multi-pass
-
-# Version 1.4.1
-- With latest official beta, multiple unfold methods are no longer needed. Remove legacy methods and require latest official build.
-
-# Version 1.4
-- Allow on save regex sequences to define target files with regex as well as unix file name pattern matching
-- Add example "remove_dangling_commas" replacement definition
-- Add example on_save sequence using file regex pattern to remove dangling commas from sublime json files
-
-# Version 1.3
-- Add the ability to apply regex sequences right before a file save event.  Files are targeted with user defined file patterns
-
-# Version 1.2.1
-- Account for people still on the last offical beta since view.folded_regions() is not included in that release.  This method of unfold will be deprecated on new ST2 offical beta release.
-
-# Version 1.2
-- Added support for new API command view.unfold([regions]); old method is a fallback for official beta and will be deprecated on new ST2 official beta release
-
-# Version 1.1
-- Faster unfold when many regions to unfold
-
-# Version 1.0
-- Add "literal" param for scope search defines.
-- Reduce code complexity
-
-# Version 0.9
-- Allow multipass on a scope region with regex with new "multi_pass_regex" parameter
-
-# Version 0.8
-- New "mark" and "unmark" actions
-- Return error dialog showing regex issue
-- Add support for scope search with regex find and replace in scope region
-- Smarter folding of regex regions for "fold" action
-- Small tweak to non-greedy algorithm
-- Change default of optional replace parameter to "\\\\0"; do not delete by default, leave unchanged by default.
-- Allow spaces in the "Regex Input Sequencer"
-
-# Version 0.7
-- Replace command examples now commented out by default
-- RegReplace Commands and Settings now available via preference menu and command palette
-
-# Version 0.6
-- Add multi-pass sweeps
-- Report bad actions
-
-# Version 0.5
-- Make replace an optional parameter defaulted to "" (empty string)
-- Allow override actions to be used instead of replace: fold and unfold
-
-# Version 0.4
-- Add support for "literal" boolean parameter for literal find and replaces
-- Allow the Regex Input Sequencer panel to highlight only by preceding the sequence with "?:"
-
-# Version 0.3
-- Allow option for highlighting find targets without replacing. Show prompt for replacing after highlighting.
-- Add clear command to allow clearing of all highlights if for any reason view loses focus and highlights aren't cleared on cancel.
-
-# Version 0.2
-- "greedy" and "case" parameters are now optional and set to "true" by default
-
-# Version 0.1
-- Initial release
