@@ -188,9 +188,6 @@ This action highlights the regions of the given find target.
 - scope = scope name to use as the color. Default is ```invalid```
 - style = highlight style (solid|underline|outline). Default is ```outline```.
 
-####Input Sequencer order:
-- ```mark=key,scope,style:replacements```
-
 ### Unmark Override
 action = unmark
 
@@ -198,9 +195,6 @@ This action removes the highlights of a given ```key```.  Replacements can be om
 
 ####Required Parameters:
 - key = unique name of highlighted regions to clear
-
-####Input Sequencer order:
-- ```unmark=key:``` (replacements do not need to be defined)
 
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
@@ -244,17 +238,6 @@ Sometimes you might have a regex chain that lends itself better to performing th
         }
     },
 ```
-
-## Regex Input Sequencer
-If you haven't created a command yet, but you want to quickly run a sequence, you can search for ```Reg Replace: RegEx Input Sequencer``` in the command palette and launch an input panel where you can enter the name of replacements separated by commas and press enter.
-
-If you only want to highlight the searches and not replace them, precede the sequence with ```?:```.  This will highlight the regions it can find to give you an idea of what regions will be targeted.  Afterwards, a panel will pop up allowing you to replace if you choose.
-
-Also you can override the replace action with other actions like "fold" or "unfold" were the action precedes the sequence ```fold:```.  If you would like to highlight the selections only and then optionally perform the replace/action, you can precede the sequence like this ```?fold:```.
-
-Some actions might have parameters.  In this case, you can follow the actions with an equal sign and the paramters separated by commas. ```mark=key,string,outline:```.  If some parameters are optional, you can leave them out: ```?mark=key,string``` or ```?mark=key,,outline:```.  The important thing is that the parameters are in the order outlined by the command.
-
-If multiple sweeps are needed to find and replace all targets, you can use multi-pass using ```+:```. Multi-pass cannot be used with action overrides, but it can be used with highlighting searches ```?+:```.
 
 ## Apply Regex Right Before File Save Event
 If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have ```on_save``` set to ```true```.  You can also just highlight, fold, or unfold by regex by adding the ```"action": "mark"``` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
