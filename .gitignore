@@ -1,4 +1,4 @@
 
-reg_replace.pyc
+*.pyc
 
 .DS_Store
