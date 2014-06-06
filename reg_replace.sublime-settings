@@ -122,5 +122,8 @@
     "find_highlight_style": "outline",
 
     // Search under selection(s) if and only if exists
-    "selection_only": false
+    "selection_only": false,
+
+    // Use extended backreferences
+    "extended_back_references": false
 }
