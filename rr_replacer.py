@@ -1,6 +1,7 @@
 import sublime
 import re
 from RegReplace.rr_plugin import Plugin
+import RegReplace.rr_extended as rr_extended
 import traceback
 
 
@@ -20,6 +21,8 @@ class FindReplace(object):
         self.action = action
         self.target_regions = []
         self.plugin = None
+        settings = sublime.load_settings('reg_replace.sublime-settings')
+        self.extend = bool(settings.get("extended_back_references", False))
 
     def close(self):
         """
@@ -28,19 +31,17 @@ class FindReplace(object):
 
         Plugin.purge()
 
-    def run_plugin(self, text):
+    def on_replace(self, m):
         """
-        Run the associated plugin on text
+        Run the associated plugin on the replace event
         """
 
-        if self.plugin is not None:
-            module = None
-            try:
-                module = Plugin.load(self.plugin)
-            except:
-                print(str(traceback.format_exc()))
-            if module is not None:
-                text = module.run(text, **self.plugin_args)
+        try:
+            module = Plugin.load(self.plugin)
+            text = module.replace(m, **self.plugin_args)
+        except:
+            text = m.group(0)
+            print(str(traceback.format_exc()))
         return text
 
     def filter_by_selection(self, regions, extractions=None):
@@ -146,7 +147,7 @@ class FindReplace(object):
                     self.target_regions.append(region)
                 else:
                     # Apply replace
-                    self.view.replace(self.edit, region, self.run_plugin(replace[count]))
+                    self.view.replace(self.edit, region, replace[count])
             count -= 1
         return replaced
 
@@ -206,8 +207,14 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, self.run_plugin(replace[selection_index]))
+                self.view.replace(self.edit, selected_region, replace[selection_index])
         return replaced
+
+    def expand(self, m, replace):
+        if self.extend:
+            return rr_extended.replace(m, self.template)
+        else:
+            return m.expand(replace)
 
     def regex_findall(self, find, flags, replace, extractions, literal=False, sel=None):
         """
@@ -224,9 +231,15 @@ class FindReplace(object):
         flags |= re.MULTILINE
         if literal:
             find = re.escape(find)
-        for m in re.compile(find, flags).finditer(bfr):
+        pattern = re.compile(find, flags)
+        if self.extend:
+            self.template = rr_extended.ReplaceTemplate(pattern, replace)
+        for m in pattern.finditer(bfr):
             regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
-            extractions.append(m.expand(replace))
+            if self.plugin is not None:
+                extractions.append(self.on_replace(m))
+            else:
+                extractions.append(self.expand(m, replace))
         return regions
 
     def apply(self, pattern):
@@ -274,6 +287,7 @@ class FindReplace(object):
             else:
                 regions = self.regex_findall(find, flags, replace, extractions, literal)
         except Exception as err:
+            print(str(traceback.format_exc()))
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return replaced
 
@@ -309,16 +323,23 @@ class FindReplace(object):
 
         replaced = 0
         extraction = string
+        if self.plugin is None:
+            repl = lambda m, replace=replace: self.expand(m, replace)
+        else:
+            repl = self.on_replace
+        pattern = re.compile(re_find)
+        if self.extend:
+            self.template = rr_extended.ReplaceTemplate(pattern, replace)
         if multi and not self.find_only and self.action is None:
-            extraction, replaced = self.apply_multi_pass_scope_regex(string, extraction, re_find, replace, greedy_replace)
+            extraction, replaced = self.apply_multi_pass_scope_regex(pattern, string, extraction, repl, greedy_replace)
         else:
             if greedy_replace:
-                extraction, replaced = re.subn(re_find, replace, string)
+                extraction, replaced = pattern.subn(repl, string)
             else:
-                extraction, replaced = re.subn(re_find, replace, string, 1)
+                extraction, replaced = pattern.subn(repl, string, 1)
         return extraction, replaced
 
-    def apply_multi_pass_scope_regex(self, string, extraction, re_find, replace, greedy_replace):
+    def apply_multi_pass_scope_regex(self, pattern, string, extraction, repl, greedy_replace):
         """
         Use a multi-pass scope regex
         """
@@ -329,9 +350,9 @@ class FindReplace(object):
         while count < self.max_sweeps:
             count += 1
             if greedy_replace:
-                extraction, multi_replaced = re.subn(re_find, replace, extraction)
+                extraction, multi_replaced = pattern.subn(repl, extraction)
             else:
-                extraction, multi_replaced = re.subn(re_find, replace, extraction, 1)
+                extraction, multi_replaced = pattern.subn(repl, extraction, 1)
             if multi_replaced == 0:
                 break
             total_replaced += multi_replaced
@@ -360,7 +381,7 @@ class FindReplace(object):
                 if self.find_only or self.action is not None:
                     self.target_regions.append(region)
                 else:
-                    self.view.replace(self.edit, region, self.run_plugin(extraction))
+                    self.view.replace(self.edit, region, extraction)
         return total_replaced
 
     def non_greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
@@ -435,7 +456,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, self.run_plugin(selected_extraction))
+                self.view.replace(self.edit, selected_region, selected_extraction)
         return total_replaced
 
     def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
@@ -454,8 +475,9 @@ class FindReplace(object):
                     if self.find_only or self.action is not None:
                         self.target_regions.append(region)
                     else:
-                        self.view.replace(self.edit, region, self.run_plugin(extraction))
+                        self.view.replace(self.edit, region, extraction)
         except Exception as err:
+            print(str(traceback.format_exc()))
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return total_replaced
 
@@ -489,6 +511,7 @@ class FindReplace(object):
                 else:
                     count += 1
         except Exception as err:
+            print(str(traceback.format_exc()))
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return total_replaced
 
@@ -510,6 +533,7 @@ class FindReplace(object):
                     else:
                         break
         except Exception as err:
+            print(str(traceback.format_exc()))
             sublime.error_message('REGEX ERROR: %s' % str(err))
             return total_replaced
 
@@ -523,7 +547,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, self.run_plugin(selected_extraction))
+                self.view.replace(self.edit, selected_region, selected_extraction)
         return total_replaced
 
     def select_scope_regions(self, regions, greedy_scope):
@@ -617,6 +641,7 @@ class FindReplace(object):
                         flags |= re.DOTALL
                     re_find = re.compile(find, flags)
                 except Exception as err:
+                    print(str(traceback.format_exc()))
                     sublime.error_message('REGEX ERROR: %s' % str(err))
                     return replaced
 
