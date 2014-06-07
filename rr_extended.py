@@ -14,9 +14,18 @@ class ReplaceTemplate(object):
         self.groups, self.literals = sre_parse.parse_template(self.__template, pattern)
 
     def get_base_template(self):
+        """
+        Return the unmodified template before expansion.
+        """
+
         return self.__original
 
     def __escape_template(self, template):
+        """
+        Because the new backreferences are recognized by python
+        we need to escape them so they come out okay.
+        """
+
         new_template = []
         slash_count = 0
         for c in template:
@@ -32,6 +41,11 @@ class ReplaceTemplate(object):
         return "".join(new_template)
 
     def __add_back_references(self, args):
+        """
+        Add new backreferences, but not if they
+        interfere with existing ones.
+        """
+
         for arg in args:
             if isinstance(arg, str) and len(arg) == 1:
                 if arg not in DEF_BACK_REF and arg not in self.__back_ref:
@@ -53,7 +67,7 @@ class ReplaceTemplate(object):
 class Tokens(object):
     def __init__(self, string):
         self.string = string
-        self.last = len(string) - 1
+        self.max_index = len(string) - 1
         self.index = 0
         self.current = None
 
@@ -66,7 +80,7 @@ class Tokens(object):
         Count \l, \L, \c, \C and \\ as a single char.
         """
 
-        if self.index > self.last:
+        if self.index > self.max_index:
             raise StopIteration
 
         char = self.string[self.index]
@@ -93,89 +107,82 @@ class Tokens(object):
         return self.current
 
 
-class TitleCase(object):
+class BackReferencs(object):
     def __init__(self, match, template):
         self.template = template
         self.upper = False
         self.lower = False
         self.span = False
-        self.match = match
-        self.text = []
+        self._expand_string(match)
 
-    def group_entry(self):
+    def next_group_boundary(self, index):
         """
-        Insert the correct group into the next slot.
-        If we are currently adjusting case, make the appropriate,
-        alteration for the group.  Allow adjustments to span past
-        the current group if needed.
+        Return the next match group boundaries
+        in relation to the index.  Return 'None'
+        if there are no more boundaries.
         """
 
-        g_index = self.template.get_group_index(self.index)
-        if g_index is not None:
-            if self.upper:
-                # Upper case adjustment
-                if self.span:
-                    # Span
-                    self.text.append(self.match.group(g_index).upper())
-                else:
-                    # Single char
-                    g_str = self.match.group(g_index)
-                    if len(g_str):
-                        # No character to adjust
-                        self.text.append(g_str[0].upper() + g_str[1:])
-                        self.upper = False
-            elif self.lower:
-                # Lower case adjustment
-                if self.span:
-                    # Single char
-                    self.text.append(self.match.group(g_index).lower())
-                else:
-                    g_str = self.match.group(g_index)
-                    if len(g_str):
-                        # No character to adjust
-                        self.text.append(g_str[0].lower() + g_str[1:])
-                        self.lower = False
-            else:
-                # Copy the entire group
-                self.text.append(self.match.group(g_index))
+        bound = None
+        for b in self.group_boundaries:
+            if index < b[1]:
+                bound = b
+                break
+        return bound
 
-    def span_upper(self, i, new_entry, c=None):
+    def ignore_index(self, boundary, index):
+        """
+        If the index falls within the current group boundary,
+        return that it should be ignored.
+        """
+
+        return boundary is not None and index >= boundary[0] and index < boundary[1]
+
+    def out_of_boundary(self, boundary, index):
+        """
+        Return if the index has exceeded the right boundary.
+        """
+
+        return boundary is not None and index >= boundary[1]
+
+    def span_upper(self, i):
         """
         Uppercase the next range of characters until end marker is found.
-        Allow spanning past the current group if needed.
+        Ignore \E if found in a group bondary.
         """
 
         try:
-            if c is None:
-                c = next(i)
-            while c != "\\E":
-                new_entry.append(c.upper())
-                c = next(i)
-            self.upper = False
-            self.span = False
+            boundary = self.next_group_boundary(i.index)
+            index = i.index
+            char = next(i)
+            while char != "\\E" or self.ignore_index(boundary, index):
+                self.result.append(char.upper())
+                char = next(i)
+                index = i.index
+                if self.out_of_boundary(boundary, index):
+                    boundary = self.next_group_boundary(i.index)
         except StopIteration:
-            self.upper = True
-            self.span = True
+            pass
 
-    def span_lower(self, i, new_entry, c=None):
+    def span_lower(self, i):
         """
         Lowercase the next range of characters until end marker is found.
-        Allow spanning past the current group if needed.
+        Ignore \E if found in a group bondary.
         """
 
         try:
-            if c is None:
-                c = next(i)
-            while c != "\\E":
-                new_entry.append(c.lower())
-                c = next(i)
-            self.lower = False
-            self.span = False
+            boundary = self.next_group_boundary(i.index)
+            index = i.index
+            char = next(i)
+            while char != "\\E" or self.ignore_index(boundary, index):
+                self.result.append(char.lower())
+                char = next(i)
+                index = i.index
+                if self.out_of_boundary(boundary, index):
+                    boundary = self.next_group_boundary(i.index)
         except StopIteration:
-            self.lower = True
-            self.span = True
+            pass
 
-    def single_lower(self, i, new_entry):
+    def single_lower(self, i):
         """
         Lowercase the next character.
         If none found, allow spanning to the next group.
@@ -184,98 +191,89 @@ class TitleCase(object):
         try:
             t = next(i)
             if len(t) > 1:
-                new_entry.append(t)
+                # Excaped char; just append.
+                self.result.append(t)
             else:
-                new_entry.append(t.lower())
-            self.lower = False
+                self.result.append(t.lower())
         except StopIteration:
-            self.lower = True
+            pass
 
-    def single_upper(self, i, new_entry):
+    def single_upper(self, i):
         """
-        Lowercase the next character.
+        Uppercase the next character.
         If none found, allow spanning to the next group.
         """
 
         try:
             t = next(i)
             if len(t) > 1:
-                new_entry.append(t)
+                # Excaped char; just append.
+                self.result.append(t)
             else:
-                new_entry.append(t.upper())
-            self.upper = False
+                self.result.append(t.upper())
         except StopIteration:
-            self.upper = True
+            pass
 
-    def string_entry(self, entry):
+    def _expand_string(self, match):
         """
-        Parse the string entry and find title case backreferences.
-        Make necessary adjustments if needed.
+        Using the template, expand the string.
+        Keep track of the match group bondaries for later.
         """
 
-        new_entry = []
-        i = Tokens(entry)
-        for t in i:
-            if t is None:
-                break
-            if len(t) > 1 and not self.upper and not self.lower:
-                # Backreference has been found
-                # This is for the neutral state
-                # (currently applying no title cases)
-                c = t[1]
-                if c == "\\":
-                    new_entry.append(t)
-                elif c == "E":
-                    new_entry.append(t)
-                elif c == "l":
-                    self.single_lower(i, new_entry)
-                elif c == "L":
-                    self.span_lower(i, new_entry)
-                elif c == "c":
-                    self.single_upper(i, new_entry)
-                elif c == "C":
-                    self.span_upper(i, new_entry)
+        self.sep = match.string[:0]
+        self.text = []
+        self.result = []
+        self.group_boundaries = []
+        # Expand string
+        char_index = 0
+        for x in range(0, len(self.template.literals)):
+            index = x
+            l = self.template.literals[x]
+            if l is None:
+                g_index = self.template.get_group_index(index)
+                l = match.group(g_index)
+                start = char_index
+                char_index += len(l)
+                self.group_boundaries.append((start, char_index))
+                self.text.append(l)
             else:
-                # This is for normal characters or when in
-                # the active state (currently applying title case)
-                if self.upper:
-                    if self.span:
-                        self.span_upper(i, new_entry, t)
-                    else:
-                        self.single_upper(i, new_entry)
-                elif self.lower:
-                    if self.span:
-                        self.span_lower(i, new_entry, t)
-                    else:
-                        self.single_lower(i, new_entry)
-                else:
-                    new_entry.append(t)
-
-            # Add the newly formatted string
-            if len(new_entry):
-                self.text.append("".join(new_entry))
-                new_entry = []
+                start = char_index
+                char_index += len(l)
+                self.text.append(l)
 
     def expand_titles(self):
         """
-        Parse the template and construct the expanded
-        string with appropriate title cases.
+        Walk the expanded template string and process
+        the new added backreferences and apply the associated
+        action.
         """
 
-        for x in range(0, len(self.template.literals)):
-            self.index = x
-            entry = self.template.literals[x]
-            if entry is None:
-                # Empty slot, find the group that
-                # should fill this spot
-                self.group_entry()
+        # Handle backreferences
+        i = Tokens(self.sep.join(self.text))
+        for t in i:
+            if t is None:
+                break
+
+            # Backreference has been found
+            # This is for the neutral state
+            # (currently applying no title cases)
+            if len(t) > 1:
+                c = t[1]
+                if c == "\\":
+                    self.result.append(t)
+                elif c == "E":
+                    self.result.append(t)
+                elif c == "l":
+                    self.single_lower(i)
+                elif c == "L":
+                    self.span_lower(i)
+                elif c == "c":
+                    self.single_upper(i)
+                elif c == "C":
+                    self.span_upper(i)
             else:
-                # Parse the literal string
-                # and search for upper and lower
-                # case backreferences.
-                # Apply title case if needed.
-                self.string_entry(entry)
-        return "".join(self.text)
+                self.result.append(t)
+        return self.sep.join(self.result)
 
 
 def replace(m, template):
@@ -290,7 +288,7 @@ def replace(m, template):
     assert isinstance(template, ReplaceTemplate), "Not a valid template!"
 
     try:
-        return TitleCase(m, template).expand_titles()
+        return BackReferencs(m, template).expand_titles()
     except:
         print(str(traceback.format_exc()))
-        return sre_parse.expand_template(template.get_base_template(), m)
+        return m.expand(template.get_base_template())
