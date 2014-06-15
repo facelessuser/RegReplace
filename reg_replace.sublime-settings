@@ -43,6 +43,9 @@
 //                      region to find and replace all instances of the regex, when regex cannot be formatted
 //                      to find all instances in a greedy fashion.  Default is false.
 {
+    // Use sub notify if available
+    "use_sub_notify": true,
+
     "replacements": {
         // Example replacements
         "html5_remove_deprecated_type_attr": {

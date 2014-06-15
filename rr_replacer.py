@@ -3,6 +3,7 @@ import re
 from RegReplace.rr_plugin import Plugin
 import RegReplace.rr_extended as rr_extended
 import traceback
+from RegReplace.rr_notify import error
 
 
 class FindReplace(object):
@@ -288,7 +289,7 @@ class FindReplace(object):
                 regions = self.regex_findall(find, flags, replace, extractions, literal)
         except Exception as err:
             print(str(traceback.format_exc()))
-            sublime.error_message('REGEX ERROR: %s' % str(err))
+            error('REGEX ERROR: %s' % str(err))
             return replaced
 
         if self.selection_only and self.full_file:
@@ -478,7 +479,7 @@ class FindReplace(object):
                         self.view.replace(self.edit, region, extraction)
         except Exception as err:
             print(str(traceback.format_exc()))
-            sublime.error_message('REGEX ERROR: %s' % str(err))
+            error('REGEX ERROR: %s' % str(err))
             return total_replaced
 
         return total_replaced
@@ -512,7 +513,7 @@ class FindReplace(object):
                     count += 1
         except Exception as err:
             print(str(traceback.format_exc()))
-            sublime.error_message('REGEX ERROR: %s' % str(err))
+            error('REGEX ERROR: %s' % str(err))
             return total_replaced
 
         try:
@@ -534,7 +535,7 @@ class FindReplace(object):
                         break
         except Exception as err:
             print(str(traceback.format_exc()))
-            sublime.error_message('REGEX ERROR: %s' % str(err))
+            error('REGEX ERROR: %s' % str(err))
             return total_replaced
 
         # Did we find a suitable region?
@@ -642,7 +643,7 @@ class FindReplace(object):
                     re_find = re.compile(find, flags)
                 except Exception as err:
                     print(str(traceback.format_exc()))
-                    sublime.error_message('REGEX ERROR: %s' % str(err))
+                    error('REGEX ERROR: %s' % str(err))
                     return replaced
 
                 # Greedy Scope?

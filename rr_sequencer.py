@@ -9,6 +9,8 @@ import sublime_plugin
 import re
 from fnmatch import fnmatch
 from RegReplace.rr_replacer import FindReplace
+from RegReplace.rr_notify import error
+
 
 DEFAULT_SHOW_PANEL = False
 DEFAULT_HIGHLIGHT_COLOR = 'invalid'
@@ -109,7 +111,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
             elif item['action'] == "mark":
                 self.highlights += item['sequence']
             else:
-                sublime.error_message("action %s is not a valid action" % item["action"])
+                error("action %s is not a valid action" % item["action"])
         elif "highlight" in item and bool(item['highlight']):
             sublime.message_dialog(
                 "RegReplace:\n\"on_save_sequence\" setting option '\"highlight\": true' is deprecated!\nPlease use '\"action\": \"mark\"'."
@@ -346,7 +348,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             try:
                 self.view.unfold(self.ignore_ending_newlines(self.replace_obj.target_regions))
             except:
-                sublime.error_message("Cannot unfold! Please upgrade to the latest stable beta build to remove this error.")
+                error("Cannot unfold! Please upgrade to the latest stable beta build to remove this error.")
         elif self.action == 'mark':
             # Mark targeted regions
             if 'key' in self.options:
@@ -425,7 +427,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Perform action
             if self.action is not None:
                 if not self.perform_action():
-                    results = 'Error: Bad Action!'
+                    results = 'Error: %s - Bad Action!' % self.action
 
             # Report results
             if self.panel_display:
