@@ -165,34 +165,65 @@ If instead of replacing you would like to do something else, you can override th
 - unmark
 
 ### Fold Override
-action = fold
+```js
+"action": "fold"
+```
 
 This action folds the given find target.  This action has no parameters.
 
 ### Unfold Override
-action = unfold
+```js
+"action": "unfold"
+```
 
 This action unfolds the all regions that match the given find target.  This action has no parameters
 
 ### Mark Override
-action = mark
+```js
+"action": "mark"
+```
 
 This action highlights the regions of the given find target.
 
-####Required Parameters:
-- key = unique name for highlighted regions
+#### Mark Options
+Action options are specified with the `options` key.
+
+#####Required Parameters:
+```js
+"options": {"key": "name"}
+```
+
+Unique name for highlighted regions.
 
 ####Optional Parameters:
-- scope = scope name to use as the color. Default is `invalid`.
-- style = highlight style (solid|underline|outline). Default is `outline`.
+```js
+"options": {"scope": "invalid"}
+```
+
+Scope name to use as the color. Default is `invalid`.
+
+```js
+"options": {"style": "outline"}
+```
+
+Highlight style (solid|underline|outline). Default is `outline`.
 
 ### Unmark Override
-action = unmark
+```js
+"action": "unmark"
+```
 
 This action removes the highlights of a given `key`.  Replacements can be ommitted with this command.
 
-####Required Parameters:
-- key = unique name of highlighted regions to clear
+#### Unmark Options
+Action options are specified with the `options` key.
+
+#####Required Parameters:
+```js
+"options": {"key": "name"}
+```
+
+unique name of highlighted regions to clear
 
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
@@ -276,6 +307,102 @@ Example:
         }
     ],
 ```
+
+## Custom Replace Plugins
+There are times that simple regular expresion and replace is not enough.  Since RegReplace uses Python's re regex engine, we can use python code to intercept the replace and do more complex things via a plugin.
+
+In this example we are going to search for dates with the form YYYYMMDD and increment them by one day.
+
+Here is the regex rule, notice we have defined a plugin to replace.  Plugins are defined as if you were importing a module in python.  So in this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder; it is recommended to not use one as Sublime shouldn't bother loading these files as they RegReplace will load them when needed.
+
+```js
+"date_up": {
+    "find": "(?P<year>\\d{4})(?P<month>\\d{2})(?P<day>\\d{2})",
+    "plugin": "User.rr_modules.date_up"
+    // "args": {"some_plugin_arguments": "if_desired"}  <== optional plugin arguments
+}
+```
+
+Next we can define the command that will utilize the regex rule:
+
+```js
+    {
+        "caption": "Replace: Date Up",
+        "command": "reg_replace",
+        "args": {"replacements": ["date_up"], "find_only": true}
+    },
+```
+
+Lastly we can provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace` takes a python re match object, and any arguments you want to feed it (arguments are defined in the regex rule as shown above):
+
+```python
+SHORT_MONTH = 30
+LONG_MONTH = 31
+FEB_MONTH = 28
+FEB_LEAP_MONTH = 29
+
+JAN = 1
+FEB = 2
+MAR = 3
+APR = 4
+MAY = 5
+JUN = 6
+JUL = 7
+AUG = 8
+SEP = 9
+OCT = 10
+NOV = 11
+DEC = 12
+
+
+def is_leap_year(year):
+    return ((year % 4 == 0) and (year % 100 != 0)) or (year % 400 == 0)
+
+
+def days_in_months(month, year):
+    days = LONG_MONTH
+    if month == FEB:
+        days = FEB_LEAP_MONTH if is_leap_year(year) else FEB_MONTH
+    elif month in [SEP, APR, JUN, NOV]:
+        days = SHORT_MONTH
+    return days
+
+
+def increment_by_day(day, month, year):
+    mdays = days_in_months(month, year)
+    if day == mdays:
+        day = 1
+        if month == DEC:
+            month = JAN
+            year += 1
+        else:
+            month += 1
+    else:
+        day += 1
+
+    return day, month, year
+
+
+def replace(m):
+    g = m.groupdict()
+    year = int(g["year"].lstrip("0"))
+    month = int(g["month"].lstrip("0"))
+    day = int(g["day"].lstrip("0"))
+
+    day, month, year = increment_by_day(day, month, year)
+
+    return "%04d%02d%02d" % (year, month, day)
+```
+
+Here is some text to test the example on:
+
+```
+# Test 1: 20140228
+# Test 2: 20141231
+# Test 3: 20140101
+```
+
+RegReplace gomes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
 
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
