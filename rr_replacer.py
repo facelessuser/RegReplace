@@ -24,6 +24,14 @@ class FindReplace(object):
         settings = sublime.load_settings('reg_replace.sublime-settings')
         self.extend = bool(settings.get("extended_back_references", False))
 
+    def view_replace(self, region, replacement):
+        tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', False)
+        self.view.replace(self.edit, region, replacement)
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', True)
+    
     def close(self):
         """
         Clean up for the object.  Mainly clean up the tracked loaded plugins.
@@ -147,7 +155,7 @@ class FindReplace(object):
                     self.target_regions.append(region)
                 else:
                     # Apply replace
-                    self.view.replace(self.edit, region, replace[count])
+                    self.view_replace(region, replace[count])
             count -= 1
         return replaced
 
@@ -207,7 +215,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, replace[selection_index])
+                self.view_replace(selected_region, replace[selection_index])
         return replaced
 
     def expand(self, m, replace):
@@ -381,7 +389,7 @@ class FindReplace(object):
                 if self.find_only or self.action is not None:
                     self.target_regions.append(region)
                 else:
-                    self.view.replace(self.edit, region, extraction)
+                    self.view_replace(region, extraction)
         return total_replaced
 
     def non_greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
@@ -456,7 +464,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, selected_extraction)
+                self.view_replace(selected_region, selected_extraction)
         return total_replaced
 
     def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
@@ -475,7 +483,7 @@ class FindReplace(object):
                     if self.find_only or self.action is not None:
                         self.target_regions.append(region)
                     else:
-                        self.view.replace(self.edit, region, extraction)
+                        self.view_replace(region, extraction)
         except Exception as err:
             print(str(traceback.format_exc()))
             sublime.error_message('REGEX ERROR: %s' % str(err))
@@ -547,7 +555,7 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
-                self.view.replace(self.edit, selected_region, selected_extraction)
+                self.view_replace(selected_region, selected_extraction)
         return total_replaced
 
     def select_scope_regions(self, regions, greedy_scope):
