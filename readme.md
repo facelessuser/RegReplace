@@ -22,7 +22,7 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
     //     literal:      Boolean setting to define whether the find and replace is literal or not.
     //                   Default is false.
     //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
-    //     case:         Boolean defining case sensitivity.  True equals sensitive. Defualt is true.
+    //     case:         Boolean defining case sensitivity.  True equals sensitive. Default is true.
     //     dotall:       Boolean defining whether to use dotall flag in regex (include \n etc. when using dot).
     //                   Default is False
     //     scope_filter: an array of scope qualifiers for the match.
@@ -213,7 +213,7 @@ Highlight style (solid|underline|outline). Default is `outline`.
 "action": "unmark"
 ```
 
-This action removes the highlights of a given `key`.  Replacements can be ommitted with this command.
+This action removes the highlights of a given `key`.  Replacements can be omitted with this command.
 
 #### Unmark Options
 Action options are specified with the `options` key.
@@ -228,7 +228,7 @@ unique name of highlighted regions to clear
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
 
-Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with `find_only`.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed mult-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
+Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with `find_only`.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed multi-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
 
 ```javascript
     {
@@ -251,7 +251,7 @@ Sometimes you only want to search under selections.  This can be done by enablin
 ```
 
 ## Use Regex on Entire File Buffer when Using Selections
-Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections opposed the default behaviour of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
+Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections opposed the default behavior of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
 
 ```javascript
     {
@@ -269,7 +269,7 @@ Sometimes you might have a regex chain that lends itself better to performing th
 ```
 
 ## Apply Regex Right Before File Save Event
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you sepcify by file patterns or file regex.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regex by adding the `"action": "mark"` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you specify by file patterns or file regex.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regex by adding the `"action": "mark"` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
 
 
 Example:
@@ -309,7 +309,7 @@ Example:
 ```
 
 ## Custom Replace Plugins
-There are times that simple regular expresion and replace is not enough.  Since RegReplace uses Python's re regex engine, we can use python code to intercept the replace and do more complex things via a plugin.
+There are times that simple regular expression and replace is not enough.  Since RegReplace uses Python's re regex engine, we can use python code to intercept the replace and do more complex things via a plugin.
 
 In this example we are going to search for dates with the form YYYYMMDD and increment them by one day.
 
