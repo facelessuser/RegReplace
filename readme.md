@@ -251,7 +251,7 @@ Sometimes you only want to search under selections.  This can be done by enablin
 ```
 
 ## Use Regex on Entire File Buffer when Using Selections
-Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections opposed the default behavior of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
+Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections as opposed to the default behavior of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
 
 ```javascript
     {
@@ -405,14 +405,14 @@ Here is some text to test the example on:
 RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
 
 ## Extended Back References
-Python's `re` module (which is what RegReplace uses), doesn't support title case back references: `\u`, `\U`, '\l', `\L`, or `\E`.  This can be a little frustrating when performing certain kinds or replaces where you want to force upper and lower case on certain characters or series of characters.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
+Python's `re` module (which is what RegReplace uses), doesn't support title case back references: `\u`, `\U`, `\l`, `\L`, or `\E`.  This can be a little frustrating when performing certain kinds of replaces where you want to force upper and lower case on certain characters or series of characters.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
 
 ```js
     // Use extended back references
-    "extended_back_references": false
+    "extended_back_references": true
 ```
 
-It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively.
+It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively; python strings reserves `\u` for unicode characters.
 
 | Back&nbsp;References | Description |
 | ---------------------|-------------|
@@ -427,7 +427,7 @@ Example Usage:
 ```js
     "test_case": {
         "find": "([a-z])(?P<somegroup>[a-z]*)((?:_[a-z]+)+)",
-        "replace": "\\u\\1\\L\\g<somegroup>\\E\\U\\g<3>\\E",
+        "replace": "\\c\\1\\L\\g<somegroup>\\E\\C\\g<3>\\E",
         "greedy": true
     }
 ```
