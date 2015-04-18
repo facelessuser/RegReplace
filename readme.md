@@ -313,7 +313,7 @@ There are times that simple regular expression and replace is not enough.  Since
 
 In this example we are going to search for dates with the form YYYYMMDD and increment them by one day.
 
-Here is the regex rule, notice we have defined a plugin to replace.  Plugins are defined as if you were importing a module in python.  So in this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder; it is recommended to not use one as Sublime shouldn't bother loading these files as they RegReplace will load them when needed.
+Here is the regex rule, notice we have defined a plugin to replace.  Plugins are defined as if you were importing a module in python.  So in this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder; it is recommended to not use one as Sublime shouldn't bother loading these files as RegReplace will load them when needed.
 
 ```js
 "date_up": {
@@ -420,7 +420,7 @@ It is important to note that there has been a slight modification to the common 
 | `\l`                 | Lowercase the next character. |
 | `\C`                 | Apply uppercase to all characters until either the end of the string or the end marker `\E` is found. |
 | `\L`                 | Apply lowercase to all characters until either the end of the string or the end marker `\E` is found. |
-| `\E`                 | Signal the of an uppercase or lowercase range. |
+| `\E`                 | Signal the end of an uppercase or lowercase range. |
 
 Example Usage:
 
