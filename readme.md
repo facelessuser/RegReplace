@@ -402,7 +402,35 @@ Here is some text to test the example on:
 # Test 3: 20140101
 ```
 
-RegReplace gomes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
+RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
+
+## Extended Back References
+Python's `re` module (which is what RegReplace uses), doesn't support title case back references: `\u`, `\U`, '\l', `\L`, or `\E`.  This can be a little frustrating when performing certain kinds or replaces where you want to force upper and lower case on certain characters or series of characters.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
+
+```js
+    // Use extended back references
+    "extended_back_references": false
+```
+
+It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively.
+
+| Back&nbsp;References | Description |
+| ---------------------|-------------|
+| `\c`                 | Uppercase the next character. |
+| `\l`                 | Lowercase the next character. |
+| `\C`                 | Apply uppercase to all characters until either the end of the string or the end marker `\E` is found. |
+| `\L`                 | Apply lowercase to all characters until either the end of the string or the end marker `\E` is found. |
+| `\E`                 | Signal the of an uppercase or lowercase range. |
+
+Example Usage:
+
+```js
+    "test_case": {
+        "find": "([a-z])(?P<somegroup>[a-z]*)((?:_[a-z]+)+)",
+        "replace": "\\u\\1\\L\\g<somegroup>\\E\\U\\g<3>\\E",
+        "greedy": true
+    }
+```
 
 # Source Code
 https://github.com/facelessuser/RegReplace/zipball/master
