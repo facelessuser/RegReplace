@@ -1,7 +1,7 @@
 """
 Reg Replace
 Licensed under MIT
-Copyright (c) 2011 - 2012 Isaac Muse <isaacmuse@gmail.com>
+Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
 """
 
 import sublime

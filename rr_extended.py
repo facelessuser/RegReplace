@@ -1,3 +1,8 @@
+"""
+Reg Replace
+Licensed under MIT
+Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
+"""
 import sre_parse
 import traceback
 
