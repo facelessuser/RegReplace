@@ -2,3 +2,5 @@
 reg_replace.pyc
 
 .DS_Store
+
+site/*
