@@ -1,4 +1,10 @@
-# RegReplace
+# RegReplace {: .doctitle}
+A regex sequencer for Sublime Text.
+{: .doctitle-info}
+
+---
+
+# Overview
 Reg Replace is a plugin for Sublime Text 2 that allows the creating of commands consisting of sequences of find and replace instructions.
 
 # Installation

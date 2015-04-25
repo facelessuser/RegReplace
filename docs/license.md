@@ -1,4 +1,7 @@
-# License
+# License {: .doctitle}
+
+---
+
 Reg Replace is released under the MIT license.
 
 Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
