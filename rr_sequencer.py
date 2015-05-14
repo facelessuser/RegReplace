@@ -1,5 +1,6 @@
 """
-Reg Replace
+Reg Replace.
+
 Licensed under MIT
 Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
 """
@@ -22,9 +23,7 @@ rrsettings = {}
 
 
 def underline(regions):
-    """
-    Convert to empty regions
-    """
+    """Convert to empty regions."""
 
     new_regions = []
     for region in regions:
@@ -37,33 +36,36 @@ def underline(regions):
 
 
 class RegReplaceGlobal(object):
+
+    """Global object to aid in replacing text in a view."""
+
     bfr = None
     region = None
 
     @classmethod
     def clear(cls):
-        """
-        Clear buffer and region
-        """
+        """Clear buffer and region."""
 
         cls.bfr = None
         cls.region = None
 
 
 class RegReplaceApplyCommand(sublime_plugin.TextCommand):
+
+    """Command to replace text in a view."""
+
     def run(self, edit):
-        """
-        Workaround replace text with info from RegReplaceGlobal
-        """
+        """Workaround replace text with info from RegReplaceGlobal."""
 
         self.view.replace(edit, RegReplaceGlobal.region, RegReplaceGlobal.bfr)
 
 
 class RegReplaceListenerCommand(sublime_plugin.EventListener):
+
+    """Event listner command."""
+
     def find_replacements(self, view):
-        """
-        Retreive on save replacement rules
-        """
+        """Retreive on save replacement rules."""
 
         match = False
         file_name = view.file_name()
@@ -103,6 +105,8 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         return match
 
     def select(self, item):
+        """Select action to perform."""
+
         if "action" in item:
             if item['action'] == "fold":
                 self.folds += item["sequence"]
@@ -114,7 +118,8 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                 error("action %s is not a valid action" % item["action"])
         elif "highlight" in item and bool(item['highlight']):
             sublime.message_dialog(
-                "RegReplace:\n\"on_save_sequence\" setting option '\"highlight\": true' is deprecated!\nPlease use '\"action\": \"mark\"'."
+                "RegReplace:\n\"on_save_sequence\" setting option '\"highlight\": true' is deprecated!"
+                "\nPlease use '\"action\": \"mark\"'."
             )
             self.highlights += item['sequence']
         else:
@@ -126,9 +131,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
             )
 
     def apply(self, view, replacements, options={}, multi_pass=False, action=None):
-        """
-        Run the actual RegReplace command
-        """
+        """Run the actual RegReplace command."""
 
         view.run_command(
             'reg_replace',
@@ -142,9 +145,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
         )
 
     def on_pre_save(self, view):
-        """
-        Perform searches and specified action on file save
-        """
+        """Perform searches and specified action on file save."""
 
         self.replacements = []
         self.highlights = []
@@ -167,21 +168,20 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
 
 
 class RegReplaceCommand(sublime_plugin.TextCommand):
+
+    """RegReplace command."""
+
     handshake = None
 
     def forget_handshake(self):
-        """
-        Forget current view
-        """
+        """Forget current view."""
 
         self.handshake = None
         self.clear_highlights(MODULE_NAME)
         self.replace_obj.close()
 
     def replace_prompt(self):
-        """
-        Prompt the user to see if they wish to replace the highlighted selections.
-        """
+        """Prompt the user to see if they wish to replace the highlighted selections."""
 
         # Ask if replacements are desired
         self.handshake = self.view.id()
@@ -196,6 +196,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
     def run_replace(self, answer):
         """
         Initiate a find with replace.
+
         Used to initiate replacing when a find is executed with a replace prompt.
         """
 
@@ -225,9 +226,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             self.forget_handshake()
 
     def clear_regions(self, clear, action, options):
-        """
-        Clear highlighted regions specified
-        """
+        """Clear highlighted regions specified."""
 
         cleared = False
         # Clear regions and exit
@@ -242,9 +241,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         return cleared
 
     def set_highlights(self, key, style, color):
-        """
-        Mark regions with specified highlight options
-        """
+        """Mark regions with specified highlight options."""
 
         # Process highlight style
         highlight_style = 0
@@ -267,16 +264,12 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         )
 
     def clear_highlights(self, key):
-        """
-        Clear all highlighted regions of given key
-        """
+        """Clear all highlighted regions of given key."""
 
         self.view.erase_regions(key)
 
     def is_selection_available(self):
-        """
-        See if there are selections in document
-        """
+        """See if there are selections in document."""
 
         available = False
         for sel in self.view.sel():
@@ -286,9 +279,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         return available
 
     def ignore_ending_newlines(self, regions):
-        """
-        Ignore newlines at the end of the region; newlines okay in the middle of region
-        """
+        """Ignore newlines at the end of the region; newlines okay in the middle of region."""
 
         new_regions = []
         for region in regions:
@@ -302,16 +293,12 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         return new_regions
 
     def print_results_status_bar(self, text):
-        """
-        Print results to the status bar
-        """
+        """Print results to the status bar."""
 
         sublime.status_message(text)
 
     def print_results_panel(self, text):
-        """
-        Print find results to an output panel
-        """
+        """Print find results to an output panel."""
 
         # Get/create output panel
         window = self.view.window()
@@ -335,9 +322,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         view.sel().clear()
 
     def perform_action(self):
-        """
-        Perform action on targed text
-        """
+        """Perform action on targed text."""
 
         status = True
         if self.action == 'fold':
@@ -367,6 +352,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
     def find_and_replace(self):
         """
         Walk the sequence finding the targeted regions in the text.
+
         If allowed, replacements will be done as well.
         """
 
@@ -409,9 +395,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         return results
 
     def start_sequence(self):
-        """
-        Run the replace sequence
-        """
+        """Run the replace sequence."""
 
         # Find targets and replace if applicable
         results = self.find_and_replace()
@@ -442,14 +426,15 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         multi_pass=False, no_selection=False, regex_full_file_with_selections=False,
         options={}
     ):
-        """
-        Kick off sequence
-        """
+        """Kick off sequence."""
 
         self.find_only = bool(find_only)
         self.action = action.strip() if action is not None else action
         self.full_file = bool(regex_full_file_with_selections)
-        self.selection_only = True if not no_selection and rrsettings.get('selection_only', False) and self.is_selection_available() else False
+        if not no_selection and rrsettings.get('selection_only', False) and self.is_selection_available():
+            self.selection_only = True
+        else:
+            self.selection_only = False
         self.max_sweeps = rrsettings.get('multi_pass_max_sweeps', DEFAULT_MULTI_PASS_MAX_SWEEP)
         self.replacements = replacements
         self.multi_pass = bool(multi_pass)
@@ -480,5 +465,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
 
 
 def plugin_loaded():
+    """Setup plugin."""
+
     global rrsettings
     rrsettings = sublime.load_settings('reg_replace.sublime-settings')

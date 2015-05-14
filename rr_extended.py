@@ -1,5 +1,6 @@
 """
-Reg Replace
+Reg Replace.
+
 Licensed under MIT
 Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
 """
@@ -11,7 +12,11 @@ DEF_BACK_REF = set("abfnrtvAbBdDsSwWZuxg")
 
 
 class ReplaceTemplate(object):
+
+    """Replace template."""
+
     def __init__(self, pattern, template):
+        """Initialize."""
         self.__original = template
         self.__back_ref = set()
         self.__add_back_references(CAP_TOKEN)
@@ -19,14 +24,14 @@ class ReplaceTemplate(object):
         self.groups, self.literals = sre_parse.parse_template(self.__template, pattern)
 
     def get_base_template(self):
-        """
-        Return the unmodified template before expansion.
-        """
+        """Return the unmodified template before expansion."""
 
         return self.__original
 
     def __escape_template(self, template):
         """
+        Escape new backreferences.
+
         Because the new backreferences are recognized by python
         we need to escape them so they come out okay.
         """
@@ -47,8 +52,9 @@ class ReplaceTemplate(object):
 
     def __add_back_references(self, args):
         """
-        Add new backreferences, but not if they
-        interfere with existing ones.
+        Add new backreferences.
+
+        Only add if they don't interfere with existing ones.
         """
 
         for arg in args:
@@ -57,9 +63,7 @@ class ReplaceTemplate(object):
                     self.__back_ref.add(arg)
 
     def get_group_index(self, index):
-        """
-        Find and return the appropriate group index
-        """
+        """Find and return the appropriate group index."""
 
         g_index = None
         for group in self.groups:
@@ -70,19 +74,27 @@ class ReplaceTemplate(object):
 
 
 class Tokens(object):
+
+    """Tokens."""
+
     def __init__(self, string):
+        """Initialize."""
+
         self.string = string
         self.max_index = len(string) - 1
         self.index = 0
         self.current = None
 
     def __iter__(self):
+        """Iterate."""
+
         return self
 
     def __next__(self):
         """
         Iterate through characters of the string.
-        Count \l, \L, \c, \C and \\ as a single char.
+
+        Count escaped l, L, c, C and backslash as a single char.
         """
 
         if self.index > self.max_index:
@@ -113,7 +125,12 @@ class Tokens(object):
 
 
 class BackReferencs(object):
+
+    """Backrefereces."""
+
     def __init__(self, match, template):
+        """Initialize."""
+
         self.template = template
         self.upper = False
         self.lower = False
@@ -122,9 +139,9 @@ class BackReferencs(object):
 
     def next_group_boundary(self, index):
         """
-        Return the next match group boundaries
-        in relation to the index.  Return 'None'
-        if there are no more boundaries.
+        Return the next match group boundaries in relation to the index.
+
+        Return 'None' if there are no more boundaries.
         """
 
         bound = None
@@ -136,23 +153,24 @@ class BackReferencs(object):
 
     def ignore_index(self, boundary, index):
         """
-        If the index falls within the current group boundary,
+        Ignore the index.
+
+        Ignore if the index falls within the current group boundary,
         return that it should be ignored.
         """
 
         return boundary is not None and index >= boundary[0] and index < boundary[1]
 
     def out_of_boundary(self, boundary, index):
-        """
-        Return if the index has exceeded the right boundary.
-        """
+        """Return if the index has exceeded the right boundary."""
 
         return boundary is not None and index >= boundary[1]
 
     def span_upper(self, i):
         """
         Uppercase the next range of characters until end marker is found.
-        Ignore \E if found in a group bondary.
+
+        Ignore excaped E if found in a group bondary.
         """
 
         try:
@@ -171,7 +189,8 @@ class BackReferencs(object):
     def span_lower(self, i):
         """
         Lowercase the next range of characters until end marker is found.
-        Ignore \E if found in a group bondary.
+
+        Ignore escaped E if found in a group bondary.
         """
 
         try:
@@ -190,6 +209,7 @@ class BackReferencs(object):
     def single_lower(self, i):
         """
         Lowercase the next character.
+
         If none found, allow spanning to the next group.
         """
 
@@ -206,6 +226,7 @@ class BackReferencs(object):
     def single_upper(self, i):
         """
         Uppercase the next character.
+
         If none found, allow spanning to the next group.
         """
 
@@ -222,6 +243,7 @@ class BackReferencs(object):
     def _expand_string(self, match):
         """
         Using the template, expand the string.
+
         Keep track of the match group bondaries for later.
         """
 
@@ -248,6 +270,8 @@ class BackReferencs(object):
 
     def expand_titles(self):
         """
+        Exapnd titlecases.
+
         Walk the expanded template string and process
         the new added backreferences and apply the associated
         action.
@@ -282,8 +306,10 @@ class BackReferencs(object):
 
 
 def replace(m, template):
-    """
-    Replace event.  Using the template, scan for (\c | \C.*?\E | \l | \L.*?\E).
+    r"""
+    Replace event.
+
+    Using the template, scan for (\c | \C.*?\E | \l | \L.*?\E).
     (c|C) are capital/upper case. (l|L) is lower case.
     \c and \l are applied to the next character.  While \C and \L are applied to
     all characters until either the end of the string is found, or the end marker \E

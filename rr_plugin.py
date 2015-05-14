@@ -1,5 +1,6 @@
 """
-Reg Replace
+Reg Replace.
+
 Licensed under MIT
 Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
 """
@@ -12,6 +13,7 @@ import re
 
 
 def sublime_format_path(pth):
+    """Format path for Sublime."""
     m = re.match(r"^([A-Za-z]{1}):(?:/|\\)(.*)", pth)
     if sublime.platform() == "windows" and m is not None:
         pth = m.group(1) + "/" + m.group(2)
@@ -19,14 +21,20 @@ def sublime_format_path(pth):
 
 
 class Plugin(object):
+
+    """Load plugins for RegReplace."""
+
     loaded = []
 
     @classmethod
     def purge(cls):
+        """Purge list of loaded plugins."""
         cls.loaded = []
 
     @classmethod
     def get_module(cls, module_name, path_name):
+        """Get the requested module."""
+
         module = None
         try:
             module = sys.modules[module_name]
@@ -36,6 +44,8 @@ class Plugin(object):
 
     @classmethod
     def load_module(cls, module_name, path_name):
+        """Load the requested module."""
+
         module = imp.new_module(module_name)
         sys.modules[module_name] = module
         exec(
@@ -50,6 +60,8 @@ class Plugin(object):
 
     @classmethod
     def load(cls, module_name, loaded=None):
+        """Load module."""
+
         if module_name.startswith("rr_modules."):
             path_name = join("Packages", "RegReplace", normpath(module_name.replace('.', '/')))
         else:
@@ -64,4 +76,6 @@ class Plugin(object):
 
     @classmethod
     def load_from(cls, module_name, attribute):
+        """Load from a module."""
+
         return getattr(cls.load_module(module_name), attribute)

@@ -1,5 +1,6 @@
 """
-Reg Replace
+Reg Replace.
+
 Licensed under MIT
 Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
 """
@@ -12,10 +13,11 @@ from RegReplace.rr_notify import error
 
 
 class FindReplace(object):
+
+    """Find and replace using regex."""
+
     def __init__(self, view, edit, find_only, full_file, selection_only, max_sweeps, action):
-        """
-        Initialize find replace object
-        """
+        """Initialize find replace object."""
 
         Plugin.purge()
         self.view = view
@@ -31,6 +33,12 @@ class FindReplace(object):
         self.extend = bool(settings.get("extended_back_references", False))
 
     def view_replace(self, region, replacement):
+        """
+        Replace in the view.
+
+        Account for tab settings that can interfere with the replace.
+        """
+
         tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
         if tabs_to_spaces:
             self.view.settings().set('translate_tabs_to_spaces', False)
@@ -39,16 +47,12 @@ class FindReplace(object):
             self.view.settings().set('translate_tabs_to_spaces', True)
 
     def close(self):
-        """
-        Clean up for the object.  Mainly clean up the tracked loaded plugins.
-        """
+        """Clean up for the object.  Mainly clean up the tracked loaded plugins."""
 
         Plugin.purge()
 
     def on_replace(self, m):
-        """
-        Run the associated plugin on the replace event
-        """
+        """Run the associated plugin on the replace event."""
 
         try:
             module = Plugin.load(self.plugin)
@@ -59,9 +63,7 @@ class FindReplace(object):
         return text
 
     def filter_by_selection(self, regions, extractions=None):
-        """
-        Filter results by what is included in selected region
-        """
+        """Filter results by what is included in selected region."""
 
         new_regions = []
         new_extractions = []
@@ -81,18 +83,14 @@ class FindReplace(object):
             return new_regions, new_extractions
 
     def get_sel_point(self):
-        """
-        See if there is a cursor and get the first selections starting point
-        """
+        """See if there is a cursor and get the first selections starting point."""
 
         sel = self.view.sel()
         pt = None if len(sel) == 0 else sel[0].begin()
         return pt
 
     def qualify_by_scope(self, region, pattern):
-        """
-        Qualify the match with scopes.
-        """
+        """Qualify the match with scopes."""
 
         for entry in pattern:
             # Is there something to qualify?
@@ -142,9 +140,7 @@ class FindReplace(object):
         return True
 
     def greedy_replace(self, find, replace, regions, scope_filter):
-        """
-        Perform a greedy replace
-        """
+        """Perform a greedy replace."""
 
         # Initialize replace
         replaced = 0
@@ -166,9 +162,7 @@ class FindReplace(object):
         return replaced
 
     def non_greedy_replace(self, find, replace, regions, scope_filter):
-        """
-        Perform a non-greedy replace
-        """
+        """Perform a non-greedy replace."""
 
         # Initialize replace
         replaced = 0
@@ -225,15 +219,15 @@ class FindReplace(object):
         return replaced
 
     def expand(self, m, replace):
+        """Apply replace."""
+
         if self.extend:
             return rr_extended.replace(m, self.template)
         else:
             return m.expand(replace)
 
     def regex_findall(self, find, flags, replace, extractions, literal=False, sel=None):
-        """
-        Findall with regex
-        """
+        """Findall with regex."""
 
         regions = []
         offset = 0
@@ -257,9 +251,7 @@ class FindReplace(object):
         return regions
 
     def apply(self, pattern):
-        """
-        Normal find and replace
-        """
+        """Normal find and replace."""
 
         # Initialize replacement variables
         regions = []
@@ -331,9 +323,7 @@ class FindReplace(object):
         return replaced
 
     def apply_scope_regex(self, string, re_find, replace, greedy_replace, multi):
-        """
-        Apply regex on a scope
-        """
+        """Apply regex on a scope."""
 
         replaced = 0
         extraction = string
@@ -354,9 +344,7 @@ class FindReplace(object):
         return extraction, replaced
 
     def apply_multi_pass_scope_regex(self, pattern, string, extraction, repl, greedy_replace):
-        """
-        Use a multi-pass scope regex
-        """
+        """Use a multi-pass scope regex."""
 
         multi_replaced = 0
         count = 0
@@ -373,9 +361,7 @@ class FindReplace(object):
         return extraction, total_replaced
 
     def greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
-        """
-        Greedy literal scope replace
-        """
+        """Greedy literal scope replace."""
 
         total_replaced = 0
         for region in reversed(regions):
@@ -399,9 +385,7 @@ class FindReplace(object):
         return total_replaced
 
     def non_greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
-        """
-        Non greedy literal scope replace
-        """
+        """Non greedy literal scope replace."""
 
         # Initialize replace
         total_replaced = 0
@@ -474,9 +458,7 @@ class FindReplace(object):
         return total_replaced
 
     def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
-        """
-        Greedy scope replace
-        """
+        """Greedy scope replace."""
 
         total_replaced = 0
         try:
@@ -498,9 +480,7 @@ class FindReplace(object):
         return total_replaced
 
     def non_greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
-        """
-        Non greedy scope replace
-        """
+        """Non greedy scope replace."""
 
         # Initialize replace
         total_replaced = 0
@@ -565,9 +545,7 @@ class FindReplace(object):
         return total_replaced
 
     def select_scope_regions(self, regions, greedy_scope):
-        """
-        Select scope region
-        """
+        """Select scope region."""
 
         if greedy_scope:
             # Greedy scope; return all scopes
@@ -606,9 +584,7 @@ class FindReplace(object):
         return replaced
 
     def scope_apply(self, pattern):
-        """
-        Find and replace based on scope
-        """
+        """Find and replace based on scope."""
 
         # Initialize replacement variables
         replaced = 0
@@ -687,4 +663,6 @@ class FindReplace(object):
         return replaced
 
     def search(self, pattern, scope=False):
+        """Search with the given patter."""
+
         return self.scope_apply(pattern) if scope else self.apply(pattern)
