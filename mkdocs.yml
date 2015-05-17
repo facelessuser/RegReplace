@@ -3,9 +3,11 @@ repo_url: https://github.com/facelessuser/RegReplace
 site_description: A Sublime Text plugin for creating regex sequences.
 copyright: Copyright &copy; 2011 - 2015 <a href="https://github.com/facelessuser">Isaac Muse</a>
 pages:
-- ['index.md', 'Home']
-- ['usage.md', 'User Guide']
-- ['license.md', 'License']
+- About RegReplace: index.md
+- Installation: installation.md
+- User Guide: usage.md
+- Contributing & Support: contributing.md
+- License: license.md
 theme: readthedocs
 theme_dir: doc_theme
 markdown_extensions:
