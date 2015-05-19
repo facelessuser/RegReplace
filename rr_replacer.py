@@ -12,6 +12,28 @@ import traceback
 from RegReplace.rr_notify import error
 
 
+class ScopeRepl(object):
+
+    """
+    Replace object for scopes.
+
+    Call on_replace event if there is a plugin to run.
+    """
+
+    def __init__(self, has_plugin, replace, expand, replace_event):
+        """Initialize."""
+
+        self.has_plugin = has_plugin
+        self.replace = replace
+        self.expand = expand
+        self.replace_event = replace_event
+
+    def repl(self, m):
+        """Apply replace."""
+
+        return self.replace_event(m) if self.has_plugin else self.expand(m, self.replace)
+
+
 class FindReplace(object):
 
     """Find and replace using regex."""
@@ -57,7 +79,7 @@ class FindReplace(object):
         try:
             module = Plugin.load(self.plugin)
             text = module.replace(m, **self.plugin_args)
-        except:
+        except Exception:
             text = m.group(0)
             print(str(traceback.format_exc()))
         return text
@@ -77,10 +99,7 @@ class FindReplace(object):
                         new_extractions.append(extractions[idx])
                         break
             idx += 1
-        if extractions is None:
-            return new_regions
-        else:
-            return new_regions, new_extractions
+        return (new_regions, new_extractions) if extractions is not None else (new_regions, None)
 
     def get_sel_point(self):
         """See if there is a cursor and get the first selections starting point."""
@@ -139,7 +158,7 @@ class FindReplace(object):
         # Qualification completed successfully
         return True
 
-    def greedy_replace(self, find, replace, regions, scope_filter):
+    def greedy_replace(self, replace, regions, scope_filter):
         """Perform a greedy replace."""
 
         # Initialize replace
@@ -161,7 +180,7 @@ class FindReplace(object):
             count -= 1
         return replaced
 
-    def non_greedy_replace(self, find, replace, regions, scope_filter):
+    def non_greedy_replace(self, replace, regions, scope_filter):
         """Perform a non-greedy replace."""
 
         # Initialize replace
@@ -304,9 +323,9 @@ class FindReplace(object):
         if len(regions) > 0:
             # Greedy or non-greedy search? Get replaced instances.
             if greedy:
-                replaced = self.greedy_replace(find, extractions, regions, scope_filter)
+                replaced = self.greedy_replace(extractions, regions, scope_filter)
             else:
-                replaced = self.non_greedy_replace(find, extractions, regions, scope_filter)
+                replaced = self.non_greedy_replace(extractions, regions, scope_filter)
 
         if self.selection_only:
             new_sels = []
@@ -327,23 +346,23 @@ class FindReplace(object):
 
         replaced = 0
         extraction = string
-        if self.plugin is None:
-            repl = lambda m, replace=replace: self.expand(m, replace)
-        else:
-            repl = self.on_replace
+
+        scope_repl = ScopeRepl(self.plugin, replace, self.expand, self.on_replace)
         pattern = re.compile(re_find)
         if self.extend:
             self.template = rr_extended.ReplaceTemplate(pattern, replace)
         if multi and not self.find_only and self.action is None:
-            extraction, replaced = self.apply_multi_pass_scope_regex(pattern, string, extraction, repl, greedy_replace)
+            extraction, replaced = self.apply_multi_pass_scope_regex(
+                pattern, extraction, scope_repl.repl, greedy_replace
+            )
         else:
             if greedy_replace:
-                extraction, replaced = pattern.subn(repl, string)
+                extraction, replaced = pattern.subn(scope_repl.repl, string)
             else:
-                extraction, replaced = pattern.subn(repl, string, 1)
+                extraction, replaced = pattern.subn(scope_repl.repl, string, 1)
         return extraction, replaced
 
-    def apply_multi_pass_scope_regex(self, pattern, string, extraction, repl, greedy_replace):
+    def apply_multi_pass_scope_regex(self, pattern, extraction, repl, greedy_replace):
         """Use a multi-pass scope regex."""
 
         multi_replaced = 0
@@ -617,7 +636,7 @@ class FindReplace(object):
         regions = self.view.find_by_selector(scope)
 
         if self.selection_only:
-            regions = self.filter_by_selection(regions)
+            regions = self.filter_by_selection(regions)[0]
 
         # Find supplied?
         if find is not None:

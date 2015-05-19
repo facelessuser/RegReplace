@@ -113,10 +113,9 @@ class Tokens(object):
                             self.index += 1
                         else:
                             char += c
-                    except:
+                    except Exception:
                         char += c
-                        pass
-            except:
+            except Exception:
                 pass
 
         self.index += len(char)
@@ -320,6 +319,6 @@ def replace(m, template):
 
     try:
         return BackReferencs(m, template).expand_titles()
-    except:
+    except Exception:
         print(str(traceback.format_exc()))
         return m.expand(template.get_base_template())

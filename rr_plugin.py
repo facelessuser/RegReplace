@@ -38,7 +38,7 @@ class Plugin(object):
         module = None
         try:
             module = sys.modules[module_name]
-        except:
+        except Exception:
             module = cls.load_module(module_name, path_name)
         return module
 
@@ -59,7 +59,7 @@ class Plugin(object):
         return module
 
     @classmethod
-    def load(cls, module_name, loaded=None):
+    def load(cls, module_name):
         """Load module."""
 
         if module_name.startswith("rr_modules."):
@@ -78,4 +78,4 @@ class Plugin(object):
     def load_from(cls, module_name, attribute):
         """Load from a module."""
 
-        return getattr(cls.load_module(module_name), attribute)
+        return getattr(cls.load(module_name), attribute)

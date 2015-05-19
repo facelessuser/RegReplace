@@ -99,7 +99,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                                 found = True
                                 self.select(item)
                                 break
-                        except:
+                        except Exception:
                             pass
                 match |= found
         return match
@@ -130,8 +130,11 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                 }
             )
 
-    def apply(self, view, replacements, options={}, multi_pass=False, action=None):
+    def apply(self, view, replacements, options=None, multi_pass=False, action=None):
         """Run the actual RegReplace command."""
+
+        if options is None:
+            options = {}
 
         view.run_command(
             'reg_replace',
@@ -225,7 +228,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         else:
             self.forget_handshake()
 
-    def clear_regions(self, clear, action, options):
+    def clear_regions(self):
         """Clear highlighted regions specified."""
 
         cleared = False
@@ -332,7 +335,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Unfold regions
             try:
                 self.view.unfold(self.ignore_ending_newlines(self.replace_obj.target_regions))
-            except:
+            except Exception:
                 error("Cannot unfold! Please upgrade to the latest stable beta build to remove this error.")
         elif self.action == 'mark':
             # Mark targeted regions
@@ -421,12 +424,17 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             self.replace_obj.close()
 
     def run(
-        self, edit, replacements=[],
+        self, edit, replacements=None,
         find_only=False, clear=False, action=None,
         multi_pass=False, no_selection=False, regex_full_file_with_selections=False,
-        options={}
+        options=None
     ):
         """Kick off sequence."""
+
+        if replacements is None:
+            replacements = []
+        if options is None:
+            options = {}
 
         self.find_only = bool(find_only)
         self.action = action.strip() if action is not None else action
@@ -453,7 +461,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         )
 
         # Clear regions and exit; no need to run sequences
-        if self.clear_regions(clear, action, options):
+        if self.clear_regions():
             self.replace_obj.close()
             return
 
