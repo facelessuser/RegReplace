@@ -3,7 +3,7 @@ Configuring and using RegReplace.
 
 ---
 
-# Create Find and Replace Sequences
+## Create Find and Replace Sequences
 To use, replacements must be defined in the reg_replace.sublime-settings file.
 
 There are two kinds of definitions.  The first uses regex to find regions, and then you can use scopes to qualify the regions before applying the replace.
@@ -103,7 +103,7 @@ You can also bind a replacement command to a shortcut.
     }
 ```
 
-# View Without Replacing
+## View Without Replacing
 If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
 
 Just add the "find_only" argument and set it to true.
@@ -122,7 +122,7 @@ If for any reason the highlights do not get cleared, you can simply run the "Reg
 
 Highlight color and style can be changed in the settings file.
 
-# Override Actions
+## Override Actions
 If instead of replacing you would like to do something else, you can override the action. Actions are defined in commands by setting the `action` parameter.  Some actions may require additional parameters be set in the `options` parameter.  See examples below.
 
 ```javascript

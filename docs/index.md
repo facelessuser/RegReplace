@@ -3,10 +3,10 @@ A regex sequencer for Sublime Text.
 
 ---
 
-# Overview
+## Overview
 Reg Replace is a plugin for Sublime Text that allows the creating of commands consisting of sequences of find and replace instructions.
 
-# Features
+## Features
 
 - Create find and replace rules that can then be used to create Sublime Commands to call at any time.
 - Chain multiple regex find and replace rules together.
