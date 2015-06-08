@@ -4,7 +4,7 @@ Configuring and using RegReplace.
 ---
 
 ## Create Find and Replace Sequences
-To use, replacements must be defined in the reg_replace.sublime-settings file.
+To use, replacements must be defined in the `reg_replace.sublime-settings` file.
 
 There are two kinds of definitions.  The first uses regex to find regions, and then you can use scopes to qualify the regions before applying the replace.
 
@@ -39,7 +39,7 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
             },
 ```
 
-The second kind of definition allows you to search for a scope type and then apply regex to the regions to filter the matches and make replaces.
+The second kind of definition allows you to search for a scope type and then apply regex to the regions to filter the matches and make replacements.
 
 ```javascript
     // Required parameters:
@@ -73,7 +73,9 @@ The second kind of definition allows you to search for a scope type and then app
                 }
 ```
 
-Once you have replacements defined, there are a number of ways you can run a sequence.  One way is to create a command in the command palette by editing/creating a Default.sublime-commands in your User folder and adding your command.  RegReplace comes with its own Default.sublime-commands file and includes some examples showing simple replacement commands and an example showing the chaining of multiple replacements.
+Once you have replacements defined, there are a number of ways you can run a sequence.  One way is to create a command in the command palette by editing/creating a `Default.sublime-commands` in your `User` folder and then adding your command(s).
+
+Basic replacement command:
 
 ```javascript
     {
@@ -83,7 +85,7 @@ Once you have replacements defined, there are a number of ways you can run a seq
     },
 ```
 
-Chained replacements in one command
+Chained replacements in one command:
 
 ```javascript
     {
@@ -104,7 +106,7 @@ You can also bind a replacement command to a shortcut.
 ```
 
 ## View Without Replacing
-If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting replaces).
+If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting the replacements).
 
 Just add the "find_only" argument and set it to true.
 
@@ -225,9 +227,9 @@ unique name of highlighted regions to clear
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
 
-Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with `find_only`.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against poorly constructed multi-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
+Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with `find_only`.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against a poorly constructed multi-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
 
-```javascript
+```js
     {
         "caption": "Reg Replace: Remove Trailing Spaces",
         "command": "reg_replace",
@@ -236,9 +238,9 @@ Multi-pass cannot be paired with override actions (it will be ignored), but it c
 ```
 
 ## Replace Only Under Selection(s)
-Sometimes you only want to search under selections.  This can be done by enabling the `selection_only` setting in the settings file.  By enabling this setting, regex targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to underline under selections if `find_only` is set to ensure they will show up.
+Sometimes you only want to search under selections.  This can be done by enabling the `selection_only` setting in the settings file.  By enabling this setting, regex targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to underline selections if `find_only` is set to ensure they will show up.
 
-```javascript
+```js
     // Ignore "selection_only" setting
     {
         "caption": "Reg Replace: Remove Trailing Spaces",
@@ -250,7 +252,7 @@ Sometimes you only want to search under selections.  This can be done by enablin
 ## Use Regex on Entire File Buffer when Using Selections
 Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections as opposed to the default behavior of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
 
-```javascript
+```js
     {
         "caption": "Remove: All Comments",
         "command": "reg_replace",
@@ -266,12 +268,12 @@ Sometimes you might have a regex chain that lends itself better to performing th
 ```
 
 ## Apply Regex Right Before File Save Event
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the reg_replace.sublime-settings file.  Each "on save" sequence will be applied to the files you specify by file patterns or file regex.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regex by adding the `"action": "mark"` key/value pair (options are mark, fold, and unfold). Both types can be used at the same time. Actions are performed after replacements.
+If you want to automatically apply a sequence right before a file saves, you can define sequences in the `reg_replace.sublime-settings` file.  Each "on save" sequence will be applied to the files you specify by file patterns or file regex.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regex by adding the `"action": "mark"` key/value pair (supported options are `mark`, `fold`, and `unfold`). Both types can be used at the same time. Actions are performed after replacements.
 
 
 Example:
 
-```javascript
+```js
     // If on_save is true, RegReplace will search through the file patterns listed below right before a file is saved,
     // if the file name matches a file pattern, the sequence will be applied before the file is saved.
     // RegReplace will apply all sequences that apply to a given file in the order they appear below.
@@ -306,11 +308,11 @@ Example:
 ```
 
 ## Custom Replace Plugins
-There are times that simple regular expression and replace is not enough.  Since RegReplace uses Python's re regex engine, we can use python code to intercept the replace and do more complex things via a plugin.
+There are times that a simple regular expression and replace is not enough.  Since RegReplace uses Python's re regex engine, we can use python code to intercept the replace and do more complex things via a plugin.
 
 In this example we are going to search for dates with the form YYYYMMDD and increment them by one day.
 
-Here is the regex rule, notice we have defined a plugin to replace.  Plugins are defined as if you were importing a module in python.  So in this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder; it is recommended to not use one as Sublime shouldn't bother loading these files as RegReplace will load them when needed.
+Below is the regex rule; notice we have defined a plugin to replace.  Plugins are defined as if you were importing a module in python.  So in this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder; it is recommended to not use one as Sublime shouldn't bother loading these files as RegReplace will load them when needed.
 
 ```js
 "date_up": {
@@ -330,7 +332,7 @@ Next we can define the command that will utilize the regex rule:
     },
 ```
 
-Lastly we can provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace` takes a python re match object, and any arguments you want to feed it (arguments are defined in the regex rule as shown above):
+Lastly, we can provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace` takes a python re match object, and any arguments you want to feed it.  Arguments are defined in the regex rule as shown above.
 
 ```python
 SHORT_MONTH = 30
@@ -402,14 +404,14 @@ Here is some text to test the example on:
 RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
 
 ## Extended Back References
-Python's `re` module (which is what RegReplace uses), doesn't support title case back references: `\u`, `\U`, `\l`, `\L`, or `\E`.  This can be a little frustrating when performing certain kinds of replaces where you want to force upper and lower case on certain characters or series of characters.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
+Python's `re` module (which is what RegReplace uses), doesn't support title case back references: `\u`, `\U`, `\l`, `\L`, or `\E`.  This can be a little frustrating when performing certain kinds of replacements in which you want to force upper and lower case on certain characters or series of characters.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
 
 ```js
     // Use extended back references
     "extended_back_references": true
 ```
 
-It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively; python strings reserves `\u` for Unicode characters.
+It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively (just think "capitalize" instead of "uppercase"); python strings reserves `\u` for Unicode characters, so it is not possible to use `u` and `U` in the notation.
 
 | Back&nbsp;References | Description |
 | ---------------------|-------------|
