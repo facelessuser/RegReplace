@@ -7,7 +7,7 @@ Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 import re
 from RegReplace.rr_plugin import Plugin
-import RegReplace.rr_extended as rr_extended
+import RegReplace.backrefs as bre
 import traceback
 from RegReplace.rr_notify import error
 
@@ -241,7 +241,7 @@ class FindReplace(object):
         """Apply replace."""
 
         if self.extend:
-            return rr_extended.replace(m, self.template)
+            return self.template(m)
         else:
             return m.expand(replace)
 
@@ -258,9 +258,11 @@ class FindReplace(object):
         flags |= re.MULTILINE
         if literal:
             find = re.escape(find)
-        pattern = re.compile(find, flags)
-        if self.extend:
-            self.template = rr_extended.ReplaceTemplate(pattern, replace)
+        if self.extend and not literal:
+            pattern = bre.compile_search(find, flags)
+            self.template = bre.compile_replace(pattern, replace)
+        else:
+            pattern = re.compile(find, flags)
         for m in pattern.finditer(bfr):
             regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
             if self.plugin is not None:
@@ -348,9 +350,11 @@ class FindReplace(object):
         extraction = string
 
         scope_repl = ScopeRepl(self.plugin, replace, self.expand, self.on_replace)
-        pattern = re.compile(re_find)
         if self.extend:
-            self.template = rr_extended.ReplaceTemplate(pattern, replace)
+            pattern = bre.compile_search(re_find)
+            self.template = bre.compile_replace(pattern, replace)
+        else:
+            pattern = re.compile(re_find)
         if multi and not self.find_only and self.action is None:
             extraction, replaced = self.apply_multi_pass_scope_regex(
                 pattern, extraction, scope_repl.repl, greedy_replace
@@ -648,7 +652,10 @@ class FindReplace(object):
                         flags |= re.IGNORECASE
                     if dotall:
                         flags |= re.DOTALL
-                    re_find = re.compile(find, flags)
+                    if self.extend:
+                        re_find = bre.compile_search(find, flags)
+                    else:
+                        re_find = re.compile(find, flags)
                 except Exception as err:
                     print(str(traceback.format_exc()))
                     error('REGEX ERROR: %s' % str(err))
