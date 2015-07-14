@@ -404,24 +404,45 @@ Here is some text to test the example on:
 RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
 
 ## Extended Back References
-Python's `re` module (which is what RegReplace uses), doesn't support title case back references: `\u`, `\U`, `\l`, `\L`, or `\E`.  This can be a little frustrating when performing certain kinds of replacements in which you want to force upper and lower case on certain characters or series of characters.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
+Python's `re` module (which is what RegReplace uses), doesn't support the following references: `\u`, `\U`, `\l`, `\L`, `\Q` or `\E`.  It also doesn't support unicode properties.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
 
 ```js
     // Use extended back references
     "extended_back_references": true
 ```
 
-It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively (just think "capitalize" instead of "uppercase"); python strings reserves `\u` for Unicode characters, so it is not possible to use `u` and `U` in the notation.
+It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively (just think "capitalize" instead of "uppercase"); python strings reserves `\u` for Unicode characters, so it is not possible to use `u` and `U` in the notation.  So let's get down to business.
+
+
+### Search Back References
+
+| Back&nbsp;References | Description |
+| ---------------------|-------------|
+| `\c`                 | Uppercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
+| `\l`                 | Lowercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
+| `\C`                 | Inverse uppercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
+| `\L`                 | Inverse lowercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
+| `\Q...\E`            | Quotes (escapes) text for regex.  `\E` signifies the end of the quoting. Will be ignored in character classes `[]`. |
+| '\p{UnicodeProperty}'| Unicode property character class. Search string must be a Unicode string. Can be used in character classes `[]`. |
+| '\P{UnicodeProperty}'| Inverse Unicode property character class. Search string must be a Unicode string. Can be used in character classes `[]`. |
+
+
+### Replace Back References
 
 | Back&nbsp;References | Description |
 | ---------------------|-------------|
 | `\c`                 | Uppercase the next character. |
 | `\l`                 | Lowercase the next character. |
-| `\C`                 | Apply uppercase to all characters until either the end of the string or the end marker `\E` is found. |
-| `\L`                 | Apply lowercase to all characters until either the end of the string or the end marker `\E` is found. |
-| `\E`                 | Signal the end of an uppercase or lowercase range. |
+| `\C...\E`            | Apply uppercase to all characters until either the end of the string or the end marker `\E` is found. |
+| `\L...\E`            | Apply lowercase to all characters until either the end of the string or the end marker `\E` is found. |
 
-Example Usage:
+
+### Unicode Properties
+
+TODO
+
+
+### Examples
 
 ```js
     "test_case": {
