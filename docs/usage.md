@@ -495,3 +495,31 @@ Unicode properties can be used with the format: `\p{UnicodeProperty}`.  The inve
 | Space_Separator | Zs |
 | Line_Separator | Zl |
 | Paragraph_Separator | Z |
+
+### Using Backrefs in RegReplace Plugin
+You can import backrefs into a RegReplace plugin:
+
+```python
+import RegReplace.backrefs as bre
+```
+
+Backrefs does provide a wrapper for things like `bre.match`, `bre.sub`, etc., but is recommended to compile your search patterns **and** your replace patterns for the best performance.  See below for an example.  Notice the compiled pattern is fed into the replace pattern.  You can feed a string into the replace pattern as well, but the compiled pattern will be faster.
+
+```python
+pattern = compile_search(r'somepattern', flags)
+replace = compile_replace(pattern, r'\1 some replace pattern')
+```
+
+Assuming the above compiling, you can use them like so:
+
+```python
+text = pattern.sub(replace, 'sometext')
+```
+
+or
+
+```python
+m = pattern.match('sometext')
+if m:
+    text = replace(m)  # similar to m.expand(template)
+```
