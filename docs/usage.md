@@ -404,45 +404,14 @@ Here is some text to test the example on:
 RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
 
 ## Extended Back References
-Python's `re` module (which is what RegReplace uses), doesn't support the following references: `\u`, `\U`, `\l`, `\L`, `\Q` or `\E`.  It also doesn't support unicode properties.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
+Python's `re` module (which is what RegReplace uses), doesn't support the following references: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E`.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
 
 ```js
     // Use extended back references
     "extended_back_references": true
 ```
 
-It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively (just think "capitalize" instead of "uppercase"); python strings reserves `\u` for Unicode characters, so it is not possible to use `u` and `U` in the notation.  So let's get down to business.
-
-
-### Search Back References
-
-| Back&nbsp;References | Description |
-| ---------------------|-------------|
-| `\c`                 | Uppercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
-| `\l`                 | Lowercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
-| `\C`                 | Inverse uppercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
-| `\L`                 | Inverse lowercase character class.  ASCII or Unicode when re.UNICODE is enabled.  Can be used in character classes `[]`. |
-| `\Q...\E`            | Quotes (escapes) text for regex.  `\E` signifies the end of the quoting. Will be ignored in character classes `[]`. |
-| '\p{UnicodeProperty}'| Unicode property character class. Search string must be a Unicode string. Can be used in character classes `[]`. |
-| '\P{UnicodeProperty}'| Inverse Unicode property character class. Search string must be a Unicode string. Can be used in character classes `[]`. |
-
-
-### Replace Back References
-
-| Back&nbsp;References | Description |
-| ---------------------|-------------|
-| `\c`                 | Uppercase the next character. |
-| `\l`                 | Lowercase the next character. |
-| `\C...\E`            | Apply uppercase to all characters until either the end of the string or the end marker `\E` is found. |
-| `\L...\E`            | Apply lowercase to all characters until either the end of the string or the end marker `\E` is found. |
-
-
-### Unicode Properties
-
-TODO
-
-
-### Examples
+When enabled, you can apply the back references to your patterns as you would other back references:
 
 ```js
     "test_case": {
@@ -451,3 +420,78 @@ TODO
         "greedy": true
     }
 ```
+
+It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively (just think "capitalize" instead of "uppercase"); python strings reserve `\u` and `\U` for Unicode characters, so it is not possible to use `u` and `U` in the notation.  With that out of the way, let's get down to business.
+
+### Search Back References
+
+| Back&nbsp;References | Description |
+| ---------------------|-------------|
+| `\c`                 | Uppercase character class.  ASCII or Unicode when re Unicode flag is used.  Can be used in character classes `[]`. |
+| `\l`                 | Lowercase character class.  ASCII or Unicode when re Unicode flag is used.  Can be used in character classes `[]`. |
+| `\C`                 | Inverse uppercase character class.  ASCII or Unicode when re Unicode flag is used.  Can be used in character classes `[]`. |
+| `\L`                 | Inverse lowercase character class.  ASCII or Unicode when re Unicode flag is used.  Can be used in character classes `[]`. |
+| `\Q...\E`            | Quotes (escapes) text for regex.  `\E` signifies the end of the quoting. Will be ignored in character classes `[]`. |
+| `\p{UnicodeProperty}`| Unicode property character class. Search string must be a Unicode string. Can be used in character classes `[]`. See [Unicode Properties](#unicode-properties) for more info. |
+| `\P{UnicodeProperty}`| Inverse Unicode property character class. Search string must be a Unicode string. Can be used in character classes `[]`. See [Unicode Properties](#unicode-properties) for more info. |
+
+
+### Replace Back References
+None of the replace back references can be used in character classes `[]`.
+
+| Back&nbsp;References | Description |
+| ---------------------|-------------|
+| `\c`                 | Uppercase the next character. |
+| `\l`                 | Lowercase the next character. |
+| `\C...\E`            | Apply uppercase to all characters until either the end of the string or the end marker `\E` is found. |
+| `\L...\E`            | Apply lowercase to all characters until either the end of the string or the end marker `\E` is found. |
+
+!!! tip "Tip"
+    Complex configurations of casing should work fine.
+
+    - `\L\cTEST\E` --> `Test`
+    - `\c\LTEST\E` --> `Test`
+    - `\L\cTEST \cTEST\E` --> `Test Test`
+
+### Unicode Properties
+Unicode properties can be used with the format: `\p{UnicodeProperty}`.  The inverse can also be used to specify everything not in a Unicode property: `\P{UnicodeProperty}`.  They are only used in the search patterns. You can use either the verbose format or the terse format, but only one property may specified between the curly braces.  If you want to use multiple properties, you can place them in a character class: `[\p{UnicodeProperty}\p{OtherUnicodeProperty}]`.  See the table below to see all the Unicode properties that can be used.
+
+| Verbose&nbsp;Property&nbsp;Form | Terse&nbsp;Property&nbsp;Form |
+|---------------------------------|-------------------------------|
+| Other | C |
+| Control | Cc |
+| Format | Cf |
+| Surrogate | Cs |
+| Private_Use | Co |
+| Unassigned | Cn |
+| Letter | L |
+| Uppercase_Letter | Lu |
+| Lowercase_Letter | Ll |
+| Titlecase_Letter | Lt |
+| Modifier_Letter | Lm |
+| Other_Letter | Lo |
+| Mark | M |
+| Nonspacing_Mark | Mc |
+| Spacing_Mark | Me |
+| Enclosing_Mark | Md |
+| Number | N |
+| Decimal_Number | Nd |
+| Letter_Number | Nl |
+| Other_Number | No |
+| Punctuation | P |
+| Connector_Punctuation | Pc |
+| Dash_Punctuation | Pd |
+| Open_Punctuation | Ps |
+| Close_Punctuation | Pe |
+| Initial_Punctuation | Pi |
+| Final_Punctuation | Pf |
+| Other_Punctuation | Po |
+| Symbol | S |
+| Math_Symbol | Sm |
+| Currency_Symbol | Sc |
+| Modifier_Symbol | Sk |
+| Other_Symbol | So |
+| Separator | Z |
+| Space_Separator | Zs |
+| Line_Separator | Zl |
+| Paragraph_Separator | Z |
