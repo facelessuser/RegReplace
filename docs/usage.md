@@ -404,14 +404,14 @@ Here is some text to test the example on:
 RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
 
 ## Extended Back References
-Python's `re` module (which is what RegReplace uses), doesn't support the following references: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E`.  Well, no worries, extended back references to the rescue!  You can enable extended back references in the settings file:
+RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for RegReplace and adds various additional backrefs that are known to some regex engins, but not to Python's re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and `\C`).  You can enable extended back references in the settings file:
 
 ```js
     // Use extended back references
     "extended_back_references": true
 ```
 
-When enabled, you can apply the back references to your patterns as you would other back references:
+When enabled, you can apply the back references to your search and/or replace patterns as you would other back references:
 
 ```js
     "test_case": {
@@ -420,8 +420,6 @@ When enabled, you can apply the back references to your patterns as you would ot
         "greedy": true
     }
 ```
-
-It is important to note that there has been a slight modification to the common convention; instead of using `\u` and `\U` for uppercase, we use `\c` and `\C` respectively (just think "capitalize" instead of "uppercase"); python strings reserve `\u` and `\U` for Unicode characters, so it is not possible to use `u` and `U` in the notation.  With that out of the way, let's get down to business.
 
 ### Search Back References
 
@@ -503,23 +501,40 @@ You can import backrefs into a RegReplace plugin:
 import RegReplace.backrefs as bre
 ```
 
-Backrefs does provide a wrapper for things like `bre.match`, `bre.sub`, etc., but is recommended to compile your search patterns **and** your replace patterns for the best performance.  See below for an example.  Notice the compiled pattern is fed into the replace pattern.  You can feed a string into the replace pattern as well, but the compiled pattern will be faster.
+Backrefs does provide a wrapper for all of re's normal functions such as `match`, `sub`, etc., but is recommended to pre-compile your search patterns **and** your replace patterns for the best performance; especially if you plan on reusing the same pattern multiple times.  As re does cache a certain amount of the non-compiled calls you will be spared from some of the performance hit, but backrefs does not cache the pre-processing of search and replace patterns.
+
+To use pre-compiled functions, you compile the search pattern with `compile_search`.  If you want to take advantage of replace backrefs, you need to compile the replace pattern as well.  Notice the compiled pattern is fed into the replace pattern; you can feed the replace compiler the string representation of the search pattern as well, but the compiled pattern will be faster and is the recommended way.
 
 ```python
-pattern = compile_search(r'somepattern', flags)
-replace = compile_replace(pattern, r'\1 some replace pattern')
+pattern = bre.compile_search(r'somepattern', flags)
+replace = bre.compile_replace(pattern, r'\1 some replace pattern')
 ```
 
-Assuming the above compiling, you can use them like so:
+Then you can use the complied search pattern and replace
 
 ```python
-text = pattern.sub(replace, 'sometext')
+text = pattern.sub(replace, r'sometext')
 ```
 
 or
 
 ```python
-m = pattern.match('sometext')
+m = pattern.match(r'sometext')
 if m:
     text = replace(m)  # similar to m.expand(template)
+```
+
+To use the non-compiled search/replace functions, you call them just them as you would in re; the names are the same.  Methods like `sub` and `subn` will compile the replace pattern on the fly if given a string.
+
+```python
+for m in bre.finditer(r'somepattern', 'some text', bre.UNICODE | bre.DOTALL):
+    # do something
+```
+
+If you want to replace without compiling, you can use the `expand` method.
+
+```python
+m = bre.match(r'sometext')
+if m:
+    text = bre.expand(m, r'replace pattern')
 ```
