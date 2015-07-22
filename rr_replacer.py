@@ -7,7 +7,7 @@ Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 import re
 from RegReplace.rr_plugin import Plugin
-import RegReplace.backrefs as bre
+from RegReplace.backrefs import bre
 import traceback
 from RegReplace.rr_notify import error
 
