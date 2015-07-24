@@ -32,4 +32,4 @@ The recommended way to install RegReplace is via [Package Control](https://packa
     git clone https://github.com/facelessuser/RegReplace.git RegReplace
     ```
 
-3 Restart Sublime Text.
+3. Restart Sublime Text.
