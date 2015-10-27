@@ -21,7 +21,6 @@ def sublime_format_path(pth):
 
 
 class Plugin(object):
-
     """Load plugins for RegReplace."""
 
     loaded = []

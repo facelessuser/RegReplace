@@ -36,7 +36,6 @@ def underline(regions):
 
 
 class RegReplaceGlobal(object):
-
     """Global object to aid in replacing text in a view."""
 
     bfr = None
@@ -51,7 +50,6 @@ class RegReplaceGlobal(object):
 
 
 class RegReplaceApplyCommand(sublime_plugin.TextCommand):
-
     """Command to replace text in a view."""
 
     def run(self, edit):
@@ -61,7 +59,6 @@ class RegReplaceApplyCommand(sublime_plugin.TextCommand):
 
 
 class RegReplaceListenerCommand(sublime_plugin.EventListener):
-
     """Event listner command."""
 
     def find_replacements(self, view):
@@ -171,7 +168,6 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
 
 
 class RegReplaceCommand(sublime_plugin.TextCommand):
-
     """RegReplace command."""
 
     handshake = None

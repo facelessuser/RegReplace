@@ -13,7 +13,6 @@ from RegReplace.rr_notify import error
 
 
 class ScopeRepl(object):
-
     """
     Replace object for scopes.
 
@@ -35,7 +34,6 @@ class ScopeRepl(object):
 
 
 class FindReplace(object):
-
     """Find and replace using regex."""
 
     def __init__(self, view, edit, find_only, full_file, selection_only, max_sweeps, action):
