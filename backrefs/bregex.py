@@ -72,6 +72,8 @@ if REGEX_SUPPORT:
     VERSION1 = regex.VERSION1
     W = regex.W
     WORD = regex.WORD
+    P = regex.P
+    POSIX = regex.POSIX
     DEFAULT_VERSION = regex.DEFAULT_VERSION
     REGEX_TYPE = type(regex.compile('', 0))
     escape = regex.escape
@@ -79,7 +81,7 @@ if REGEX_SUPPORT:
 
     utokens = {
         "regex_flags": re.compile(
-            r'(?s)(\\.)|\(\?((?:[Laberux]|V0|V1|-?[imsfw])+)[):]|(.)'
+            r'(?s)(\\.)|\(\?((?:[Laberuxp]|V0|V1|-?[imsfw])+)[):]|(.)'
         ),
         "regex_search_ref": re.compile(
             r'''(?x)
@@ -109,7 +111,7 @@ if REGEX_SUPPORT:
 
     btokens = {
         "regex_flags": re.compile(
-            br'(?s)(\\.)|\(\?((?:[Laberux]|V0|V1|-?[imsfw])+)[):]|(.)'
+            br'(?s)(\\.)|\(\?((?:[Laberuxp]|V0|V1|-?[imsfw])+)[):]|(.)'
         ),
         "regex_search_ref": re.compile(
             br'''(?x)
@@ -138,7 +140,6 @@ if REGEX_SUPPORT:
     }
 
     class RegexSearchTokens(compat.Tokens):
-
         """Tokens."""
 
         def __init__(self, string, verbose):
@@ -193,7 +194,6 @@ if REGEX_SUPPORT:
             return self.current
 
     class RegexSearchTemplate(object):
-
         """Search Template."""
 
         def __init__(self, search, re_verbose=False, re_version=0):
@@ -428,7 +428,6 @@ if REGEX_SUPPORT:
             return self._empty.join(self.extended)
 
     class RegexReplaceTemplate(bre.ReplaceTemplate):
-
         """Replace template for the regex module."""
 
         def parse_template(self, pattern):
