@@ -421,7 +421,7 @@ When enabled, you can apply the back references to your search and/or replace pa
     }
 ```
 
-You can read more about the backrefs features in the [backrefs documentation](https://github.com/facelessuser/sublime-backrefs/blob/master/readme.md).
+You can read more about the backrefs' features in the [backrefs documentation](https://github.com/facelessuser/sublime-backrefs/blob/master/readme.md).
 
 ### Getting the Latest Backrefs
 It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package Control's `Satisfy Dependencies` command which will update to the latest release.
