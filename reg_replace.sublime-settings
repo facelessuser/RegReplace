@@ -46,8 +46,9 @@
     // Use sub notify if available
     "use_sub_notify": true,
 
+    // Example replacements
     "replacements": {
-        // Example replacements
+        // remove deprecated type attr
         "html5_remove_deprecated_type_attr": {
             "find": "(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
             "replace": "\\1\\6",
@@ -61,6 +62,7 @@
             "greedy": true,
             "scope_filter": ["-string", "-comment"]
         },
+        // remove html comments
         "remove_html_comments": {
             "find": "<!--[\\s\\S]+?-->",
             "replace": "",
@@ -68,18 +70,25 @@
             "greedy": true,
             "case": true
         },
+        // remove the trailing spaces
         "remove_trailing_spaces": {
             "find": "[ \\t]+$",
             "replace": "",
             "greedy": true,
             "case": true
         },
-        // Delete a comment or comment blocks
+
+        // delete a comment or comment blocks
         "remove_comments": {
             "scope": "comment",
             "find" : "([^\\n\\r]+)",
             "replace": "",
             "greedy_replace": true
+        },
+
+        // find all non ascii chars
+        "non_ascii_chars": {
+            "find": "[[:^ascii:]]+"
         }
     },
 
