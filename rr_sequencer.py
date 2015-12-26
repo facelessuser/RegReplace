@@ -345,8 +345,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
                 self.clear_highlights(self.options['key'].strip())
         elif self.action == 'select':
             self.view.sel().clear()
-            for region in self.replace_obj.target_regions:
-                self.view.sel().add(region)
+            self.view.sel().add_all(self.replace_obj.target_regions)
         else:
             # Not a valid action
             status = False
