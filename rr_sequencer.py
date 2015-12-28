@@ -343,6 +343,9 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Unmark targeted regions
             if 'key' in self.options:
                 self.clear_highlights(self.options['key'].strip())
+        elif self.action == 'select':
+            self.view.sel().clear()
+            self.view.sel().add_all(self.replace_obj.target_regions)
         else:
             # Not a valid action
             status = False

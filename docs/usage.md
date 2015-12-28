@@ -162,6 +162,7 @@ If instead of replacing you would like to do something else, you can override th
 - unfold
 - mark
 - unmark
+- select
 
 ### Fold Override
 ```js
@@ -223,6 +224,13 @@ Action options are specified with the `options` key.
 ```
 
 unique name of highlighted regions to clear
+
+### Select Override
+```js
+"action": "select"
+```
+
+This action selects the regions of the given find target.
 
 ## Multi-Pass
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
