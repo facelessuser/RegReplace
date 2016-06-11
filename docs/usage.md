@@ -3,6 +3,11 @@ Configuring and using RegReplace.
 
 ---
 
+!!! warning "Regular Expression Engine"
+    Remember that the regular expression engine that is used is Python's [re](https://docs.python.org/3.4/library/re.html), not Sublime's internal regular expression engine.  If enabling `extended_back_references`, additional syntax is added which is covered in the [backrefs documentation](http://facelessuser.github.io/backrefs/usage/).
+
+    To enable such features as case insensitivity or dotall, see [re's documentation](https://docs.python.org/3.4/library/re.html).
+
 ## Create Find and Replace Sequences
 To use, replacements must be defined in the `reg_replace.sublime-settings` file.
 
@@ -288,6 +293,8 @@ Example:
     "on_save_sequences": [
         // An example on_save event that removes dangling commas from json files
         // - file_regex: an array of regex strings that must match the file for the sequence to be applied
+        //   To enable such features as case insensitivity, you can use '(?i)' at the start of the regex.
+        //   See https://docs.python.org/3.4/library/re.html for more information on Python's re.
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
         // - multi_pass: perform multiple passes on file to catch all regex instances
