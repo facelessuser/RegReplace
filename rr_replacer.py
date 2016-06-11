@@ -9,7 +9,7 @@ import re
 from RegReplace.rr_plugin import Plugin
 from backrefs import bre
 import traceback
-from RegReplace.rr_notify import error
+from RegReplace.rr_notify import error, deprecated, DEPRECATED_CASE, DEPRECATED_DOTALL
 
 
 class ScopeRepl(object):
@@ -280,19 +280,23 @@ class FindReplace(object):
         # Grab pattern definitions
         find = pattern['find']
         replace = pattern['replace'] if 'replace' in pattern else '\\0'
-        literal = bool(pattern['literal']) if 'literal' in pattern else False
-        dotall = bool(pattern['dotall']) if 'dotall' in pattern else False
-        greedy = bool(pattern['greedy']) if 'greedy' in pattern else True
-        case = bool(pattern['case']) if 'case' in pattern else True
-        scope_filter = pattern['scope_filter'] if 'scope_filter' in pattern else []
+        literal = bool(pattern.get('literal', False))
+        greedy = bool(pattern.get('greedy', True))
+        scope_filter = pattern.get('scope_filter', [])
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
 
-        # Ignore Case?
-        if not case:
-            flags |= re.IGNORECASE
-        if dotall:
-            flags |= re.DOTALL
+        # Deprecated: Ignore Case?
+        if 'case' in pattern:
+            deprecated(DEPRECATED_CASE)
+            if not bool(pattern['case']):
+                flags |= re.IGNORECASE
+
+        # Deprecated: dotall?
+        if 'dotall' in pattern:
+            deprecated(DEPRECATED_DOTALL)
+            if bool(pattern['dotall']):
+                flags |= re.DOTALL
 
         if self.selection_only:
             sels = self.view.sel()

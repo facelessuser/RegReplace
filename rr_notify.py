@@ -17,6 +17,16 @@ except Exception:
 
             return False
 
+DEPRECATED_CASE = '''\
+"case" setting is deprecated and will be removed in a future release.
+Please consider using "(?i)" for case insensitive searches.
+'''
+
+DEPRECATED_DOTALL = '''\
+"dotall" setting is deprecated and will be removed in a future release.
+Please consider using "(?s)" for case insensitive searches.
+'''
+
 
 def notify(msg):
     """Notify msg."""
@@ -36,3 +46,9 @@ def error(msg):
         sublime.run_command("sub_notify", {"title": "RegReplace", "msg": msg, "level": "error"})
     else:
         sublime.error_message("RegReplace:\n%s" % msg)
+
+
+def deprecated(msg):
+    """Deprecation warning."""
+
+    print('RegReplace: DEPRECATED - %s' % msg)

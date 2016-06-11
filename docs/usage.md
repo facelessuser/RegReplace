@@ -19,8 +19,6 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
     //     literal:      Boolean setting to define whether the find and replace is literal or not.
     //                   Default is false.
     //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
-    //     case:         Boolean defining case sensitivity.  True equals sensitive. Default is true.
-    //     dotall:       Boolean defining whether to use dotall flag in regex (include \n etc. when using dot).
     //                   Default is False
     //     scope_filter: an array of scope qualifiers for the match.
     //                       - Any instance of scope qualifies match: scope.name
@@ -32,10 +30,9 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
     {
         "replacements": {
             "html5_remove_deprecated_type_attr": {
-                "find": "(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
+                "find": "(?i)(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
                 "replace": "\\1\\6",
-                "greedy": true,
-                "case": false
+                "greedy": true
             },
 ```
 
@@ -55,9 +52,6 @@ The second kind of definition allows you to search for a scope type and then app
     //                      Default is false.
     //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
     //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
-    //     case:            Boolean setting to define whether regex search is case sensitive. Default is true.
-    //     dotall:          Boolean defining whether to use dotall flag in regex (include \n etc. when using dot).
-    //                      Default is False
     //     multi_pass_regex:Boolean setting to define whether there will be multiple sweeps on the scope region
     //                      region to find and replace all instances of the regex, when regex cannot be formatted
     //                      to find all instances in a greedy fashion.  Default is false.
@@ -294,12 +288,11 @@ Example:
     "on_save_sequences": [
         // An example on_save event that removes dangling commas from json files
         // - file_regex: an array of regex strings that must match the file for the sequence to be applied
-        // - case: regex case sensitivity (true|false) false is default (this setting is optional)
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
         // - multi_pass: perform multiple passes on file to catch all regex instances
         {
-            "file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
+            "file_regex": ["(?i).*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
             "file_pattern": ["*.json"],
             "sequence": ["remove_json_dangling_commas"]
         },
