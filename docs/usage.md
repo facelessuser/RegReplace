@@ -22,6 +22,7 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
     //                   Variables are okay for non-literal searches and are done by escaping
     //                   the selection number \\1 etc.  Default value is "" (empty string)
     //     literal:      Boolean setting to define whether the find and replace is literal or not.
+    // literal_case:     Case sensitivity for literal searches. Default is true.
     //                   Default is false.
     //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
     //                   Default is False
@@ -54,6 +55,7 @@ The second kind of definition allows you to search for a scope type and then app
     //     replace:         description of what you would like to replace within the scope.
     //                      Default value is "\\0".
     //     literal:         Boolean setting to define whether the find and replace is literal or not.
+    // literal_case:     Case sensitivity for literal searches. Default is true.
     //                      Default is false.
     //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
     //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.

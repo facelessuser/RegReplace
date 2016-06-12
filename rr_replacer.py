@@ -287,7 +287,9 @@ class FindReplace(object):
         self.plugin_args = pattern.get("args", {})
 
         # Deprecated: Ignore Case?
-        if 'case' in pattern:
+        if literal and not bool(pattern.get('literal_case', False)):
+            flags |= re.IGNORECASE
+        elif 'case' in pattern:
             deprecated(DEPRECATED_CASE)
             if not bool(pattern['case']):
                 flags |= re.IGNORECASE

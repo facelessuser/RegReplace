@@ -10,6 +10,7 @@
 //                   the selection number \\1 etc.  Default value is "\\0".
 //     literal:      Boolean setting to define whether the find and replace is literal or not.
 //                   Default is false.
+//     literal_case: Case sensitivity for literal searches. Default is true.
 //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
 //     scope_filter: an array of scope qualifiers for the match.
 //                       - Any instance of scope qualifies match: scope.name
@@ -31,6 +32,7 @@
 //                      Default value is "\\0".
 //     literal:         Boolean setting to define whether the find and replace is literal or not.
 //                      Default is false.
+//     literal_case:    Case sensitivity for literal searches. Default is true.
 //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
 //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
 //     multi_pass_regex:Boolean setting to define whether there will be multiple sweeps on the scope region
