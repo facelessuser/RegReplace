@@ -59,7 +59,7 @@ def find_regex_region(view):
                     match = m
                     line_region = region
                     break
-    return match, region
+    return match, line_region
 
 
 class RegReplaceEventListener(sublime_plugin.EventListener):
@@ -161,7 +161,6 @@ class RegReplaceEditRegexCommand(sublime_plugin.TextCommand):
 
         skip = False
         count = 0
-        needs_escape = False
         fixed = []
         for c in string():
             if skip:
@@ -173,7 +172,6 @@ class RegReplaceEditRegexCommand(sublime_plugin.TextCommand):
             elif c == target_char:
                 count += 1
                 if count == 3:
-                    needs_escape = True
                     fixed.append('\\')
                     fixed.append(c)
                     count = 0
