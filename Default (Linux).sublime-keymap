@@ -1,0 +1,7 @@
+[
+    {
+        "keys": ["ctrl+s"],
+        "command": "reg_replace_panel_save",
+        "context": [{"key": "reg_replace_panel_save"}]
+    }
+]
