@@ -1,9 +1,15 @@
 [
     // Clear all find highlights
     {
-        "caption": "Reg Replace: Clear Highlights",
+        "caption": "RegReplace: Clear Highlights",
         "command": "reg_replace",
         "args": {"clear": true}
+    },
+
+    // Edit regular expression rule.
+    {
+        "caption": "RegReplace: Edit Regular Expression Rule",
+        "command": "reg_replace_edit_regex"
     },
 
     // Example commands.

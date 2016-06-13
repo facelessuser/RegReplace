@@ -133,6 +133,67 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
             )
 
 
+class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
+    """Convert rules to new version."""
+
+    def run(self):
+        """Convert old style rules to new style rules."""
+
+        old = sublime.load_settings('reg_replace.sublime-settings').get('replacements', {})
+        new = sublime.load_settings('reg_replace_expressions.sublime-settings')
+        for k, v in old.items():
+            obj = {
+                "type": "",
+                "find": "",
+                "replace": "\\0",
+                "greedy": True,
+                "greedy_scope": True,
+                "multi_pass": False,
+                "scope": "",
+                "scope_filter": []
+            }
+            if 'literal' in v:
+                if 'case' in v and v['case'] == False:
+                    obj['type'] = 'literal_no_case'
+                else:
+                    obj['type'] = 'literal'
+                obj['find'] = v['find']
+            elif 'scope' in v:
+                obj['type'] = 'scope_regex'
+                obj['find'] = v.get('find', None)
+            else:
+                obj['type'] = 'regex'
+                prefix = ''
+                if 'case' in v and v['case'] == False:
+                    prefix == 'i'
+                if 'dotall' in v and v['dotall']:
+                    prefix == 's'
+                if prefix:
+                    prefix = "(?%s)" % prefix
+                obj['find'] = prefix + v['find'].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+
+            obj['replace'] = v.get('replace', None)
+            if 'greedy' in v:
+                obj['greedy'] = v['greedy']
+            elif 'greedy_replace' in v:
+                obj['greedy'] = v['greedy_replace']
+            obj['greedy_scope'] = v.get('greedy_scope', None)
+            obj['multi_pass'] = v.get('multi_pass_regex', None)
+            obj['scope'] = v.get('scope', None)
+            obj['scope_filter'] = v.get('scope_filter', None)
+            obj['plugin'] = v.get('plugin', None)
+
+            remove = []
+            for k1, v1 in obj.items():
+                if v1 is None:
+                    remove.append(k1)
+            for k1 in remove:
+                del obj[k1]
+
+            new.set(k, obj)
+        sublime.save_settings('reg_replace_expressions.sublime-settings')
+
+
 class RegReplaceEditRegexCommand(sublime_plugin.TextCommand):
     """Class to edit regex in settings file."""
 
