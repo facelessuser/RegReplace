@@ -182,6 +182,7 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
             obj['scope'] = v.get('scope', None)
             obj['scope_filter'] = v.get('scope_filter', None)
             obj['plugin'] = v.get('plugin', None)
+            obj['args'] = v.get('args', None)
 
             remove = []
             for k1, v1 in obj.items():
