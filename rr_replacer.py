@@ -263,7 +263,9 @@ class FindReplace(object):
             pattern = re.compile(find, flags)
         for m in pattern.finditer(bfr):
             regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
-            if self.plugin is not None:
+            if literal:
+                extractions.append(replace)
+            elif self.plugin is not None:
                 extractions.append(self.on_replace(m))
             else:
                 extractions.append(self.expand(m, replace))
