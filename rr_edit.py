@@ -7,7 +7,6 @@ Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 import sublime_plugin
 import re
-import json
 from backrefs import bre
 from RegReplace.rr_notify import error
 
@@ -24,42 +23,22 @@ REGEX_LINE = re.compile(
 )
 
 EDIT_LINE = re.compile(
-    r'''(?xs)
-    ^\s*find\s*=\s*(r?
-        "{3}(?:\\.|"{1,2}(?!")|[^"])*?"{3} |
-        '{3}(?:\\.|'{1,2}(?!')|[^'])*?'{3} |
-        '(?:\\.|[^'])*' |
-        "(?:\\.|[^"])*"
+    r'''(?mxs)
+    ^\s*([a-zA-Z\d_]+)\s*=\s*
+    (
+        (None) |
+        (True|False) |
+        (\[(?:\s*(?:'(?:\\.|[^'])*'|"(?:\\.|[^"])*")\s*,?\s*)*\]) |
+        (r?
+            "{3}(?:\\.|"{1,2}(?!")|[^"])*?"{3} |
+            '{3}(?:\\.|'{1,2}(?!')|[^'])*?'{3} |
+            '(?:\\.|[^'])*' |
+            "(?:\\.|[^"])*" |
+        )
     )
     \s*$
     '''
 )
-
-
-def find_regex_region(view):
-    """Get the `"find": "regex"` regions and locate the one the cursor is in."""
-
-    match = None
-    line_region = None
-    sel = view.sel()
-    # Make sure there is just one selection
-    if len(sel) == 1:
-        # We only care if the cursor is not selecting multiple chars
-        selection = sel[0]
-        if selection.size() == 0:
-            # Find all instances of regex entries on the line,
-            # but only consider it found if the cursor is within
-            # region of an instance.
-            region = view.line(selection)
-            line = view.substr(region)
-            for m in REGEX_LINE.finditer(line):
-                start_pt = region.begin() + m.start(0)
-                end_pt = region.begin() + m.end(0)
-                if start_pt <= selection.begin() < end_pt:
-                    match = m
-                    line_region = region
-                    break
-    return match, line_region
 
 
 class RegReplaceEventListener(sublime_plugin.EventListener):
@@ -80,57 +59,89 @@ class RegReplacePanelInsertCommand(sublime_plugin.TextCommand):
         self.view.replace(edit, sublime.Region(0, self.view.size()), text)
 
 
-class RegReplaceSettingsInsertCommand(sublime_plugin.TextCommand):
-    """Class to write regex back to settings file."""
-
-    def run(self, edit, text, start, end):
-        """Write modified regex back to settings file."""
-
-        self.view.replace(edit, sublime.Region(start, end), text)
-
-
 class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
     """Handle the panel save shortcut."""
 
+    string_keys = ('find', 'replace', 'scope', 'plugin')
+
+    bool_keys = ('greedy', 'greedy_scope', 'multi_pass')
+
+    valid_search_types = ('regex', 'scope_regex', 'literal', 'literal_no_case')
+
+    allowed_keys = (
+        'search_type',
+        'find',
+        'replace',
+        'greedy',
+        'greedy_scope',
+        'multi_pass',
+        'scope',
+        'scope_filter',
+        'plugin',
+        'name'
+    )
+
     def run(self, edit):
-        """Search the active view to see if the cursor is in a find regex."""
+        """Parse the regex panel, and if okay, insert/replace entry in settings."""
 
         text = self.view.substr(sublime.Region(0, self.view.size()))
-        m = EDIT_LINE.match(text)
-        find = None
-        if m:
-            obj = {"find": eval(m.group(1))}
-            settings = sublime.load_settings('reg_replace.sublime-settings')
-            extend = bool(settings.get("extended_back_references", False))
+
+        self.view.size()
+        pt = 0
+        end = self.view.size() - 1
+        obj = {}
+        name = None
+        while pt < end:
+            m = EDIT_LINE.search(text, pt)
+            if m:
+                if m.group(1) in self.allowed_keys and m.group(3) is None:
+                    if m.group(1) == 'name' and m.group(6):
+                        name = eval(m.group(6))
+                    elif (
+                        (m.group(1) in self.string_keys and m.group(6)) or
+                        (m.group(1) in self.bool_keys and m.group(4)) or
+                        (m.group(1) == 'scope_filter' and m.group(5))
+                    ):
+                        obj[m.group(1)] = eval(m.group(2))
+                    elif m.group(1) == 'search_type' and m.group(6):
+                        search_type = eval(m.group(2))
+                        if search_type in self.valid_search_types:
+                            obj[m.group(1)] = search_type
+                pt = m.end(0)
+            else:
+                break
+
+        if name is None:
+            error('A valid name must be provided!')
+        elif obj.get('search_type') is None:
+            error('A valid search type must be provided!')
+        elif obj['search_type'] in ('regex', 'literal', 'literal_no_case') and obj.get('find') is None:
+            error('A valid find pattern must be provided!')
+        elif obj['search_type'] == 'scope_regex' and obj.get('scope') is None:
+            error('A valid scope must be provided!')
+        else:
             try:
-                if extend:
-                    bre.compile_search(obj['find'])
-                else:
-                    re.compile(obj['find'])
-                find = json.dumps(obj)[9:-1]
-                self.save_to_settings(find)
+                if obj['search_type'] in ('literal', 'literal_no_case'):
+                    flags = 0
+                    find = re.escape(obj['find'])
+                    if obj['search_type'] == 'literal_no_case':
+                        flags = re.I
+                    re.compile(find, flags)
+                elif obj['search_type'] in ('regex', 'scope_regex') and obj.get('find') is not None:
+                    extend = sublime.load_settings(
+                        'reg_replace.sublime-settings'
+                    ).get('extended_back_references', False)
+                    if extend:
+                        bre.compile_search(obj['find'])
+                    else:
+                        re.compile(obj['find'])
+                settings = sublime.load_settings('reg_replace_expressions.sublime-settings')
+                expressions = settings.get('replacements', {})
+                expressions[name] = obj
+                settings.set('replacements', expressions)
+                sublime.save_settings('reg_replace_expressions.sublime-settings')
             except Exception as e:
                 error('Regex compile failed!\n\n%s' % str(e))
-
-    def save_to_settings(self, find):
-        """Save modified regex to the settings file."""
-
-        view = None
-        window = sublime.active_window()
-        if window is not None:
-            view = window.active_view()
-        m, line_region = find_regex_region(view)
-        if m:
-            start = line_region.begin() + m.start(2) - 1
-            end = line_region.begin() + m.end(2) + 1
-            view.run_command(
-                'reg_replace_settings_insert',
-                {
-                    'text': find,
-                    'start': start,
-                    'end': end
-                }
-            )
 
 
 class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
@@ -140,31 +151,33 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
         """Convert old style rules to new style rules."""
 
         old = sublime.load_settings('reg_replace.sublime-settings').get('replacements', {})
-        new = sublime.load_settings('reg_replace_expressions.sublime-settings')
+        settings = sublime.load_settings('reg_replace_expressions.sublime-settings')
+        new = settings.get('replacements', {})
         for k, v in old.items():
             obj = {
-                "type": "",
-                "find": "",
-                "replace": "\\0",
-                "greedy": True,
-                "greedy_scope": True,
-                "multi_pass": False,
-                "scope": "",
-                "scope_filter": []
+                "search_type": None,
+                "find": None,
+                "replace": None,
+                "greedy": None,
+                "greedy_scope": None,
+                "multi_pass": None,
+                "scope": None,
+                "scope_filter": None,
+                "plugin": None
             }
             if 'literal' in v:
-                if 'case' in v and v['case'] == False:
-                    obj['type'] = 'literal_no_case'
+                if 'case' in v and v['case'] is False:
+                    obj['search_type'] = 'literal_no_case'
                 else:
-                    obj['type'] = 'literal'
+                    obj['search_type'] = 'literal'
                 obj['find'] = v['find']
             elif 'scope' in v:
-                obj['type'] = 'scope_regex'
+                obj['search_type'] = 'scope_regex'
                 obj['find'] = v.get('find', None)
             else:
-                obj['type'] = 'regex'
+                obj['search_type'] = 'regex'
                 prefix = ''
-                if 'case' in v and v['case'] == False:
+                if 'case' in v and v['case'] is False:
                     prefix == 'i'
                 if 'dotall' in v and v['dotall']:
                     prefix == 's'
@@ -190,14 +203,15 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
             for k1 in remove:
                 del obj[k1]
 
-            new.set(k, obj)
+            new[k] = obj
+        settings.set('replacements', new)
         sublime.save_settings('reg_replace_expressions.sublime-settings')
 
 
-class RegReplaceEditRegexCommand(sublime_plugin.TextCommand):
+class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
     """Class to edit regex in settings file."""
 
-    def needs_escape(self, string, target_char, fix=False):
+    def needs_escape(self, string, target_char, quote_count=1):
         """Check if regex string needs escaping."""
 
         skip = False
@@ -210,15 +224,15 @@ class RegReplaceEditRegexCommand(sublime_plugin.TextCommand):
                 skip = True
             elif c == target_char:
                 count += 1
-                if count == 3:
+                if count == quote_count:
                     needs_escape = True
                     break
             else:
                 count = 0
         return needs_escape
 
-    def fix_escape(self, string, target_char):
-        """Escape regex to fit in triple quoted string."""
+    def fix_escape(self, string, target_char, quote_count=1):
+        """Escape regex to fit in quoted string."""
 
         skip = False
         count = 0
@@ -232,7 +246,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.TextCommand):
                 fixed.append(c)
             elif c == target_char:
                 count += 1
-                if count == 3:
+                if count == quote_count:
                     fixed.append('\\')
                     fixed.append(c)
                     count = 0
@@ -243,36 +257,129 @@ class RegReplaceEditRegexCommand(sublime_plugin.TextCommand):
                 fixed.append(c)
         return ''.join(fixed)
 
-    def run(self, edit):
+    def format_string(self, name, value):
+        """Format string."""
+
+        if value is not None and isinstance(value, str):
+            single = self.needs_escape(value, '\'')
+            double = self.needs_escape(value, '"')
+            if not double:
+                string = '%s = "%s"\n' % (name, value)
+            elif not single:
+                string = '%s = \'%s\'\n' % (name, value)
+            else:
+                string = '%s = "%s"\n' % (name, self.fix_escape(value, '"'))
+        else:
+            string = '%s = None\n' % name
+        return string
+
+    def format_regex_string(self, name, value):
+        """Format triple quoted strings."""
+
+        if value is not None and isinstance(value, str):
+            single = self.needs_escape(value, '\'', quote_count=3)
+            double = self.needs_escape(value, '"', quote_count=3)
+            if not double:
+                string = '%s = r"""%s"""\n' % (name, value)
+            elif not single:
+                string = '%s = r\'\'\'%s\'\'\'\n' % (name, value)
+            else:
+                string = '%s = r"""%s"""\n' % (name, self.fix_escape(value, '"', quote_count=3))
+        else:
+            string = '%s = None\n' % name
+        return string
+
+    def simple_format_string(self, value):
+        """Format string without key."""
+
+        single = self.needs_escape(value, '\'')
+        double = self.needs_escape(value, '"')
+        if not double:
+            string = '"%s"' % value
+        elif not single:
+            string = '\'%s\'' % value
+        else:
+            string = '"%s"' % self.fix_escape(value, '"')
+        return string
+
+    def format_array(self, name, value):
+        """Format an array strings."""
+
+        if value is not None and isinstance(value, list):
+            array = '%s = [%s]\n' % (
+                name,
+                ', '.join([self.simple_format_string(scope) for scope in value if isinstance(scope, str)])
+            )
+        else:
+            array = '%s = None\n' % name
+        return array
+
+    def format_bool(self, name, value):
+        """Format a boolean."""
+
+        if value is not None and isinstance(value, bool):
+            boolean = '%s = %s\n' % (name, str(value))
+        else:
+            boolean = '%s = None\n' % name
+        return boolean
+
+    def edit_rule(self, value):
+        """Parse rule and format as Python code and insert into panel."""
+
+        if value >= 0:
+            name = self.keys[value]
+            rule = self.rules[value]
+            text = '# name: rule name\n'
+            text += self.format_string('name', name)
+            text += '\n# search_type: search type\n'
+            text += self.format_string('search_type', rule.get('search_type'))
+            text += '\n# find: regular expression pattern or literal string\n'
+            text += self.format_regex_string('find', rule.get('find'))
+            text += '\n# replace: replace pattern\n'
+            text += self.format_regex_string('replace', rule.get('replace'))
+            text += '\n# scope: scope to search for (scope_regex)\n'
+            text += self.format_string('scope', rule.get('scope'))
+            text += '\n# scope_filter: an array of scope qualifiers for the match (regex)\n'
+            text += self.format_array('scope_filter', rule.get('scope_filter'))
+            text += '\n# greedy: apply action to all instances or first\n'
+            text += self.format_bool('greedy', rule.get('greedy'))
+            text += '\n# greedy_scope: apply search to all instances of scope (scope_regex)\n'
+            text += self.format_bool('greedy_scope', rule.get('greedy_scope'))
+            text += '\n# multi_pass: perform multiple sweeps on the scope region to find and\n'
+            text += '#             replace all instances of the regex (scope_regex)\n'
+            text += self.format_bool('multi_pass', rule.get('multi_pass'))
+            text += '\n# plugin: define replace plugin for more advanced replace logic\n'
+            text += self.format_string('plugin', rule.get('plugin'))
+
+            replace_view = self.window.create_output_panel('reg_replace', unlisted=True)
+            replace_view.run_command('reg_replace_panel_insert', {'text': text})
+            for ext in ST_LANGUAGES:
+                highlighter = sublime.load_settings(
+                    'reg_replace.sublime-settings'
+                ).get('python_highlighter', 'Python/Python')
+                highlighter = 'Packages/' + highlighter + ext
+                try:
+                    sublime.load_resource(highlighter)
+                    replace_view.set_syntax_file(highlighter)
+                    break
+                except Exception:
+                    pass
+            replace_view.settings().set('reg_replace_edit_view', True)
+            replace_view.settings().set('bracket_highlighter.widget_okay', True)
+            replace_view.settings().set('bracket_highlighter.bracket_string_escape_mode', 'regex')
+            self.window.run_command("show_panel", {"panel": "output.reg_replace"})
+
+    def run(self):
         """Read regex from file and place in panel for editing."""
 
-        m = find_regex_region(self.view)[0]
-        if m:
-            regex = json.loads('{"find": "%s"}' % m.group(2))
-            single = self.needs_escape(regex['find'], '\'')
-            double = self.needs_escape(regex['find'], '"')
-            if not double:
-                edit_regex = r'find = r"""%s"""' % regex['find']
-            elif not single:
-                edit_regex = r'find = r\'\'\'%s\'\'\'' % regex['find']
-            else:
-                edit_regex = r'find = r"""%s"""' % self.fix_escape(regex['find'], '"')
-            window = self.view.window()
-            if window is not None:
-                replace_view = window.create_output_panel('reg_replace', unlisted=True)
-                replace_view.run_command('reg_replace_panel_insert', {'text': edit_regex})
-                for ext in ST_LANGUAGES:
-                    highlighter = sublime.load_settings(
-                        'reg_replace.sublime-settings'
-                    ).get('python_highlighter', 'Python/Python')
-                    highlighter = 'Packages/' + highlighter + ext
-                    try:
-                        sublime.load_resource(highlighter)
-                        replace_view.set_syntax_file(highlighter)
-                        break
-                    except Exception:
-                        pass
-                replace_view.settings().set('reg_replace_edit_view', True)
-                replace_view.settings().set('bracket_highlighter.widget_okay', True)
-                replace_view.settings().set('bracket_highlighter.bracket_string_escape_mode', 'regex')
-                window.run_command("show_panel", {"panel": "output.reg_replace"})
+        self.keys = []
+        self.rules = []
+        expressions = sublime.load_settings('reg_replace_expressions.sublime-settings').get('replacements', {})
+        for name, rule in expressions.items():
+            self.keys.append(name)
+            self.rules.append(rule)
+        if len(self.keys):
+            self.window.show_quick_panel(
+                self.keys,
+                self.edit_rule
+            )

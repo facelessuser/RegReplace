@@ -12,7 +12,7 @@
                 "children":
                 [
                     {
-                        "caption": "Reg Replace",
+                        "caption": "RegReplace",
                         "children":
                         [
                             {
@@ -61,7 +61,11 @@
                                 },
                                 "caption": "Key Bindings – User"
                             },
-                            { "caption": "-" }
+                            { "caption": "-" },
+                            {
+                                "command": "reg_replace_convert_rules",
+                                "caption": "Convert Old Style Expressions"
+                            }
                         ]
                     }
                 ]
