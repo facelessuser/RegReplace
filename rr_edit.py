@@ -56,7 +56,7 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
 
     bool_keys = ('greedy', 'greedy_scope', 'multi_pass')
 
-    valid_search_types = ('regex', 'scope_regex', 'literal', 'literal_no_case')
+    valid_search_types = ('regex', 'literal', 'literal_no_case')
 
     allowed_keys = (
         'search_type',
@@ -105,26 +105,25 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
             error('A valid name must be provided!')
         elif obj.get('search_type') is None:
             error('A valid search type must be provided!')
-        elif obj['search_type'] in ('regex', 'literal', 'literal_no_case') and obj.get('find') is None:
+        elif obj.get('scope') is None and obj.get('find') is None:
             error('A valid find pattern must be provided!')
-        elif obj['search_type'] == 'scope_regex' and obj.get('scope') is None:
-            error('A valid scope must be provided!')
         else:
             try:
-                if obj['search_type'] in ('literal', 'literal_no_case'):
-                    flags = 0
-                    find = re.escape(obj['find'])
-                    if obj['search_type'] == 'literal_no_case':
-                        flags = re.I
-                    re.compile(find, flags)
-                elif obj['search_type'] in ('regex', 'scope_regex') and obj.get('find') is not None:
-                    extend = sublime.load_settings(
-                        'reg_replace.sublime-settings'
-                    ).get('extended_back_references', False)
-                    if extend:
-                        bre.compile_search(obj['find'])
+                if obj.get('find') is not None:
+                    if obj['search_type'] in ('literal', 'literal_no_case'):
+                        flags = 0
+                        find = re.escape(obj['find'])
+                        if obj['search_type'] == 'literal_no_case':
+                            flags = re.I
+                        re.compile(find, flags)
                     else:
-                        re.compile(obj['find'])
+                        extend = sublime.load_settings(
+                            'reg_replace.sublime-settings'
+                        ).get('extended_back_references', False)
+                        if extend:
+                            bre.compile_search(obj['find'])
+                        else:
+                            re.compile(obj['find'])
                 settings = sublime.load_settings('reg_replace_expressions.sublime-settings')
                 expressions = settings.get('replacements', {})
                 expressions[name] = obj
@@ -160,10 +159,7 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
                     obj['search_type'] = 'literal_no_case'
                 else:
                     obj['search_type'] = 'literal'
-                obj['find'] = v['find']
-            elif 'scope' in v:
-                obj['search_type'] = 'scope_regex'
-                obj['find'] = v.get('find', None)
+                obj['find'] = v.get('find')
             else:
                 obj['search_type'] = 'regex'
                 prefix = ''
@@ -173,7 +169,8 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
                     prefix == 's'
                 if prefix:
                     prefix = "(?%s)" % prefix
-                obj['find'] = prefix + v['find'].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+                if 'find' in obj:
+                    obj['find'] = prefix + v['find'].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
 
             obj['replace'] = v.get('replace', None)
             if 'greedy' in v:
