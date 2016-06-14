@@ -12,16 +12,6 @@ from RegReplace.rr_notify import error
 
 USE_ST_SYNTAX = int(sublime.version()) >= 3092
 ST_LANGUAGES = ('.sublime-syntax', '.tmLanguage') if USE_ST_SYNTAX else ('.tmLanguage',)
-
-REGEX_LINE = re.compile(
-    r'''(?x)
-    ("find"\s*:\s*)
-    "
-    ((?:\\.|[^"])*)
-    "
-    '''
-)
-
 EDIT_LINE = re.compile(
     r'''(?mxs)
     ^\s*([a-zA-Z\d_]+)\s*=\s*
