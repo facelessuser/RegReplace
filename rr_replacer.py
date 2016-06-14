@@ -389,12 +389,13 @@ class FindReplace(object):
         """Greedy literal scope replace."""
 
         total_replaced = 0
+        scope_repl = ScopeRepl(self.plugin, replace, self.expand, self.on_replace)
         for region in reversed(regions):
             extraction = self.view.substr(region)
             if greedy_replace:
-                extraction, replace_count = find.subn(replace, extraction)
+                extraction, replace_count = find.subn(scope_repl, extraction)
             else:
-                extraction, replace_count = find.subn(replace, extraction, count=1)
+                extraction, replace_count = find.subn(scope_repl, extraction, count=1)
 
             if replace_count > 0:
                 total_replaced += 1
@@ -418,12 +419,13 @@ class FindReplace(object):
 
         # Intialize with first qualifying region for wrapping and the case of no cursor in view
         count = 0
+        scope_repl = ScopeRepl(self.plugin, replace, self.expand, self.on_replace)
         for region in regions:
             extraction = self.view.substr(region)
             if greedy_replace:
-                extraction, replace_count = find.subn(replace, extraction)
+                extraction, replace_count = find.subn(scope_repl, extraction)
             else:
-                extraction, replace_count = find.subn(replace, extraction, count=1)
+                extraction, replace_count = find.subn(scope_repl, extraction, count=1)
 
             if replace_count > 0:
                 selected_region = region
@@ -442,9 +444,9 @@ class FindReplace(object):
                 if reverse_count >= count and region.end() - 1 >= pt:
                     extraction = self.view.substr(region)
                     if greedy_replace:
-                        extraction, replace_count = find.subn(replace, extraction)
+                        extraction, replace_count = find.subn(scope_repl, extraction)
                     else:
-                        extraction, replace_count = find.subn(replace, extraction, count=1)
+                        extraction, replace_count = find.subn(scope_repl, extraction, count=1)
 
                     if replace_count > 0:
                         selected_region = region
