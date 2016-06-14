@@ -354,10 +354,13 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
                     break
                 except Exception:
                     pass
+            replace_view.settings().set('gutter', True)
+            replace_view.settings().set('line_numbers', False)
             replace_view.settings().set('reg_replace_edit_view', True)
             replace_view.settings().set('bracket_highlighter.widget_okay', True)
             replace_view.settings().set('bracket_highlighter.bracket_string_escape_mode', 'regex')
             self.window.run_command("show_panel", {"panel": "output.reg_replace"})
+            sublime.set_timeout(lambda w=self.window, v=replace_view: w.focus_view(v), 100)
 
     def run(self):
         """Read regex from file and place in panel for editing."""
