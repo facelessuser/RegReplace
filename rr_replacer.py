@@ -9,7 +9,7 @@ import re
 from RegReplace.rr_plugin import Plugin
 from backrefs import bre
 import traceback
-from RegReplace.rr_notify import error, deprecated, DEPRECATED_CASE, DEPRECATED_DOTALL
+from RegReplace.rr_notify import error
 
 
 class ScopeRepl(object):
