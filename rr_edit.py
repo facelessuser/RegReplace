@@ -63,7 +63,6 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
             exec(self.view.substr(sublime.Region(0, self.view.size())))
             l = locals()
             obj = {}
-            print(l)
             for k, v in l.items():
                 if k in self.allowed_keys and v is not None:
                     if k == 'name' and isinstance(v, str):
