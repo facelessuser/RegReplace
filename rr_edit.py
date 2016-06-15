@@ -10,9 +10,22 @@ import re
 from backrefs import bre
 from RegReplace.rr_notify import error
 import copy
+import ast
 
 USE_ST_SYNTAX = int(sublime.version()) >= 3092
 ST_LANGUAGES = ('.sublime-syntax', '.tmLanguage') if USE_ST_SYNTAX else ('.tmLanguage',)
+
+
+def ast_class(cl):
+    """Get the ast_class name."""
+
+    return cl.__class__.__name__
+
+
+def compile_expr(exp):
+    """Compile the expression."""
+
+    return eval(compile(ast.Expression(exp), '(none)', 'eval'))
 
 
 class RegReplaceEventListener(sublime_plugin.EventListener):
@@ -36,7 +49,7 @@ class RegReplacePanelInsertCommand(sublime_plugin.TextCommand):
 class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
     """Handle the panel save shortcut."""
 
-    string_keys = ('find', 'replace', 'scope', 'plugin')
+    string_keys = ('find', 'replace', 'scope', 'plugin', 'name')
 
     bool_keys = ('greedy', 'greedy_scope', 'multi_pass', 'literal', 'literal_ignorecase]')
 
@@ -55,30 +68,78 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
         'name'
     )
 
+    def eval_value(self, v):
+        """Evaluate the value io see if it is safe to execute."""
+        okay = False
+        if ast_class(v) == 'Dict':
+            # dict
+            if self.eval_dict(v):
+                okay = True
+        elif ast_class(v) == 'List':
+            # list
+            if self.eval_list(v):
+                okay = True
+        elif ast_class(v) == 'Str':
+            # string
+            okay = True
+        elif ast_class(v) == 'Name' and v.id in ('True', 'False', 'None'):
+            # boleans or None
+            okay = True
+        elif ast_class(v) == 'Num':
+            # numbers
+            okay = True
+        elif ast_class(v) == 'UnaryOp' and ast_class(v.op) == 'USub' and ast_class(v.operand) == 'Num':
+            # negative numbers
+            okay = True
+        return okay
+
+    def eval_dict(self, value):
+        """Evaluate the dictionary to see if it is safe to execute."""
+
+        okay = True
+        if all(ast_class(k) == 'Str' for k in value.keys):
+            for v in value.values:
+                if not self.eval_value(v):
+                    okay = False
+                    break
+        return okay
+
+    def eval_list(self, value):
+        """Evaluate the list to see if it is safe to execute."""
+
+        okay = True
+        for v in value.elts:
+            if not self.eval_value(v):
+                okay = False
+                break
+        return okay
+
     def run(self, edit):
         """Parse the regex panel, and if okay, insert/replace entry in settings."""
 
         try:
-            exec(self.view.substr(sublime.Region(0, self.view.size())))
-            l = locals()
+            # Examine the python code to ensure it it is safe to evaluate.
+            # We will evalute each statement and see if it is safe.
+            # None and numbers are ignored unless it is in the arg dictionary.
+            # All the top level variables are either string, bool, list of strings, or dict.
+            code = ast.parse(self.view.substr(sublime.Region(0, self.view.size())))
             obj = {}
-            for k, v in l.items():
-                if k in self.allowed_keys and v is not None:
-                    if k == 'name' and isinstance(v, str):
-                        obj[k] = copy.deepcopy(v)
-                    elif (
-                        (k in self.string_keys and isinstance(v, str)) or
-                        (k in self.bool_keys and isinstance(v, bool))
-                    ):
-                        obj[k] = copy.deepcopy(v)
-                    elif (
-                        k == 'scope_filter' and
-                        isinstance(v, list) and
-                        all(isinstance(item, str) for item in v)
-                    ):
-                        obj[k] = copy.deepcopy(v)
-                    elif k == 'args' and isinstance(v, dict):
-                        obj[k] = copy.deepcopy(v)
+            for snippet in code.body:
+                if ast_class(snippet) == 'Assign' and len(snippet.targets) == 1:
+                    target = snippet.targets[0]
+                    if ast_class(target) == 'Name':
+                        name = target.id
+                        class_name = ast_class(snippet.value)
+                        if name in self.string_keys and class_name == 'Str':
+                            obj[name] = compile_expr(snippet.value)
+                        elif name in self.bool_keys and class_name == 'Name' and snippet.value.id in ('True', 'False'):
+                            obj[name] = compile_expr(snippet.value)
+                        elif name == 'scope_filter' and class_name == 'List':
+                            if all(ast_class(l) == 'Str' for l in snippet.value.elts):
+                                obj[name] = compile_expr(snippet.value)
+                        elif name == 'args' and class_name == 'Dict':
+                            if self.eval_dict(snippet.value):
+                                obj[name] = compile_expr(snippet.value)
         except Exception as e:
             error('Could not read rule settings!\n\n%s' % str(e))
             return
