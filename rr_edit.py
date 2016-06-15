@@ -9,7 +9,6 @@ import sublime_plugin
 import re
 from backrefs import bre
 from RegReplace.rr_notify import error
-import copy
 import ast
 
 USE_ST_SYNTAX = int(sublime.version()) >= 3092
@@ -527,6 +526,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
                     self.keys,
                     self.edit_rule
                 )
+
 
 class RegReplaceDeleteRegexCommand(sublime_plugin.WindowCommand):
     """Delete a regular expression rule."""
