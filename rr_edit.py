@@ -38,12 +38,11 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
 
     string_keys = ('find', 'replace', 'scope', 'plugin')
 
-    bool_keys = ('greedy', 'greedy_scope', 'multi_pass')
-
-    valid_search_types = ('regex', 'literal', 'literal_no_case')
+    bool_keys = ('greedy', 'greedy_scope', 'multi_pass', 'literal', 'literal_ignorecase]')
 
     allowed_keys = (
-        'search_type',
+        'literal',
+        'literal_ignorecase',
         'find',
         'replace',
         'greedy',
@@ -78,12 +77,6 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
                         all(isinstance(item, str) for item in v)
                     ):
                         obj[k] = copy.deepcopy(v)
-                    elif (
-                        k == 'search_type' and
-                        isinstance(v, str) and
-                        v in self.valid_search_types
-                    ):
-                        obj[k] = copy.deepcopy(v)
                     elif k == 'args' and isinstance(v, dict):
                         obj[k] = copy.deepcopy(v)
         except Exception as e:
@@ -92,17 +85,15 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
 
         if obj.get('name') is None:
             error('A valid name must be provided!')
-        elif obj.get('search_type') is None:
-            error('A valid search type must be provided!')
         elif obj.get('scope') is None and obj.get('find') is None:
             error('A valid find pattern must be provided!')
         else:
             try:
                 if obj.get('find') is not None:
-                    if obj['search_type'] in ('literal', 'literal_no_case'):
+                    if obj.get('literal', False):
                         flags = 0
                         pattern = re.escape(obj['find'])
-                        if obj['search_type'] == 'literal_no_case':
+                        if obj.get('literal_ignorecase', False):
                             flags = re.I
                         re.compile(pattern, flags)
                     else:
@@ -133,8 +124,9 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
         new = settings.get('replacements', {})
         for k, v in old.items():
             obj = {
-                "search_type": None,
                 "find": None,
+                "literal": None,
+                "literal_ignorecase": None,
                 "replace": None,
                 "greedy": None,
                 "greedy_scope": None,
@@ -143,18 +135,16 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
                 "scope_filter": None,
                 "plugin": None
             }
-            if 'literal' in v:
-                if 'case' in v and v['case'] is False:
-                    obj['search_type'] = 'literal_no_case'
-                else:
-                    obj['search_type'] = 'literal'
+            if v.get('literal', False):
+                obj['literal'] = True
+                if v.get('case', True) is False:
+                    obj['literal_ignorecase'] = True
                 obj['find'] = v.get('find')
             else:
-                obj['search_type'] = 'regex'
                 prefix = ''
-                if 'case' in v and v['case'] is False:
+                if v.get('case', True) is False:
                     prefix == 'i'
-                if 'dotall' in v and v['dotall']:
+                if v.get('dotall', False):
                     prefix == 's'
                 if prefix:
                     prefix = "(?%s)" % prefix
@@ -390,28 +380,37 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
         if value >= 0:
             name = self.keys[value]
             rule = self.rules[value]
-            text = '# name: rule name\n'
+            text = '# If you don\'t need a setting, just leave it as None.\n'
+            text += '# When the rule is parsed, the default will be used.\n'
+            text += '\n# name (str): Rule name.  Required.\n'
             text += self.format_string('name', name)
-            text += '\n# search_type: search type\n'
-            text += self.format_string('search_type', rule.get('search_type'))
-            text += '\n# find: regular expression pattern or literal string\n'
+            text += '\n# find (str): Regular expression pattern or literal string.\n'
+            text += '#             Required unless "scope" is defined.\n'
             text += self.format_regex_string('find', rule.get('find'))
-            text += '\n# replace: replace pattern\n'
+            text += '\n# replace (str = default=r\'\\0\'): Replace pattern.\n'
             text += self.format_regex_string('replace', rule.get('replace'))
-            text += '\n# scope: scope to search for (scope_regex)\n'
+            text += '\n# literal (bool - default=False): Preform a non-regex, literal search and replace.\n'
+            text += self.format_bool('literal', rule.get('literal'))
+            text += '\n# literal_ignorecase (bool - default=False): Ignore case when "literal" is true.\n'
+            text += self.format_bool('literal_ignorecase', rule.get('literal_ignorecase'))
+            text += '\n# scope (str): Scope to search for and to apply optional regex to.\n'
+            text += '#              Required unless "find" is defined.\n'
             text += self.format_string('scope', rule.get('scope'))
-            text += '\n# scope_filter: an array of scope qualifiers for the match (regex)\n'
+            text += '\n# scope_filter ([str] = default=[]): An array of scope qualifiers for the match.\n'
+            text += '#                                    Only used when "scope" is not defined.\n'
             text += self.format_array('scope_filter', rule.get('scope_filter'))
-            text += '\n# greedy: apply action to all instances or first\n'
+            text += '\n# greedy (bool - default=True): Apply action to all instances (find all).\n'
+            text += '#                               Used when "find" is defined.\n'
             text += self.format_bool('greedy', rule.get('greedy'))
-            text += '\n# greedy_scope: apply search to all instances of scope (scope_regex)\n'
+            text += '\n# greedy_scope (bool - default=True): Find all the scopes specified by "scope."\n'
             text += self.format_bool('greedy_scope', rule.get('greedy_scope'))
-            text += '\n# multi_pass: perform multiple sweeps on the scope region to find and\n'
-            text += '#             replace all instances of the regex (scope_regex)\n'
+            text += '\n# multi_pass (bool - default=False): Perform multiple sweeps on the scope region to find\n'
+            text += '#             and replace all instances of the regex when regex cannot be formatted to find\n'
+            text += '#             all instances.\n'
             text += self.format_bool('multi_pass', rule.get('multi_pass'))
-            text += '\n# plugin: define replace plugin for more advanced replace logic\n'
+            text += '\n# plugin (str): Define replace plugin for more advanced replace logic.\n'
             text += self.format_string('plugin', rule.get('plugin'))
-            text += '\n# args: arguments for \'plugin\'\n'
+            text += '\n# args (dict): Arguments for \'plugin\'.\n'
             text += self.format_dict('args', rule.get('args'))
 
             replace_view = self.window.create_output_panel('reg_replace', unlisted=True)

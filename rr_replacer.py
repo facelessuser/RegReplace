@@ -286,18 +286,11 @@ class FindReplace(object):
         scope_filter = pattern.get('scope_filter', [])
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
-        search_type = pattern['search_type']
-        case = False
-        if search_type == 'literal_no_case':
-            case = True
-            literal = True
-        elif search_type == 'literal':
-            literal = True
-        else:
-            literal = False
+        literal = pattern.get('literal', False)
+        literal_case = literal and not bool(pattern.get('literal_case', False))
 
-        # Deprecated: Ignore Case?
-        if literal and not case:
+        # Ignore Case?
+        if literal_case:
             flags |= re.IGNORECASE
 
         if self.selection_only:
@@ -607,15 +600,8 @@ class FindReplace(object):
         replace = pattern.get('replace', '\\0')
         greedy_scope = bool(pattern.get('greedy_scope', True))
         greedy_replace = bool(pattern.get('greedy', True))
-        search_type = pattern['search_type']
-        case = False
-        if search_type == 'literal_no_case':
-            case = True
-            literal = True
-        elif search_type == 'literal':
-            literal = True
-        else:
-            literal = False
+        literal = pattern.get('literal', False)
+        literal_case = literal and not bool(pattern.get('literal_case', False))
         multi = bool(pattern.get('multi_pass', False))
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
@@ -656,7 +642,7 @@ class FindReplace(object):
                     replaced = self.non_greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
             else:
                 try:
-                    re_find = re.compile(re.escape(find), re.I if case else 0)
+                    re_find = re.compile(re.escape(find), re.I if literal_case else 0)
                 except Exception as err:
                     print(str(traceback.format_exc()))
                     error('REGEX ERROR: %s' % str(err))
