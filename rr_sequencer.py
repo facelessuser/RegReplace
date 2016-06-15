@@ -10,7 +10,7 @@ import sublime_plugin
 import re
 from fnmatch import fnmatch
 from RegReplace.rr_replacer import FindReplace
-from RegReplace.rr_notify import error, deprecated, DEPRECATED_CASE, DEPRECATED_DOTALL
+from RegReplace.rr_notify import error, deprecated, DEPRECATED_DOTALL
 
 
 DEFAULT_SHOW_PANEL = False
@@ -88,8 +88,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                     for regex in item['file_regex']:
                         try:
                             flags = 0
-                            if 'case' in item and not bool(item['case']):
-                                deprecated(DEPRECATED_CASE)
+                            if 'case' not in item or not bool(item['case']):
                                 flags |= re.IGNORECASE
                             if 'dotall' in item and bool(item['dotall']):
                                 deprecated(DEPRECATED_DOTALL)

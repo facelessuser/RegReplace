@@ -17,11 +17,6 @@ except Exception:
 
             return False
 
-DEPRECATED_CASE = '''\
-"case" setting is deprecated and will be removed in a future release.
-Please consider using "(?i)" for case insensitive searches.
-'''
-
 DEPRECATED_DOTALL = '''\
 "dotall" setting is deprecated and will be removed in a future release.
 Please consider using "(?s)" for case insensitive searches.
