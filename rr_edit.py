@@ -9,26 +9,10 @@ import sublime_plugin
 import re
 from backrefs import bre
 from RegReplace.rr_notify import error
+import copy
 
 USE_ST_SYNTAX = int(sublime.version()) >= 3092
 ST_LANGUAGES = ('.sublime-syntax', '.tmLanguage') if USE_ST_SYNTAX else ('.tmLanguage',)
-EDIT_LINE = re.compile(
-    r'''(?mxs)
-    ^\s*([a-zA-Z\d_]+)\s*=\s*
-    (
-        (None) |
-        (True|False) |
-        (\[(?:\s*(?:'(?:\\.|[^'])*'|"(?:\\.|[^"])*")\s*,?\s*)*\]) |
-        (r?
-            "{3}(?:\\.|"{1,2}(?!")|[^"])*?"{3} |
-            '{3}(?:\\.|'{1,2}(?!')|[^'])*?'{3} |
-            '(?:\\.|[^'])*' |
-            "(?:\\.|[^"])*" |
-        )
-    )
-    \s*$
-    '''
-)
 
 
 class RegReplaceEventListener(sublime_plugin.EventListener):
@@ -68,40 +52,46 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
         'scope',
         'scope_filter',
         'plugin',
+        'args',
         'name'
     )
 
     def run(self, edit):
         """Parse the regex panel, and if okay, insert/replace entry in settings."""
 
-        text = self.view.substr(sublime.Region(0, self.view.size()))
-
-        self.view.size()
-        pt = 0
-        end = self.view.size() - 1
-        obj = {}
-        name = None
-        while pt < end:
-            m = EDIT_LINE.search(text, pt)
-            if m:
-                if m.group(1) in self.allowed_keys and m.group(3) is None:
-                    if m.group(1) == 'name' and m.group(6):
-                        name = eval(m.group(6))
+        try:
+            exec(self.view.substr(sublime.Region(0, self.view.size())))
+            l = locals()
+            obj = {}
+            print(l)
+            for k, v in l.items():
+                if k in self.allowed_keys and v is not None:
+                    if k == 'name' and isinstance(v, str):
+                        obj[k] = copy.deepcopy(v)
                     elif (
-                        (m.group(1) in self.string_keys and m.group(6)) or
-                        (m.group(1) in self.bool_keys and m.group(4)) or
-                        (m.group(1) == 'scope_filter' and m.group(5))
+                        (k in self.string_keys and isinstance(v, str)) or
+                        (k in self.bool_keys and isinstance(v, bool))
                     ):
-                        obj[m.group(1)] = eval(m.group(2))
-                    elif m.group(1) == 'search_type' and m.group(6):
-                        search_type = eval(m.group(2))
-                        if search_type in self.valid_search_types:
-                            obj[m.group(1)] = search_type
-                pt = m.end(0)
-            else:
-                break
+                        obj[k] = copy.deepcopy(v)
+                    elif (
+                        k == 'scope_filter' and
+                        isinstance(v, list) and
+                        all(isinstance(item, str) for item in v)
+                    ):
+                        obj[k] = copy.deepcopy(v)
+                    elif (
+                        k == 'search_type' and
+                        isinstance(v, str) and
+                        v in self.valid_search_types
+                    ):
+                        obj[k] = copy.deepcopy(v)
+                    elif k == 'args' and isinstance(v, dict):
+                        obj[k] = copy.deepcopy(v)
+        except Exception as e:
+            error('Could not read rule settings!\n\n%s' % str(e))
+            return
 
-        if name is None:
+        if obj.get('name') is None:
             error('A valid name must be provided!')
         elif obj.get('search_type') is None:
             error('A valid search type must be provided!')
@@ -112,10 +102,10 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
                 if obj.get('find') is not None:
                     if obj['search_type'] in ('literal', 'literal_no_case'):
                         flags = 0
-                        find = re.escape(obj['find'])
+                        pattern = re.escape(obj['find'])
                         if obj['search_type'] == 'literal_no_case':
                             flags = re.I
-                        re.compile(find, flags)
+                        re.compile(pattern, flags)
                     else:
                         extend = sublime.load_settings(
                             'reg_replace.sublime-settings'
@@ -126,7 +116,7 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
                             re.compile(obj['find'])
                 settings = sublime.load_settings('reg_replace_expressions.sublime-settings')
                 expressions = settings.get('replacements', {})
-                expressions[name] = obj
+                expressions[obj['name']] = obj
                 settings.set('replacements', expressions)
                 sublime.save_settings('reg_replace_expressions.sublime-settings')
             except Exception as e:
