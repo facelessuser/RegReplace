@@ -12,6 +12,19 @@
         "command": "reg_replace_edit_regex"
     },
 
+    // Create regular expression rule.
+    {
+        "caption": "RegReplace: Create New Regular Expression Rule",
+        "command": "reg_replace_edit_regex",
+        "args": {"new": true}
+    },
+
+    // Delete regular expression rule.
+    {
+        "caption": "RegReplace: Delete Regular Expression Rule",
+        "command": "reg_replace_delete_regex"
+    },
+
     // Example commands.
     // {
     //     "caption": "Reg Replace: HTML5 Remove Deprecated Type Attr",

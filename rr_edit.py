@@ -114,6 +114,14 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
                 break
         return okay
 
+    def is_existing_name(self, name):
+        """Confirm if name already exists and if user is okay with overwritting an existing name."""
+
+        original_name = self.view.settings().get('regreplace.name', None)
+        expressions = sublime.load_settings('reg_replace_expressions.sublime-settings').get('replacements', {})
+        msg = "The name '%s' already exists in the replacment list.  Do you want to replace existing rule?" % name
+        return not (name == original_name or name not in expressions or sublime.ok_cancel_dialog(msg))
+
     def run(self, edit):
         """Parse the regex panel, and if okay, insert/replace entry in settings."""
 
@@ -144,11 +152,11 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
             error('Could not read rule settings!\n\n%s' % str(e))
             return
 
-        if obj.get('name') is None:
+        if not obj.get('name'):
             error('A valid name must be provided!')
         elif obj.get('scope') is None and obj.get('find') is None:
-            error('A valid find pattern must be provided!')
-        else:
+            error('A valid find pattern or scope must be provided!')
+        elif not self.is_existing_name(obj['name']):
             try:
                 if obj.get('find') is not None:
                     if obj.get('literal', False):
@@ -170,6 +178,7 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
                 expressions[obj['name']] = obj
                 settings.set('replacements', expressions)
                 sublime.save_settings('reg_replace_expressions.sublime-settings')
+                self.view.settings().set('regreplace.name', obj['name'])
             except Exception as e:
                 error('Regex compile failed!\n\n%s' % str(e))
 
@@ -234,6 +243,7 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
             new[k] = obj
         settings.set('replacements', new)
         sublime.save_settings('reg_replace_expressions.sublime-settings')
+        sublime.message_dialog('You can now remove \'replacements\' from your \'reg_replace.sublime-settings\' file.')
 
 
 class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
@@ -435,18 +445,22 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             dictionary = '%s = None\n' % name
         return dictionary
 
-    def edit_rule(self, value):
+    def edit_rule(self, value, new=False):
         """Parse rule and format as Python code and insert into panel."""
 
-        if value >= 0:
-            name = self.keys[value]
-            rule = self.rules[value]
-            text = '# If you don\'t need a setting, just leave it as None.\n'
-            text += '# When the rule is parsed, the default will be used.\n'
+        if value >= 0 or new:
+            if new:
+                name = None
+                rule = {}
+            else:
+                name = self.keys[value]
+                rule = self.rules[value]
+            text = '"""\nIf you don\'t need a setting, just leave it as None.\n'
+            text += 'When the rule is parsed, the default will be used.\n"""\n'
             text += '\n# name (str): Rule name.  Required.\n'
             text += self.format_string('name', name)
             text += '\n# find (str): Regular expression pattern or literal string.\n'
-            text += '#             Required unless "scope" is defined.\n'
+            text += '#    Required unless "scope" is defined.\n'
             text += self.format_regex_string('find', rule.get('find'))
             text += '\n# replace (str = default=r\'\\0\'): Replace pattern.\n'
             text += self.format_regex_string('replace', rule.get('replace'))
@@ -455,19 +469,19 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += '\n# literal_ignorecase (bool - default=False): Ignore case when "literal" is true.\n'
             text += self.format_bool('literal_ignorecase', rule.get('literal_ignorecase'))
             text += '\n# scope (str): Scope to search for and to apply optional regex to.\n'
-            text += '#              Required unless "find" is defined.\n'
+            text += '#    Required unless "find" is defined.\n'
             text += self.format_string('scope', rule.get('scope'))
             text += '\n# scope_filter ([str] = default=[]): An array of scope qualifiers for the match.\n'
-            text += '#                                    Only used when "scope" is not defined.\n'
+            text += '#    Only used when "scope" is not defined.\n'
             text += self.format_array('scope_filter', rule.get('scope_filter'))
             text += '\n# greedy (bool - default=True): Apply action to all instances (find all).\n'
-            text += '#                               Used when "find" is defined.\n'
+            text += '#    Used when "find" is defined.\n'
             text += self.format_bool('greedy', rule.get('greedy'))
             text += '\n# greedy_scope (bool - default=True): Find all the scopes specified by "scope."\n'
             text += self.format_bool('greedy_scope', rule.get('greedy_scope'))
             text += '\n# multi_pass (bool - default=False): Perform multiple sweeps on the scope region to find\n'
-            text += '#             and replace all instances of the regex when regex cannot be formatted to find\n'
-            text += '#             all instances.\n'
+            text += '#    and replace all instances of the regex when regex cannot be formatted to find\n'
+            text += '#    all instances.\n'
             text += self.format_bool('multi_pass', rule.get('multi_pass'))
             text += '\n# plugin (str): Define replace plugin for more advanced replace logic.\n'
             text += self.format_string('plugin', rule.get('plugin'))
@@ -492,20 +506,50 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             replace_view.settings().set('reg_replace_edit_view', True)
             replace_view.settings().set('bracket_highlighter.widget_okay', True)
             replace_view.settings().set('bracket_highlighter.bracket_string_escape_mode', 'regex')
+            replace_view.settings().set('regreplace.name', name)
             self.window.run_command("show_panel", {"panel": "output.reg_replace"})
             sublime.set_timeout(lambda w=self.window, v=replace_view: w.focus_view(v), 100)
 
-    def run(self):
+    def run(self, new=False):
         """Read regex from file and place in panel for editing."""
+
+        if new:
+            self.edit_rule(-1, new=True)
+        else:
+            self.keys = []
+            self.rules = []
+            expressions = sublime.load_settings('reg_replace_expressions.sublime-settings').get('replacements', {})
+            for name, rule in expressions.items():
+                self.keys.append(name)
+                self.rules.append(rule)
+            if len(self.keys):
+                self.window.show_quick_panel(
+                    self.keys,
+                    self.edit_rule
+                )
+
+class RegReplaceDeleteRegexCommand(sublime_plugin.WindowCommand):
+    """Delete a regular expression rule."""
+
+    def delete_rule(self, value):
+        """Delete the specified rule."""
+
+        if value >= 0:
+            if sublime.ok_cancel_dialog('Are you sure you want to delete the rule: \'%s\'?' % self.keys[value]):
+                del self.expressions[self.keys[value]]
+                sublime.load_settings('reg_replace_expressions.sublime-settings').set('replacements', self.expressions)
+                sublime.save_settings('reg_replace_expressions.sublime-settings')
+
+    def run(self):
+        """Show a quick panel and let the user select which expression to delete."""
 
         self.keys = []
         self.rules = []
-        expressions = sublime.load_settings('reg_replace_expressions.sublime-settings').get('replacements', {})
-        for name, rule in expressions.items():
+        self.expressions = sublime.load_settings('reg_replace_expressions.sublime-settings').get('replacements', {})
+        for name in self.expressions.keys():
             self.keys.append(name)
-            self.rules.append(rule)
         if len(self.keys):
             self.window.show_quick_panel(
                 self.keys,
-                self.edit_rule
+                self.delete_rule
             )
