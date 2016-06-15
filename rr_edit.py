@@ -207,6 +207,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
         needs_escape = False
         for c in string:
             if skip:
+                skip = False
                 continue
             if c == '\\':
                 skip = True
@@ -249,14 +250,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
         """Format string."""
 
         if value is not None and isinstance(value, str):
-            single = self.needs_escape(value, '\'')
-            double = self.needs_escape(value, '"')
-            if not double:
-                string = '%s = "%s"\n' % (name, value)
-            elif not single:
-                string = '%s = \'%s\'\n' % (name, value)
-            else:
-                string = '%s = "%s"\n' % (name, self.fix_escape(value, '"'))
+            string = '%s = %s\n' % (name, self.simple_format_string(value))
         else:
             string = '%s = None\n' % name
         return string
@@ -265,39 +259,47 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
         """Format triple quoted strings."""
 
         if value is not None and isinstance(value, str):
-            single = self.needs_escape(value, '\'', quote_count=3)
-            double = self.needs_escape(value, '"', quote_count=3)
-            if not double:
-                string = '%s = r"""%s"""\n' % (name, value)
-            elif not single:
-                string = '%s = r\'\'\'%s\'\'\'\n' % (name, value)
-            else:
-                string = '%s = r"""%s"""\n' % (name, self.fix_escape(value, '"', quote_count=3))
+            string = '%s = %s\n' % (name, self.simple_format_string(value, force_raw=True))
         else:
             string = '%s = None\n' % name
         return string
 
-    def simple_format_string(self, value):
+    def simple_format_string(self, value, force_raw=False):
         """Format string without key."""
+
+        m = re.search(r'((\n)|\r|\n|\t|\\)', value)
+        newlines = False
+        raw = ''
+        if m:
+            if m.group(2):
+                newlines = True
+            raw = 'r'
+        if force_raw and not raw:
+            raw = 'r'
 
         single = self.needs_escape(value, '\'')
         double = self.needs_escape(value, '"')
-        if not double:
-            string = '"%s"' % value
-        elif not single:
-            string = '\'%s\'' % value
+        tsingle = self.needs_escape(value, '\'', quote_count=3)
+        tdouble = self.needs_escape(value, '"', quote_count=3)
+        if not double and not newlines:
+            string = '%s"%s"' % (raw, value)
+        elif not single and not newlines:
+            string = '%s\'%s\'' % (raw, value)
+        elif not tdouble:
+            string = '%s"""%s"""' % (raw, value)
+        elif not tsingle:
+            string = '%s\'\'\'%s\'\'\'' % (raw, value)
+        elif not newlines:
+            string = '%s"%s"' % (raw, self.fix_escape(value, '"'))
         else:
-            string = '"%s"' % self.fix_escape(value, '"')
+            string = '%s"""%s"""' % (raw, self.fix_escape(value, '"', quote_count=3))
         return string
 
     def format_array(self, name, value):
         """Format an array strings."""
 
         if value is not None and isinstance(value, list):
-            array = '%s = [%s]\n' % (
-                name,
-                ', '.join([self.simple_format_string(scope) for scope in value if isinstance(scope, str)])
-            )
+            array = '%s = [\n%s]\n' % (name, self.parse_array(value, 1))
         else:
             array = '%s = None\n' % name
         return array
@@ -310,6 +312,88 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
         else:
             boolean = '%s = None\n' % name
         return boolean
+
+    def parse_array(self, value, indent):
+        """Parse array."""
+
+        array = ''
+        for v in value:
+            if v is None:
+                array += '%(indent)sNone,\n' % {
+                    'indent': '    ' * indent
+                }
+            elif isinstance(v, str):
+                array += '%(indent)s%(content)s,\n' % {
+                    'indent': '    ' * indent,
+                    'content': self.simple_format_string(v)
+                }
+            elif isinstance(v, (int, float)):
+                array += '%(indent)s%(content)s,\n' % {
+                    'indent': '    ' * indent,
+                    'content': v.__repr__()
+                }
+            elif isinstance(v, list):
+                array += '%(indent)s[\n%(content)s%(indent)s],\n' % {
+                    'indent': '    ' * indent,
+                    'content': self.parse_array(v, indent + 1)
+                }
+            elif isinstance(v, dict):
+                array += '%(indent)s{\n%(content)s%(indent)s},\n' % {
+                    'indent': '    ' * indent,
+                    'content': self.parse_dict(v, indent + 1)
+                }
+        return array
+
+    def parse_dict(self, value, indent):
+        """Parse dictionary."""
+
+        dictionary = ''
+        for k, v in value.items():
+            if v is None:
+                dictionary += '%(indent)s%(name)s: None,\n' % {
+                    'name': self.simple_format_string(k),
+                    'indent': '    ' * indent
+                }
+            elif isinstance(v, str):
+                dictionary += '%(indent)s%(name)s: %(content)s,\n' % {
+                    'name': self.simple_format_string(k),
+                    'indent': '    ' * indent,
+                    'content': self.simple_format_string(v)
+                }
+            elif isinstance(v, (int, float)):
+                dictionary += '%(indent)s%(name)s: %(content)s,\n' % {
+                    'name': self.simple_format_string(k),
+                    'indent': '    ' * indent,
+                    'content': v.__repr__()
+                }
+            elif isinstance(v, list):
+                dictionary += '%(indent)s%(name)s: [\n%(content)s%(indent)s],\n' % {
+                    'name': self.simple_format_string(k),
+                    'indent': '    ' * indent,
+                    'content': self.parse_array(v, indent + 1)
+                }
+            elif isinstance(v, dict):
+                dictionary += '%(indent)s%(name)s: {\n%(content)s%(indent)s},\n' % {
+                    'name': self.simple_format_string(k),
+                    'indent': '    ' * indent,
+                    'content': self.parse_dict(v, indent + 1)
+                }
+        return dictionary
+
+    def format_dict(self, name, value):
+        """Format dictionary."""
+
+        if value is not None and isinstance(value, dict):
+            if len(value):
+                dictionary = '%(name)s = {\n%(content)s}\n' % {
+                    'name': name,
+                    'content': self.parse_dict(value, 1)
+                }
+            else:
+                dictionary = '%s%s = {}\n' % name
+        else:
+            dictionary = '%s = None\n' % name
+        return dictionary
 
     def edit_rule(self, value):
         """Parse rule and format as Python code and insert into panel."""
@@ -338,6 +422,8 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += self.format_bool('multi_pass', rule.get('multi_pass'))
             text += '\n# plugin: define replace plugin for more advanced replace logic\n'
             text += self.format_string('plugin', rule.get('plugin'))
+            text += '\n# args: arguments for \'plugin\'\n'
+            text += self.format_dict('args', rule.get('args'))
 
             replace_view = self.window.create_output_panel('reg_replace', unlisted=True)
             replace_view.run_command('reg_replace_panel_insert', {'text': text})
