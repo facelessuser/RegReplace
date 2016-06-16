@@ -287,10 +287,10 @@ class FindReplace(object):
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
         literal = pattern.get('literal', False)
-        literal_case = literal and not bool(pattern.get('literal_case', False))
+        literal_ignorecase = literal and bool(pattern.get('literal_ignorecase', False))
 
         # Ignore Case?
-        if literal_case:
+        if literal_ignorecase:
             flags |= re.IGNORECASE
 
         if self.selection_only:
@@ -601,7 +601,7 @@ class FindReplace(object):
         greedy_scope = bool(pattern.get('greedy_scope', True))
         greedy_replace = bool(pattern.get('greedy', True))
         literal = pattern.get('literal', False)
-        literal_case = literal and not bool(pattern.get('literal_case', False))
+        literal_ignorecase = literal and bool(pattern.get('literal_ignorecase', False))
         multi = bool(pattern.get('multi_pass', False))
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
@@ -642,7 +642,7 @@ class FindReplace(object):
                     replaced = self.non_greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
             else:
                 try:
-                    re_find = re.compile(re.escape(find), re.I if literal_case else 0)
+                    re_find = re.compile(re.escape(find), re.I if literal_ignorecase else 0)
                 except Exception as err:
                     print(str(traceback.format_exc()))
                     error('REGEX ERROR: %s' % str(err))
