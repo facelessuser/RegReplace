@@ -20,7 +20,7 @@ DEFAULT_MULTI_PASS_MAX_SWEEP = 100
 MODULE_NAME = 'RegReplace'
 
 rrsettings = {}
-rrsettingsexp = {}
+rrsettingsrules = {}
 
 
 def underline(regions):
@@ -360,7 +360,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         If allowed, replacements will be done as well.
         """
 
-        replace_list = rrsettingsexp.get('replacements', {})
+        replace_list = rrsettingsrules.get('replacements', {})
         result_template = '%s: %d regions;\n' if self.panel_display else '%s: %d regions; '
         results = ''
 
@@ -477,6 +477,6 @@ def plugin_loaded():
     """Setup plugin."""
 
     global rrsettings
-    global rrsettingsexp
+    global rrsettingsrules
     rrsettings = sublime.load_settings('reg_replace.sublime-settings')
-    rrsettingsexp = sublime.load_settings('reg_replace_expressions.sublime-settings')
+    rrsettingsrules = sublime.load_settings('reg_replace_rules.sublime-settings')
