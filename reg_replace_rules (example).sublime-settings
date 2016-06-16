@@ -30,8 +30,8 @@
     greedy_scope:       (bool - default=True): Find all the scopes specified by "scope."
 
     multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
-        and replace all instances of the regex when regex cannot be formatted to find
-        all instances.
+                        and replace all instances of the regex when regex cannot be formatted to find
+                        all instances.
 
     plugin:             (str): Define replace plugin for more advanced replace logic.
                         Only used for regex replaces and replace.

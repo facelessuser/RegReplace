@@ -19,14 +19,13 @@
     "on_save_sequences": [
         // An example on_save event that removes dangling commas from json files
         // - file_regex: an array of regex strings that must match the file for the sequence to be applied
-        //   To enable such features as case insensitivity, you can use '(?i)' at the start of the regex.
-        //   See https://docs.python.org/3.4/library/re.html for more information on Python's re.
+        // - case: regex case sensitivity (true|false) false is default (this setting is optional)
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
         // - multi_pass: perform multiple passes on file to catch all regex instances
         // - action: (mark|fold|unfold) instead of replace.  Only one action can be used
         {
-            "file_regex": ["(?i).*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
+            "file_regex": [".*\\.sublime-(settings|commands|menu|keymap|mousemap|theme|build|project|completions|commands)"],
             "file_pattern": ["*.json"],
             "sequence": ["remove_json_dangling_commas"]
         },

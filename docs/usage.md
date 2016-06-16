@@ -9,29 +9,24 @@ Configuring and using RegReplace.
     To enable such features as case insensitivity or dotall, see [re's documentation](https://docs.python.org/3.4/library/re.html).
 
 ## Create Find and Replace Sequences
-To use, replacements must be defined in the `reg_replace.sublime-settings` file.
+To use, replacements must be defined in the `reg_replace_rules.sublime-settings` file.
 
-There are two kinds of definitions.  The first uses regex to find regions, and then you can use scopes to qualify the regions before applying the replace.
+There are two types of rules that can be created: scope rules (with optional scope qualifiers) or scope searches that apply regex to the targeted scopes.  We will call these **regex** and **scope regex** rules respectively.
 
-```javascript
-    // Required parameters:
-    //     find:    Regex description of what you would like to target.
-    //
-    // Optional parameters:
-    //     replace:      description of what you would like to replace target with.
-    //                   Variables are okay for non-literal searches and are done by escaping
-    //                   the selection number \\1 etc.  Default value is "" (empty string)
-    //     literal:      Boolean setting to define whether the find and replace is literal or not.
-    // literal_case:     Case sensitivity for literal searches. Default is true.
-    //                   Default is false.
-    //     greedy:       Boolean setting to define whether search is greedy or not. Default is true.
-    //                   Default is False
-    //     scope_filter: an array of scope qualifiers for the match.
-    //                       - Any instance of scope qualifies match: scope.name
-    //                       - Entire match of scope qualifies match: !scope.name
-    //                       - Any instance of scope disqualifies match: -scope.name
-    //                       - Entire match of scope disqualifies match: -!scope.name
+**Regex** rules use regex to find regions, and then you can use scopes to qualify the regions before applying the replace.  These rules can use the following options:
 
+```js
+    /*
+    ###### Regex with optional scope qualifiers. ######
+    - find (required)
+    - replace
+    - literal
+    - literal_cae
+    - greedy
+    - scope_filter
+    - plugin
+    - args
+    */
 
     {
         "replacements": {
@@ -42,27 +37,22 @@ There are two kinds of definitions.  The first uses regex to find regions, and t
             },
 ```
 
-The second kind of definition allows you to search for a scope type and then apply regex to the regions to filter the matches and make replacements.
+The second kind of rule is the **scope regex** which allows you to search for a scope type and then apply regex to the regions to filter the matches and make replacements.
 
-```javascript
-    // Required parameters:
-    //     scope:    scope you would like to target
-    //
-    // Optional parameters:
-    //     find:            regex description that is to be applied to the scope
-    //                      to qualify.  Also can be used to find and replace
-    //                      within the found scope.  Default is None.
-    //     replace:         description of what you would like to replace within the scope.
-    //                      Default value is "\\0".
-    //     literal:         Boolean setting to define whether the find and replace is literal or not.
-    // literal_case:     Case sensitivity for literal searches. Default is true.
-    //                      Default is false.
-    //     greedy_replace:  Boolean setting to define whether regex search is greedy or not. Default is true.
-    //     greedy_scope:    Boolean setting to define whether scope search is greedy or not. Default is true.
-    //     multi_pass_regex:Boolean setting to define whether there will be multiple sweeps on the scope region
-    //                      region to find and replace all instances of the regex, when regex cannot be formatted
-    //                      to find all instances in a greedy fashion.  Default is false.
-
+```js
+    /*
+    ###### Scope search with regex applied to scope region. ######
+    - scope (required)
+    - find
+    - replace
+    - literal
+    - literal_case
+    - greedy
+    - greedy_scope
+    - multi_pass
+    - plugn
+    - args
+    */
 
     {
             "replacements": {
@@ -70,8 +60,52 @@ The second kind of definition allows you to search for a scope type and then app
                     "scope": "comment",
                     "find" : "(([^\\n\\r]*)(\\r\\n|\\n))*([^\\n\\r]+)",
                     "replace": "",
-                    "greedy_replace": true
+                    "greedy": true,
+                    "greedy_scope": true
                 }
+```
+
+A description of all the options is found below:
+
+```
+    name:               (str): Rule name.  Required.
+
+    find:               (str): Regular expression pattern or literal string.
+                        Use (?i) for case insensitive. Use (?s) for dotall.
+                        See https://docs.python.org/3.4/library/re.html for more info on regex flags.
+                        Required unless "scope" is defined.
+
+    replace:            (str - default=r'\0'): Replace pattern.
+
+    literal:            (bool - default=False): Preform a non-regex, literal search and replace.
+
+    literal_ignorecase: (bool - default=False): Ignore case when "literal" is true.
+
+    scope:              (str): Scope to search for and to apply optional regex to.
+                        Required unless "find" is defined.
+
+    scope_filter:       ([str] - default=[]): An array of scope qualifiers for the match.
+                        Only used when "scope" is not defined.
+
+                        - Any instance of scope qualifies match: scope.name
+                        - Entire match of scope qualifies match: !scope.name
+                        - Any instance of scope disqualifies match: -scope.name
+                        - Entire match of scope disqualifies match: -!scope.name
+
+    greedy:             (bool - default=True): Apply action to all instances (find all).
+                        Used when "find" is defined.
+
+    greedy_scope:       (bool - default=True): Find all the scopes specified by "scope."
+
+    multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
+                        and replace all instances of the regex when regex cannot be formatted to find
+                        all instances.
+
+    plugin:             (str): Define replace plugin for more advanced replace logic.
+                        Only used for regex replaces and replace.
+
+    args:               (dict): Arguments for 'plugin'.
+                        Only used for regex replaces and replace.
 ```
 
 Once you have replacements defined, there are a number of ways you can run a sequence.  One way is to create a command in the command palette by editing/creating a `Default.sublime-commands` in your `User` folder and then adding your command(s).
@@ -234,9 +268,9 @@ unique name of highlighted regions to clear
 This action selects the regions of the given find target.
 
 ## Multi-Pass
-Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.
+Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.  This option will cause the entire sequence to repeatedly executed until all instances are found and replaced.  To protect against a poorly constructed multi-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
 
-Multi-pass cannot be paired with override actions (it will be ignored), but it can be paired with `find_only`.  Multi-pass will sweep the file repeatedly until all instances are found and replaced.  To protect against a poorly constructed multi-pass regex looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
+Multi-pass is used in replaces and cannot be paired with override actions (it will be ignored), but it can be paired with `find_only` as `find_only` allows you to initiate a replace.
 
 ```js
     {
@@ -259,7 +293,7 @@ Sometimes you only want to search under selections.  This can be done by enablin
 ```
 
 ## Use Regex on Entire File Buffer when Using Selections
-Sometimes you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections as opposed to the default behavior of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
+When `selection_only` is enabled, you might have a regex chain that lends itself better to performing the regex on the entire file buffer and then pick the matches under the selections as opposed to the default behavior of applying the regex directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
 
 ```js
     {
@@ -295,7 +329,7 @@ Example:
     "on_save_sequences": [
         // An example on_save event that removes dangling commas from json files
         // - file_regex: an array of regex strings that must match the file for the sequence to be applied
-        //   To enable such features as case insensitivity, you can use '(?i)' at the start of the regex.
+        // - case: regex case sensitivity (true|false) false is default (this setting is optional)
         //   See https://docs.python.org/3.4/library/re.html for more information on Python's re.
         // - file_pattern: an array of file patterns that must match for the sequence to be applied
         // - sequence: an array of replacement definitions to be applied on saving the file
@@ -318,7 +352,7 @@ Example:
 ```
 
 ## Custom Replace Plugins
-There are times that a simple regular expression and replace is not enough.  Since RegReplace uses Python's re regex engine, we can use python code to intercept the replace and do more complex things via a plugin.
+There are times that a simple regular expression and replace is not enough.  Since RegReplace uses Python's re regex engine, we can use python code to intercept the replace and do more complex things via a plugin.  Because this uses Python's re, this will only be applied when doing regex searches (not literal searches).
 
 In this example we are going to search for dates with the form YYYYMMDD and increment them by one day.
 
