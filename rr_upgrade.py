@@ -38,9 +38,9 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
             else:
                 prefix = ''
                 if v.get('case', True) is False:
-                    prefix == 'i'
+                    prefix += 'i'
                 if v.get('dotall', False):
-                    prefix == 's'
+                    prefix += 's'
                 if prefix:
                     prefix = "(?%s)" % prefix
                 if 'find' in obj:
