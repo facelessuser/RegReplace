@@ -140,6 +140,17 @@ You can also bind a replacement command to a shortcut.
     }
 ```
 
+## A Better Way To Create Regex Rules
+Recently a new feature was added that allows the editing of the regex rules to be done in a Python syntax highlighted panel.  This allows for a less cumbersome editing experience.  Users can even split their regex on multiple lines and add comments which will all be preserved for the next time the rule is viewed.
+
+To edit, insert, or delete rules, you can use the following command palette commands:
+
+- RegReplace: Edit Regular Expression Rule
+- RegReplace: Create New Regular Expression Rule
+- RegReplace: Delete Regular Expression Rule
+
+![edit panel](https://dl.dropboxusercontent.com/u/342698/RegReplace/edit_panel.png)
+
 ## View Without Replacing
 If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting the replacements).
 

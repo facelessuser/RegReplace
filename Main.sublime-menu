@@ -64,7 +64,7 @@
                             { "caption": "-" },
                             {
                                 "command": "reg_replace_convert_rules",
-                                "caption": "Convert Old Style Expressions"
+                                "caption": "Convert Rules to 3.0"
                             }
                         ]
                     }
