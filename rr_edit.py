@@ -594,14 +594,14 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += '#     - find_only (bool): Highlight current find results and prompt for action.\n'
             text += '#     - action (str): Apply the given action (fold|unfold|mark|unmark|select).\n'
             text += '#       This overrides the default replace action.\n'
-            text += '#     - options (dict): optional parameters for certain actions (see documentation for more info.\n'
+            text += '#     - options (dict): optional parameters for actions (see documentation for more info).\n'
             text += '#         - key (str): Unique name for highlighted region.\n'
             text += '#         - scope (str - default="invalid"): Scope name to use as teh color.\n'
             text += '#         - style (str - default="outline"): Highlight style (solid|underline|outline).\n'
             text += '#     - multi_pass (bool): Repeatedly sweep with sequence to find all instances.\n'
             text += '#     - no_selection (bool): Overrides the "selection_only" setting and forces no selections.\n'
-            text += '#     - regex_full_file_with_selections (bool): Apply regex search to full file then apply action\n'
-            text += '#       to results under selections.\n'
+            text += '#     - regex_full_file_with_selections (bool): Apply regex search to full file then apply\n'
+            text += '#       action to results under selections.\n'
             text += textwrap.dedent(
                 """\
                 test = {
