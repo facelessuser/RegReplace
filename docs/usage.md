@@ -99,7 +99,7 @@ A description of all the options is found below:
 
     multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
                         and replace all instances of the regex when regex cannot be formatted to find
-                        all instances.
+                        all instances.  Since a replace can change a scope, this can be useful.
 
     plugin:             (str): Define replace plugin for more advanced replace logic.
                         Only used for regex replaces and replace.

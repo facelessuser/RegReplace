@@ -492,7 +492,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += self.format_bool('greedy_scope', rule.get('greedy_scope'))
             text += '\n# multi_pass (bool - default=False): Perform multiple sweeps on the scope region to find\n'
             text += '#    and replace all instances of the regex when regex cannot be formatted to find\n'
-            text += '#    all instances.\n'
+            text += '#    all instances. Since a replace can change a scope, this can be useful.\n'
             text += self.format_bool('multi_pass', rule.get('multi_pass'))
             text += '\n# plugin (str): Define replace plugin for more advanced replace logic.\n'
             text += self.format_string('plugin', rule.get('plugin'))
