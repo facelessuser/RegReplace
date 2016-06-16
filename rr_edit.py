@@ -50,6 +50,7 @@ class RegReplacePanelInsertCommand(sublime_plugin.TextCommand):
 
         self.view.replace(edit, sublime.Region(0, self.view.size()), text)
 
+
 class ConvertPythonSrc2Obj(object):
     """Convert the python source to a RegReplace object."""
 
@@ -121,6 +122,12 @@ class ConvertPythonSrc2Obj(object):
         return okay
 
     def convert(self, text):
+        """
+        Convert the source to an object.
+
+        Test object will be compiled separately.
+        """
+
         obj = {}
         test = {}
         try:
