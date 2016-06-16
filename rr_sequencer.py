@@ -359,7 +359,10 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         If allowed, replacements will be done as well.
         """
 
-        replace_list = rrsettingsrules.get('replacements', {})
+        if self.use_test_buffer:
+            replace_list = sublime.load_settings('reg_replace_test.sublime-settings').get('replacements', {})
+        else:
+            replace_list = rrsettingsrules.get('replacements', {})
         result_template = '%s: %d regions;\n' if self.panel_display else '%s: %d regions; '
         results = ''
 
@@ -427,7 +430,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         self, edit, replacements=None,
         find_only=False, clear=False, action=None,
         multi_pass=False, no_selection=False, regex_full_file_with_selections=False,
-        options=None
+        options=None, use_test_buffer=False
     ):
         """Kick off sequence."""
 
@@ -436,6 +439,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         if options is None:
             options = {}
 
+        self.use_test_buffer = bool(use_test_buffer)
         self.find_only = bool(find_only)
         self.action = action.strip() if action is not None else action
         self.full_file = bool(regex_full_file_with_selections)
