@@ -1,0 +1,109 @@
+{
+    /*
+    name:               (str): Rule name.  Required.
+
+    find:               (str): Regular expression pattern or literal string.
+                        Use (?i) for case insensitive. Use (?s) for dotall.
+                        See https://docs.python.org/3.4/library/re.html for more info on regex flags.
+                        Required unless "scope" is defined.
+
+    replace:            (str - default=r'\0'): Replace pattern.
+
+    literal:            (bool - default=False): Preform a non-regex, literal search and replace.
+
+    literal_ignorecase: (bool - default=False): Ignore case when "literal" is true.
+
+    scope:              (str): Scope to search for and to apply optional regex to.
+                        Required unless "find" is defined.
+
+    scope_filter:       ([str] - default=[]): An array of scope qualifiers for the match.
+                        Only used when "scope" is not defined.
+
+                        - Any instance of scope qualifies match: scope.name
+                        - Entire match of scope qualifies match: !scope.name
+                        - Any instance of scope disqualifies match: -scope.name
+                        - Entire match of scope disqualifies match: -!scope.name
+
+    greedy:             (bool - default=True): Apply action to all instances (find all).
+                        Used when "find" is defined.
+
+    greedy_scope:       (bool - default=True): Find all the scopes specified by "scope."
+
+    multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
+        and replace all instances of the regex when regex cannot be formatted to find
+        all instances.
+
+    plugin:             (str): Define replace plugin for more advanced replace logic.
+                        Only used for regex replaces and replace.
+
+    args:               (dict): Arguments for 'plugin'.
+                        Only used for regex replaces and replace.
+
+    ----------------------------------------------------
+
+    ###### Regex with optional scope qualifiers. ######
+    - find (required)
+    - replace
+    - literal
+    - literal_cae
+    - greedy
+    - scope_filter
+    - plugin
+    - args
+
+    ###### Scope search with regex applied to scope region. ######
+    - scope (required)
+    - find
+    - replace
+    - literal
+    - literal_case
+    - greedy
+    - greedy_scope
+    - multi_pass
+    - plugn
+    - args
+
+    */
+    // Example replacements
+    "replacements": {
+        // remove deprecated type attr
+        "html5_remove_deprecated_type_attr": {
+            "find": "(?i)(<(style|script)[^>]*)\\stype=(\"|')text/(css|javascript)(\"|')([^>]*>)",
+            "replace": "\\1\\6",
+            "greedy": true
+        },
+        // remove_json_dangling_commas
+        "remove_json_dangling_commas": {
+            "find": ",([\\r\\n\\s]*)(\\]|\\})",
+            "replace": "\\1\\2",
+            "greedy": true,
+            "scope_filter": ["-string", "-comment"]
+        },
+        // remove html comments
+        "remove_html_comments": {
+            "find": "<!--[\\s\\S]+?-->",
+            "replace": "",
+            "scope_filter": ["!comment"],
+            "greedy": true
+        },
+        // remove the trailing spaces
+        "remove_trailing_spaces": {
+            "find": "[ \\t]+$",
+            "replace": "",
+            "greedy": true
+        },
+
+        // delete a comment or comment blocks
+        "remove_comments": {
+            "scope": "comment",
+            "find" : "([^\\n\\r]+)",
+            "replace": "",
+            "greedy": true
+        },
+
+        // find all non ascii chars
+        "non_ascii_chars": {
+            "find": "[[:^ascii:]]+"
+        }
+    }
+}
