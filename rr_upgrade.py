@@ -66,6 +66,7 @@ class RegReplaceConvertRulesCommand(sublime_plugin.ApplicationCommand):
                 del obj[k1]
 
             new[k] = obj
+        settings.set('format', '3.0')
         settings.set('replacements', new)
         sublime.save_settings('reg_replace_rules.sublime-settings')
         sublime.message_dialog(
