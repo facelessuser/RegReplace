@@ -21,7 +21,7 @@ There are two types of rules that can be created: scope rules (with optional sco
     - find (required)
     - replace
     - literal
-    - literal_cae
+    - literal_ignorecase
     - greedy
     - scope_filter
     - plugin
@@ -46,7 +46,7 @@ The second kind of rule is the **scope regex** which allows you to search for a 
     - find
     - replace
     - literal
-    - literal_case
+    - literal_ignorecase
     - greedy
     - greedy_scope
     - multi_pass

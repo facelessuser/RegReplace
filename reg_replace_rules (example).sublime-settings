@@ -45,7 +45,7 @@
     - find (required)
     - replace
     - literal
-    - literal_cae
+    - literal_ignorecase
     - greedy
     - scope_filter
     - plugin
@@ -56,7 +56,7 @@
     - find
     - replace
     - literal
-    - literal_case
+    - literal_ignorecase
     - greedy
     - greedy_scope
     - multi_pass
