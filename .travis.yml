@@ -2,8 +2,8 @@ language: python
 python:
   - "3.3"
 install:
-  - pip install flake8
-  - pip install flake8_docstrings
+  - pip install flake8==2.5.4
+  - pip install flake8_docstrings==0.2.5
   - pip install pep8-naming
   - pip install nose
 script:

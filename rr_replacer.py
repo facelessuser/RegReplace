@@ -2,14 +2,14 @@
 Reg Replace.
 
 Licensed under MIT
-Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
+Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 """
 import sublime
 import re
 from RegReplace.rr_plugin import Plugin
 from backrefs import bre
 import traceback
-from RegReplace.rr_notify import error, deprecated, DEPRECATED_CASE, DEPRECATED_DOTALL
+from RegReplace.rr_notify import error
 
 
 class ScopeRepl(object):
@@ -263,7 +263,9 @@ class FindReplace(object):
             pattern = re.compile(find, flags)
         for m in pattern.finditer(bfr):
             regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
-            if self.plugin is not None:
+            if literal:
+                extractions.append(replace)
+            elif self.plugin is not None:
                 extractions.append(self.on_replace(m))
             else:
                 extractions.append(self.expand(m, replace))
@@ -279,26 +281,17 @@ class FindReplace(object):
 
         # Grab pattern definitions
         find = pattern['find']
-        replace = pattern['replace'] if 'replace' in pattern else '\\0'
-        literal = bool(pattern.get('literal', False))
+        replace = pattern.get('replace', '\\0')
         greedy = bool(pattern.get('greedy', True))
         scope_filter = pattern.get('scope_filter', [])
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
+        literal = pattern.get('literal', False)
+        literal_case = literal and not bool(pattern.get('literal_case', False))
 
-        # Deprecated: Ignore Case?
-        if literal and not bool(pattern.get('literal_case', False)):
+        # Ignore Case?
+        if literal_case:
             flags |= re.IGNORECASE
-        elif 'case' in pattern:
-            deprecated(DEPRECATED_CASE)
-            if not bool(pattern['case']):
-                flags |= re.IGNORECASE
-
-        # Deprecated: dotall?
-        if 'dotall' in pattern:
-            deprecated(DEPRECATED_DOTALL)
-            if bool(pattern['dotall']):
-                flags |= re.DOTALL
 
         if self.selection_only:
             sels = self.view.sel()
@@ -393,17 +386,12 @@ class FindReplace(object):
         total_replaced = 0
         for region in reversed(regions):
             extraction = self.view.substr(region)
-            replaced = 0
-            try:
-                extraction.index(find)
-                replaced = 1
-                if greedy_replace:
-                    extraction = extraction.replace(find, replace)
-                else:
-                    extraction = extraction.replace(find, replace, 1)
-            except ValueError:
-                pass
-            if replaced > 0:
+            if greedy_replace:
+                extraction, replace_count = find.subn(replace, extraction)
+            else:
+                extraction, replace_count = find.subn(replace, extraction, count=1)
+
+            if replace_count > 0:
                 total_replaced += 1
                 if self.find_only or self.action is not None:
                     self.target_regions.append(region)
@@ -416,7 +404,6 @@ class FindReplace(object):
 
         # Initialize replace
         total_replaced = 0
-        replaced = 0
         last_region = len(regions) - 1
         selected_region = None
         selected_extraction = None
@@ -428,17 +415,12 @@ class FindReplace(object):
         count = 0
         for region in regions:
             extraction = self.view.substr(region)
-            replaced = 0
-            try:
-                extraction.index(find)
-                replaced = 1
-                if greedy_replace:
-                    extraction = extraction.replace(find, replace)
-                else:
-                    extraction = extraction.replace(find, replace, 1)
-            except ValueError:
-                pass
-            if replaced > 0:
+            if greedy_replace:
+                extraction, replace_count = find.subn(replace, extraction)
+            else:
+                extraction, replace_count = find.subn(replace, extraction, count=1)
+
+            if replace_count > 0:
                 selected_region = region
                 selected_extraction = extraction
                 break
@@ -454,17 +436,12 @@ class FindReplace(object):
                 # And check if region contained after start of selection?
                 if reverse_count >= count and region.end() - 1 >= pt:
                     extraction = self.view.substr(region)
-                    replaced = 0
-                    try:
-                        extraction.index(find)
-                        replaced = 1
-                        if greedy_replace:
-                            extraction = extraction.replace(find, replace)
-                        else:
-                            extraction = extraction.replace(find, replace, 1)
-                    except ValueError:
-                        pass
-                    if replaced > 0:
+                    if greedy_replace:
+                        extraction, replace_count = find.subn(replace, extraction)
+                    else:
+                        extraction, replace_count = find.subn(replace, extraction, count=1)
+
+                    if replace_count > 0:
                         selected_region = region
                         selected_extraction = extraction
                     reverse_count -= 1
@@ -619,14 +596,13 @@ class FindReplace(object):
 
         # Grab pattern definitions
         scope = pattern['scope']
-        find = pattern['find'] if 'find' in pattern else None
-        replace = pattern['replace'] if 'replace' in pattern else '\\0'
-        greedy_scope = bool(pattern['greedy_scope']) if 'greedy_scope' in pattern else True
-        greedy_replace = bool(pattern['greedy_replace']) if 'greedy_replace' in pattern else True
-        case = bool(pattern['case']) if 'case' in pattern else True
-        multi = bool(pattern['multi_pass_regex']) if 'multi_pass_regex' in pattern else False
-        literal = bool(pattern['literal']) if 'literal' in pattern else False
-        dotall = bool(pattern['dotall']) if 'dotall' in pattern else False
+        find = pattern.get('find')
+        replace = pattern.get('replace', '\\0')
+        greedy_scope = bool(pattern.get('greedy_scope', True))
+        greedy_replace = bool(pattern.get('greedy', True))
+        literal = pattern.get('literal', False)
+        literal_case = literal and not bool(pattern.get('literal_case', False))
+        multi = bool(pattern.get('multi_pass', False))
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
 
@@ -648,18 +624,12 @@ class FindReplace(object):
 
         # Find supplied?
         if find is not None:
-            # Compile regex: Ignore case flag?
             if not literal:
                 try:
-                    flags = 0
-                    if not case:
-                        flags |= re.IGNORECASE
-                    if dotall:
-                        flags |= re.DOTALL
                     if self.extend:
-                        re_find = bre.compile_search(find, flags)
+                        re_find = bre.compile_search(find)
                     else:
-                        re_find = re.compile(find, flags)
+                        re_find = re.compile(find)
                 except Exception as err:
                     print(str(traceback.format_exc()))
                     error('REGEX ERROR: %s' % str(err))
@@ -671,10 +641,17 @@ class FindReplace(object):
                 else:
                     replaced = self.non_greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
             else:
+                try:
+                    re_find = re.compile(re.escape(find), re.I if literal_case else 0)
+                except Exception as err:
+                    print(str(traceback.format_exc()))
+                    error('REGEX ERROR: %s' % str(err))
+                    return replaced
+
                 if greedy_scope:
-                    replaced = self.greedy_scope_literal_replace(regions, find, replace, greedy_replace)
+                    replaced = self.greedy_scope_literal_replace(regions, re_find, replace, greedy_replace)
                 else:
-                    replaced = self.non_greedy_scope_literal_replace(regions, find, replace, greedy_replace)
+                    replaced = self.non_greedy_scope_literal_replace(regions, re_find, replace, greedy_replace)
         else:
             replaced = self.select_scope_regions(regions, greedy_scope)
 

@@ -2,15 +2,14 @@
 Reg Replace.
 
 Licensed under MIT
-Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
+Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 """
-
 import sublime
 import sublime_plugin
 import re
 from fnmatch import fnmatch
 from RegReplace.rr_replacer import FindReplace
-from RegReplace.rr_notify import error, deprecated, DEPRECATED_CASE, DEPRECATED_DOTALL
+from RegReplace.rr_notify import error, deprecated, DEPRECATED_DOTALL
 
 
 DEFAULT_SHOW_PANEL = False
@@ -20,6 +19,7 @@ DEFAULT_MULTI_PASS_MAX_SWEEP = 100
 MODULE_NAME = 'RegReplace'
 
 rrsettings = {}
+rrsettingsrules = {}
 
 
 def underline(regions):
@@ -87,8 +87,7 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                     for regex in item['file_regex']:
                         try:
                             flags = 0
-                            if 'case' in item and not bool(item['case']):
-                                deprecated(DEPRECATED_CASE)
+                            if 'case' not in item or not bool(item['case']):
                                 flags |= re.IGNORECASE
                             if 'dotall' in item and bool(item['dotall']):
                                 deprecated(DEPRECATED_DOTALL)
@@ -360,7 +359,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         If allowed, replacements will be done as well.
         """
 
-        replace_list = rrsettings.get('replacements', {})
+        replace_list = rrsettingsrules.get('replacements', {})
         result_template = '%s: %d regions;\n' if self.panel_display else '%s: %d regions; '
         results = ''
 
@@ -477,4 +476,6 @@ def plugin_loaded():
     """Setup plugin."""
 
     global rrsettings
+    global rrsettingsrules
     rrsettings = sublime.load_settings('reg_replace.sublime-settings')
+    rrsettingsrules = sublime.load_settings('reg_replace_rules.sublime-settings')

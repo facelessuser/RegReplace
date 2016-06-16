@@ -2,7 +2,7 @@
 Reg Replace.
 
 Licensed under MIT
-Copyright (c) 2011 - 2015 Isaac Muse <isaacmuse@gmail.com>
+Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 """
 import sublime
 try:
@@ -16,11 +16,6 @@ except Exception:
             """Return false to effectively disable SubNotify."""
 
             return False
-
-DEPRECATED_CASE = '''\
-"case" setting is deprecated and will be removed in a future release.
-Please consider using "(?i)" for case insensitive searches.
-'''
 
 DEPRECATED_DOTALL = '''\
 "dotall" setting is deprecated and will be removed in a future release.
