@@ -3,6 +3,8 @@
 # About
 Reg Replace is a plugin for Sublime Text that allows the creating of commands consisting of sequences of find and replace instructions.
 
+![edit panel](https://dl.dropboxusercontent.com/u/342698/RegReplace/edit_panel.png)
+
 # Features
 
 - Create find and replace rules that can then be used to create Sublime Commands to call at any time.
@@ -12,6 +14,7 @@ Reg Replace is a plugin for Sublime Text that allows the creating of commands co
 - Create commands that highlight results and requiring confirmation before replacing.
 - Create find and fold/unfold commands to fold or unfold the find results instead of replacing them.
 - Create find and mark/unmark commands to simply highlight or unhighlight results instead of replacing them.
+- Create find and select commands to select certain results instead of replacing them.
 - Create advanced commands that can run a plugin to do more complex replaces.
 
 # Documentation
