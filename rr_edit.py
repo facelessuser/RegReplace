@@ -256,7 +256,6 @@ class RegReplacePanelTestCommand(sublime_plugin.TextCommand):
         # Copy all regex rules that are to be included in the test sequence
         test_rules = {}
         rules = sublime.load_settings('reg_replace_rules.sublime-settings').get('replacements', {})
-        print(test)
         for x in test['replacements']:
             if x in rules:
                 test_rules[x] = rules[x]
@@ -293,6 +292,7 @@ class RegReplacePanelTestCommand(sublime_plugin.TextCommand):
                 if window is not None:
                     view = window.active_view()
                     if view is not None:
+                        test["use_test_buffer"] = True
                         view.run_command('reg_replace', test)
             except Exception as e:
                 error('Regex compile failed!\n\n%s' % str(e))
