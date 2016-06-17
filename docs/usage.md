@@ -143,6 +143,8 @@ You can also bind a replacement command to a shortcut.
 ## A Better Way To Create Regex Rules
 Recently a new feature was added that allows the editing of the regex rules to be done in a Python syntax highlighted panel.  This allows for a less cumbersome editing experience.  Users can even split their regex on multiple lines and add comments which will all be preserved for the next time the rule is viewed.
 
+While in the edit panel, you can press <kbd>ctrl</kbd> + <kbd>s</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>s</kbd> on OSX) and the rule will be saved back to the settings file.  On save, the regex is compiled to test if it is valid; if it fails, you should be alerted and the save will be canceled.
+
 To edit, insert, or delete rules, you can use the following command palette commands:
 
 - RegReplace: Edit Regular Expression Rule
@@ -150,6 +152,29 @@ To edit, insert, or delete rules, you can use the following command palette comm
 - RegReplace: Delete Regular Expression Rule
 
 ![edit panel](https://dl.dropboxusercontent.com/u/342698/RegReplace/edit_panel.png)
+
+You can also test the regex from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press <kbd>ctrl</kbd> + <kbd>f</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>f</kbd> on OSX) to execute.  Keep in mind, you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
+
+```python
+# ----------------------------------------------------------------------------------------
+# test: Here you can setup a test command.  This is not saved and is just used for this session.
+#     - replacements ([str]): A list of regex rules to sequence together.
+#     - find_only (bool): Highlight current find results and prompt for action.
+#     - action (str): Apply the given action (fold|unfold|mark|unmark|select).
+#       This overrides the default replace action.
+#     - options (dict): optional parameters for actions (see documentation for more info).
+#         - key (str): Unique name for highlighted region.
+#         - scope (str - default="invalid"): Scope name to use as teh color.
+#         - style (str - default="outline"): Highlight style (solid|underline|outline).
+#     - multi_pass (bool): Repeatedly sweep with sequence to find all instances.
+#     - no_selection (bool): Overrides the "selection_only" setting and forces no selections.
+#     - regex_full_file_with_selections (bool): Apply regex search to full file then apply
+#       action to results under selections.
+```
+
+![test variable](https://dl.dropboxusercontent.com/u/342698/RegReplace/test.png)
+
+Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing <kbd>esc</kbd> or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
 
 ## View Without Replacing
 If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting the replacements).

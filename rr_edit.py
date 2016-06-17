@@ -161,6 +161,15 @@ class ConvertPythonSrc2Obj(object):
         return obj, test
 
 
+class RegReplaceShowEditPanel(sublime_plugin.WindowCommand):
+    """Show the existing regex panel."""
+
+    def run(self):
+        """Execute the command to show the panel."""
+
+        self.window.run_command("show_panel", {"panel": "output.reg_replace"})
+
+
 class RegReplacePanelTestCommand(sublime_plugin.TextCommand):
     """Handle the panel find shortcut."""
 
@@ -635,6 +644,8 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             replace_view.settings().set('bracket_highlighter.widget_okay', True)
             replace_view.settings().set('bracket_highlighter.bracket_string_escape_mode', 'regex')
             replace_view.settings().set('regreplace.name', name)
+            replace_view.sel().clear()
+            replace_view.sel().add(sublime.Region(0, 0))
             self.window.run_command("show_panel", {"panel": "output.reg_replace"})
             sublime.set_timeout(lambda w=self.window, v=replace_view: w.focus_view(v), 100)
 

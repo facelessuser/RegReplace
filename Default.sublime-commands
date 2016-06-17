@@ -25,6 +25,12 @@
         "command": "reg_replace_delete_regex"
     },
 
+    // Show the regular expression rule edit panel.
+    {
+        "caption": "RegReplace: Show Edit Panel",
+        "command": "reg_replace_show_edit_panel"
+    },
+
     // Example commands.
     // {
     //     "caption": "Reg Replace: HTML5 Remove Deprecated Type Attr",
