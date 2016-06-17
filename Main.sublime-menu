@@ -25,6 +25,16 @@
                                 "args": {"file": "${packages}/User/reg_replace.sublime-settings"},
                                 "caption": "Settings – User"
                             },
+                            {
+                                "command": "open_file",
+                                "args": {"file": "${packages}/User/reg_replace_rules.sublime-settings"},
+                                "caption": "Rules – User"
+                            },
+                            {
+                                "command": "open_file",
+                                "args": {"file": "${packages}/RegReplace/reg_replace_rules (example).sublime-settings"},
+                                "caption": "Rules – Example"
+                            },
                             { "caption": "-" },
                             {
                                 "command": "open_file",
