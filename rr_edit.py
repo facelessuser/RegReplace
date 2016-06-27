@@ -641,7 +641,6 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             replace_view.settings().set('gutter', True)
             replace_view.settings().set('line_numbers', True)
             replace_view.settings().set('reg_replace.edit_view', True)
-            replace_view.settings().set('bracket_highlighter.widget_okay', True)
             replace_view.settings().set('bracket_highlighter.bracket_string_escape_mode', 'regex')
             replace_view.settings().set('regreplace.name', name)
             replace_view.sel().clear()
