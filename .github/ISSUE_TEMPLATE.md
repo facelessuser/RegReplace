@@ -1,8 +1,8 @@
 ## Requirements
 
-Please read and fill in the template below.  Make sure you've read: http://facelessuser.github.io/FindCursor/contributing/.  If the template is not followed, the issue will be marked `Invalid` and closed.
+Please read and fill in the template below.  Make sure you've read: http://facelessuser.github.io/RegReplace/contributing/.  If the template is not followed, the issue will be marked `Invalid` and closed.
 
-Search past issues and read the area of the [documentation](http://facelessuser.github.io/FindCursor/) related to your specific question, issue, or request. Often the answer to your question is already found there.  You may also find the feature you are requesting already exists. It is okay if after doing this you are still confused, just mention what you didn't understand in the documentation below so we can make it better.
+Search past issues and read the area of the [documentation](http://facelessuser.github.io/RegReplace/) related to your specific question, issue, or request. Often the answer to your question is already found there.  You may also find the feature you are requesting already exists. It is okay if after doing this you are still confused, just mention what you didn't understand in the documentation below so we can make it better.
 
 ## Description
 
@@ -23,7 +23,7 @@ For bugs and support questions:
 
 ## Support Info
 
-Run the following command from the menu: `Preferences->Package Settings->FindCursor->Support Info`.  Post the result here.
+Run the following command from the menu: `Preferences->Package Settings->RegReplace->Support Info`.  Post the result here.
 
 ## Steps to Reproduce Issue
 
