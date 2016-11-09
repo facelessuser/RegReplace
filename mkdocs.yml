@@ -1,7 +1,7 @@
 site_name: RegReplace Documentation
 repo_url: https://github.com/facelessuser/RegReplace
 site_description: A Sublime Text plugin for creating regex sequences.
-copyright: Copyright &copy; 2011 - 2015 <a href="https://github.com/facelessuser">Isaac Muse</a>
+copyright: Copyright &copy; 2011 - 2016 <a href="https://github.com/facelessuser">Isaac Muse</a>
 pages:
   - About RegReplace: index.md
   - Installation: installation.md
@@ -26,3 +26,5 @@ markdown_extensions:
   - pymdownx.tasklist
   - pymdownx.progressbar
   - pymdownx.headeranchor
+extra_css:
+  - css/theme_custom.css

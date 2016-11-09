@@ -2,6 +2,14 @@
     "*": {
         ">=3000": [
             "backrefs"
+        ],
+        ">=3116": [
+            "pygments",
+            "python-markdown",
+            "mdpopups",
+            "python-jinja2",
+            "markupsafe",
+            "backrefs"
         ]
     }
 }

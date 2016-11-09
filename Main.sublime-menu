@@ -75,7 +75,18 @@
                             {
                                 "command": "reg_replace_convert_rules",
                                 "caption": "Convert Rules to 3.0"
-                            }
+                            },
+                            { "caption": "-" },
+                            {
+                                "caption": "Changelog",
+                                "command": "reg_replace_changes"
+                            },
+                            { "caption": "-" },
+                            {
+                                "caption": "Support Info",
+                                "command": "reg_replace_support_info"
+                            },
+                            { "caption": "-" }
                         ]
                     }
                 ]
