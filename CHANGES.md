@@ -1,5 +1,5 @@
 # RegReplace 3.1.0
-> Released Nov 7, 2016
+> Released Nov 8, 2016
 
 - **NEW**: Support Info and Changelog commands
 
