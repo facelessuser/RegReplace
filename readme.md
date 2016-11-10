@@ -1,4 +1,5 @@
 [![Unix Build Status][travis-image]][travis-link]
+[![Package Control Downloads][pc-image]][pc-link]
 ![License][license-image]
 # About
 Reg Replace is a plugin for Sublime Text that allows the creating of commands consisting of sequences of find and replace instructions.
@@ -34,4 +35,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 [travis-image]: https://img.shields.io/travis/facelessuser/RegReplace/master.svg
 [travis-link]: https://travis-ci.org/facelessuser/RegReplace
+[pc-image]: https://img.shields.io/packagecontrol/dt/RegReplace.svg
+[pc-link]: https://packagecontrol.io/packages/RegReplace
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
