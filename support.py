@@ -63,6 +63,12 @@ class RegReplaceSupportInfoCommand(sublime_plugin.ApplicationCommand):
             info["backrefs_version"] = 'Version could not be acquired!'
 
         try:
+            import regex
+            info["regex_version"] = format_version(regex, '__version__')
+        except Exception:
+            info["regex_version"] = 'Version could not be acquired!'
+
+        try:
             import markdown
             info["markdown_version"] = format_version(markdown, 'version')
         except Exception:
@@ -89,6 +95,7 @@ class RegReplaceSupportInfoCommand(sublime_plugin.ApplicationCommand):
             - Install via PC: %(pc_install)s
             - mdpopups ver.: %(mdpopups_version)s
             - backrefs ver.: %(backrefs_version)s
+            - regex ver.: %(regex_version)s
             - markdown ver.: %(markdown_version)s
             - pygments ver.: %(pygments_version)s
             - jinja2 ver.: %(jinja_version)s
