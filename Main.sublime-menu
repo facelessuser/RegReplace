@@ -81,12 +81,32 @@
                                 "caption": "Changelog",
                                 "command": "reg_replace_changes"
                             },
+                            {
+                                "caption": "Documentation",
+                                "command": "reg_replace_open_site",
+                                "args": {
+                                    "url": "http://facelessuser.github.io/RegReplace/"
+                                }
+                            },
+                            {
+                                "caption": "Quick Start Guide",
+                                "command": "reg_replace_doc",
+                                "args": {
+                                    "page": "${packages}/RegReplace/quickstart.md"
+                                }
+                            },
                             { "caption": "-" },
                             {
                                 "caption": "Support Info",
                                 "command": "reg_replace_support_info"
                             },
-                            { "caption": "-" }
+                            {
+                                "caption": "Issues",
+                                "command": "reg_replace_open_site",
+                                "args": {
+                                    "url": "https://github.com/facelessuser/RegReplace/issues"
+                                }
+                            }
                         ]
                     }
                 ]
