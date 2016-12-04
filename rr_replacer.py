@@ -304,7 +304,7 @@ class FindReplace(object):
 
         # Ignore Case?
         if literal_ignorecase:
-            if extend:
+            if self.extend:
                 flags |= self.extend_module.IGNORECASE
             else:
                 flags |= self.normal_module.IGNORECASE
