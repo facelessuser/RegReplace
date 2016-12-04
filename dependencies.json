@@ -1,5 +1,5 @@
 {
-    "*": {
+    "linux": {
         ">=3000": [
             "backrefs"
         ],
@@ -10,6 +10,36 @@
             "python-jinja2",
             "markupsafe",
             "backrefs"
+        ]
+    },
+    "windows": {
+        ">=3000": [
+            "backrefs",
+            "regex"
+        ],
+        ">=3116": [
+            "pygments",
+            "python-markdown",
+            "mdpopups",
+            "python-jinja2",
+            "markupsafe",
+            "backrefs",
+            "regex"
+        ]
+    },
+    "osx": {
+        ">=3000": [
+            "backrefs",
+            "regex"
+        ],
+        ">=3116": [
+            "pygments",
+            "python-markdown",
+            "mdpopups",
+            "python-jinja2",
+            "markupsafe",
+            "backrefs",
+            "regex"
         ]
     }
 }
