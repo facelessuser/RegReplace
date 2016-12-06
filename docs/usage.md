@@ -483,8 +483,36 @@ Here is some text to test the example on:
 
 RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
 
+## Regex Module
+
+By default, RegReplace uses Python's [re](https://docs.python.org/3.3/library/re.html) module.  But if you prefer the  
+more advanced [regex](https://pypi.python.org/pypi/regex) regular expression module, you can enable it with the  
+following setting:
+
+```js
+    // Use the regex module for regular expression.
+    // https://pypi.python.org/pypi/regex
+    "use_regex_module": true,
+```
+
+To select whether to use Version 0 or Version 1 of the regex module, simply change the following setting:
+
+```js
+    // When "use_regex_module" is enabled, select which version of the regex module to use (0 or 1).
+    // See documentation to understand the differences: https://pypi.python.org/pypi/regex.
+    "regex_module_version": 0,
+```
+
 ## Extended Back References
-RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for RegReplace and adds various additional backrefs that are known to some regex engins, but not to Python's re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and `\C`).  You can enable extended back references in the settings file:
+RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for RegReplace and adds various additional backrefs that are known to some regex engines, but not to Python's re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and `\C`).  It even  
+adds some of the Posix style classes such as `[:ascii:]` etc.
+
+Backrefs also works with regex module, but it enables a smaller portion of back references as the regex module implements a few of the back references already (in one form or the other).  For instance, there was no need to add  
+Unicode properties as it was already available. And since you can already use Unicode and/or Posix properties to do  
+uppercase and lowercase character classes in search patterns, and regex already reserves `\L`, it wasn't worth the  
+extra work to try and add equivalents for `\c`, `\C`, '\l' and `\L` to the search back references.
+
+You can enable extended back references in the settings file:
 
 ```js
     // Use extended back references
@@ -501,7 +529,7 @@ When enabled, you can apply the back references to your search and/or replace pa
     }
 ```
 
-You can read more about the backrefs' features in the [backrefs documentation](https://github.com/facelessuser/sublime-backrefs/blob/master/readme.md).
+You can read more about the backrefs' features in the [backrefs documentation](http://facelessuser.github.io/backrefs/).
 
 ### Getting the Latest Backrefs
 It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package Control's `Satisfy Dependencies` command which will update to the latest release.
@@ -511,6 +539,12 @@ You can import backrefs into a RegReplace plugin:
 
 ```python
 from backrefs as bre
+```
+
+Or use bregex for the regex module with backrefs:
+
+```python
+from backrefs as bregex
 ```
 
 Backrefs does provide a wrapper for all of re's normal functions such as `match`, `sub`, etc., but is recommended to pre-compile your search patterns **and** your replace patterns for the best performance; especially if you plan on reusing the same pattern multiple times.  As re does cache a certain amount of the non-compiled calls you will be spared from some of the performance hit, but backrefs does not cache the pre-processing of search and replace patterns.
