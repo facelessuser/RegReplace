@@ -117,6 +117,7 @@ class RegReplaceSupportInfoCommand(sublime_plugin.ApplicationCommand):
         sublime.message_dialog(msg + '\nInfo has been copied to the clipboard.')
         sublime.set_clipboard(msg)
 
+
 class RegReplaceOpenSiteCommand(sublime_plugin.ApplicationCommand):
     """Open site links."""
 
