@@ -50,6 +50,15 @@
     // Search under selection(s) if and only if exists
     "selection_only": false,
 
-    // Use extended backreferences
+    // Use the regex module for regular expression.
+    // https://pypi.python.org/pypi/regex
+    "use_regex_module": false,
+
+    // When "use_regex_module" is enabled, select which version of the regex module to use (0 or 1).
+    // See documentation to understand the differences: https://pypi.python.org/pypi/regex.
+    "regex_module_version": 0,
+
+    // Use extended backreferences (works with Python re or regex)
+    // See backref docs for more info: http://facelessuser.github.io/backrefs/.
     "extended_back_references": false
 }

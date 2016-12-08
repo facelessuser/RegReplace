@@ -1,7 +1,8 @@
 {
     "*": {
         ">=3000": [
-            "backrefs"
+            "backrefs",
+            "regex"
         ],
         ">=3116": [
             "pygments",
@@ -9,7 +10,8 @@
             "mdpopups",
             "python-jinja2",
             "markupsafe",
-            "backrefs"
+            "backrefs",
+            "regex"
         ]
     }
 }

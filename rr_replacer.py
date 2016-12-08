@@ -7,7 +7,7 @@ Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 import re
 from RegReplace.rr_plugin import Plugin
-from backrefs import bre
+from backrefs import bre, bregex
 import traceback
 from RegReplace.rr_notify import error
 
@@ -51,6 +51,16 @@ class FindReplace(object):
         self.plugin = None
         settings = sublime.load_settings('reg_replace.sublime-settings')
         self.extend = bool(settings.get("extended_back_references", False))
+        self.use_regex = bool(settings.get('use_regex_module', False)) and bregex.REGEX_SUPPORT
+        if self.use_regex:
+            regex_version = int(settings.get('regex_module_version', 0))
+            if regex_version > 1:
+                regex_version = 0
+            self.regex_version_flag = bregex.VERSION1 if regex_version else bregex.VERSION0
+        else:
+            self.regex_version_flag = 0
+        self.extend_module = bregex if self.use_regex else bre
+        self.normal_module = bregex.regex if self.use_regex else re
 
     def view_replace(self, region, replacement):
         """
@@ -253,14 +263,17 @@ class FindReplace(object):
             bfr = self.view.substr(sublime.Region(offset, sel.end()))
         else:
             bfr = self.view.substr(sublime.Region(0, self.view.size()))
-        flags |= re.MULTILINE
-        if literal:
-            find = re.escape(find)
-        if self.extend and not literal:
-            pattern = bre.compile_search(find, flags)
-            self.template = bre.compile_replace(pattern, replace)
+        if self.extend:
+            flags |= self.extend_module.MULTILINE
         else:
-            pattern = re.compile(find, flags)
+            flags |= self.normal_module.MULTILINE
+        if literal:
+            find = self.normal_module.escape(find)
+        if self.extend and not literal:
+            pattern = self.extend_module.compile_search(find, flags | self.regex_version_flag)
+            self.template = self.extend_module.compile_replace(pattern, replace)
+        else:
+            pattern = self.normal_module.compile(find, flags | self.regex_version_flag)
         for m in pattern.finditer(bfr):
             regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
             if literal:
@@ -291,7 +304,10 @@ class FindReplace(object):
 
         # Ignore Case?
         if literal_ignorecase:
-            flags |= re.IGNORECASE
+            if self.extend:
+                flags |= self.extend_module.IGNORECASE
+            else:
+                flags |= self.normal_module.IGNORECASE
 
         if self.selection_only:
             sels = self.view.sel()
@@ -348,10 +364,10 @@ class FindReplace(object):
 
         scope_repl = ScopeRepl(self.plugin, replace, self.expand, self.on_replace)
         if self.extend:
-            pattern = bre.compile_search(re_find)
-            self.template = bre.compile_replace(pattern, replace)
+            pattern = self.extend_module.compile_search(re_find, self.regex_version_flag)
+            self.template = self.extend_module.compile_replace(pattern, replace)
         else:
-            pattern = re.compile(re_find)
+            pattern = self.normal_module.compile(re_find, self.regex_version_flag)
         if multi and not self.find_only and self.action is None:
             extraction, replaced = self.apply_multi_pass_scope_regex(
                 pattern, extraction, scope_repl.repl, greedy_replace
@@ -627,9 +643,9 @@ class FindReplace(object):
             if not literal:
                 try:
                     if self.extend:
-                        re_find = bre.compile_search(find)
+                        re_find = self.extend_module.compile_search(find, self.regex_version_flag)
                     else:
-                        re_find = re.compile(find)
+                        re_find = self.normal_module.compile(find, self.regex_version_flag)
                 except Exception as err:
                     print(str(traceback.format_exc()))
                     error('REGEX ERROR: %s' % str(err))
@@ -642,7 +658,10 @@ class FindReplace(object):
                     replaced = self.non_greedy_scope_replace(regions, re_find, replace, greedy_replace, multi)
             else:
                 try:
-                    re_find = re.compile(re.escape(find), re.I if literal_ignorecase else 0)
+                    re_find = self.normal_module.compile(
+                        self.normal_module.escape(find),
+                        (self.normal_module.I if literal_ignorecase else 0) | self.regex_version_flag
+                    )
                 except Exception as err:
                     print(str(traceback.format_exc()))
                     error('REGEX ERROR: %s' % str(err))
