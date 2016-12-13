@@ -5,7 +5,6 @@ Licensed under MIT
 Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 """
 import sublime
-import re
 from RegReplace.rr_plugin import Plugin
 from backrefs import bre, bregex
 import traceback
@@ -60,7 +59,7 @@ class FindReplace(object):
         else:
             self.regex_version_flag = 0
         self.extend_module = bregex if self.use_regex else bre
-        self.normal_module = bregex.regex if self.use_regex else re
+        self.normal_module = bregex.regex if self.use_regex else bre.re
 
     def view_replace(self, region, replacement):
         """
