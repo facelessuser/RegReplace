@@ -1,3 +1,8 @@
+# RegReplace 3.2.0
+> Released Dec 27, 2016
+
+- **NEW**: Add support for regex regular expression module [#52](https://github.com/facelessuser/RegReplace/pull/52)
+
 # RegReplace 3.1.0
 > Released Nov 8, 2016
 

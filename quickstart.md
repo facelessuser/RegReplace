@@ -126,7 +126,7 @@ If you wish to always execute this command on save, you can add an `on_save` eve
 user settings file.
 
 2. Now we will enable `on_save` events and create an event that will execute on all files. The `on_save_sequences` is  
-an array where you can setup multiple sequences that can run in different files.  See the [documentation](http://facelessuser.github.io/RegReplace/usage/#apply-regex-right-before-file-save-event) for more  
+an array where you can setup multiple sequences that can run in different files.  See the [documentation](http://facelessuser.github.io/RegReplace/usage/#apply-regular-expressions-right-before-file-save-event) for more  
 information on the all the available options.
 
     ```js
@@ -170,14 +170,14 @@ information on the all the available options.
     }
     ```
 
-# Regex Enhancements
+# Regular Expression Enhancements
 
-RegReplace adds a couple of couple of regex enhancements. Out of the box, RegReplace uses Python's [re](https://docs.python.org/3.3/library/re.html) regex module.  If you wish to extend re with additional special back references,  
+RegReplace adds a couple of couple of regular expression enhancements. Out of the box, RegReplace uses Python's [re](https://docs.python.org/3.3/library/re.html) regular expressions module.  If you wish to extend re with additional special back references,  
 you can take a look at the [documentation](http://facelessuser.github.io/RegReplace/usage/#extended-back-references) to see how to enable them.
 
-The Python re module is good, but if you prefer (and you are on Windows or OSX -- maybe Linux in the future), you can use the [regex](https://pypi.python.org/pypi/regex)  
-module which includes numerous different enhancements.  You can also enable backrefs when using the regex module, but  
-it will just add support for fewer back references as regex implements more than re.
+The Python re module is good, but if you prefer, you can use the [regex](https://pypi.python.org/pypi/regex)  
+module which includes numerous enhancements.  You can also enable backrefs when using the regex module, but  
+it will just add support fewer back references as regex implements more than re.
 
 # I Need Help!
 

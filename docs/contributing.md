@@ -21,17 +21,18 @@ Contribution from the community is encouraged and can be done in a variety of wa
 
 1. Please **read the documentation** and **search the issue tracker** to try to find the answer to your question **before** posting an issue.
 
-2. When creating an issue on the repository, please provide as much info as possible:
+2. When an issue is created, a [template](https://github.com/facelessuser/RegReplace/blob/master/.github/ISSUE_TEMPLATE.md) will be shown, please fill out the appropriate sections. If the template is not followed, the issue will be marked `Invalid` and closed.
 
-    - Sublime Text build.
-    - Operating system.
+3. When creating an issue on the repository, please provide as much info as possible:
+
+    - Provide environment information by running `Preferences->Package Settings->RegReplace->Support Info`.  The information will be copied to the clipboard; paste the info in issue.
     - Errors in console.
     - Detailed description of the problem.
     - Examples for reproducing the error.  You can post pictures, but if specific text or code is required to reproduce the issue, please provide the text in a plain text format for easy copy/paste.
 
-    The more info provided the greater the chance someone will take the time to answer, implement, or fix the issue.
+    The more info provided, the greater the chance someone will take the time to answer, implement, or fix the issue.
 
-3. Be prepared to answer questions and provide additional information if required.  Issues in which the creator refuses to respond to follow up questions will be marked as stale and closed.
+4. Be prepared to answer questions and provide additional information if required.  Issues in which the creator refuses to respond to follow up questions will be marked as stale and closed.
 
 ## Reviewing Code
 Take part in reviewing pull requests and/or reviewing direct commits.  Make suggestions to improve the code and discuss solutions to overcome weakness in the algorithm.
@@ -57,16 +58,16 @@ There are a couple of dependencies that must be present before running the tests
 
 1. As ST3 is the only current, actively supported version, Python 3.3 must be used to validate the tests.
 
-2. Unit tests are run with `nose`.  You can install nose via:
+2. Unit tests are run with `pytest`.  You can install pytest via:
 
     ```
-    pip install nose
+    pip install pytest
     ```
 
     The tests should be run from the root folder of the plugin by using the following command:
 
     ```
-    nosetests .
+    py.test .
     ```
 
 3. Linting is performed on the entire project with `flake8`, `flake8-docstrings`, and `pep8-naming`.  These can be installed via:
