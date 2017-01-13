@@ -1,8 +1,3 @@
-# Contributing &amp; Support {: .doctitle}
-Steps for contributing and getting support.
-
----
-
 ## Overview
 
 | Sublime Versions | Description |
@@ -21,7 +16,7 @@ Contribution from the community is encouraged and can be done in a variety of wa
 
 1. Please **read the documentation** and **search the issue tracker** to try to find the answer to your question **before** posting an issue.
 
-2. When an issue is created, a [template](https://github.com/facelessuser/RegReplace/blob/master/.github/ISSUE_TEMPLATE.md) will be shown, please fill out the appropriate sections. If the template is not followed, the issue will be marked `Invalid` and closed.
+2. When an issue is created, a [template][template] will be shown, please fill out the appropriate sections. If the template is not followed, the issue will be marked `Invalid` and closed.
 
 3. When creating an issue on the repository, please provide as much info as possible:
 
@@ -87,7 +82,6 @@ There are a couple of dependencies that must be present before running the tests
 ## Documentation Improvements
 A ton of time has been spent not only creating and supporting this plugin, but also spent making this documentation.  If you feel it is still lacking, show your appreciation for the plugin by helping to improve the documentation.  Help with documentation is always appreciated and can be done via pull requests.  There shouldn't be any need to run validation tests if only updating documentation.
 
-You don't have to render the docs locally before pull requesting, but if you wish to, I currently use a combination of [mkdocs](http://www.mkdocs.org) with my own custom Python Markdown [extensions](https://github.com/facelessuser/pymdown-extensions) to render the docs.  You can preview the docs if you install these two packages.  The command for previewing the docs is `mkdocs serve` from the root directory.
+You don't have to render the docs locally before pull requesting, but if you wish to, I currently use a combination of [mkdocs][mkdocs] with my own custom Python Markdown [extensions][pymdown-extensions] to render the docs.  You can preview the docs if you install these two packages.  The command for previewing the docs is `mkdocs serve` from the root directory.
 
-*[ST2]: Sublime Text 2
-*[ST3]: Sublime Text 3
+---8<--- refs.md

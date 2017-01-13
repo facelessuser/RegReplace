@@ -605,7 +605,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += '#       This overrides the default replace action.\n'
             text += '#     - options (dict): optional parameters for actions (see documentation for more info).\n'
             text += '#         - key (str): Unique name for highlighted region.\n'
-            text += '#         - scope (str - default="invalid"): Scope name to use as teh color.\n'
+            text += '#         - scope (str - default="invalid"): Scope name to use as the color.\n'
             text += '#         - style (str - default="outline"): Highlight style (solid|underline|outline).\n'
             text += '#     - multi_pass (bool): Repeatedly sweep with sequence to find all instances.\n'
             text += '#     - no_selection (bool): Overrides the "selection_only" setting and forces no selections.\n'
