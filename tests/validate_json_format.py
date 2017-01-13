@@ -169,7 +169,7 @@ class CheckJsonFormat(object):
         self.fail = True
 
     def check_format(self, file_name):
-        """Initiate teh check."""
+        """Initiate the check."""
 
         self.fail = False
         with codecs.open(file_name, encoding='utf-8') as f:
