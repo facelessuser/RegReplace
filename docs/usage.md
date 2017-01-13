@@ -159,7 +159,7 @@ You can also test the regular expression from the edit panel.  At the bottom of 
 #       This overrides the default replace action.
 #     - options (dict): optional parameters for actions (see documentation for more info).
 #         - key (str): Unique name for highlighted region.
-#         - scope (str - default="invalid"): Scope name to use as teh color.
+#         - scope (str - default="invalid"): Scope name to use as the color.
 #         - style (str - default="outline"): Highlight style (solid|underline|outline).
 #     - multi_pass (bool): Repeatedly sweep with sequence to find all instances.
 #     - no_selection (bool): Overrides the "selection_only" setting and forces no selections.
