@@ -1,10 +1,5 @@
-# User Guide {: .doctitle}
-Configuring and using RegReplace.
-
----
-
 !!! warning "Regular Expression Engine"
-    Remember that the regular expression engine that is used is Python's [re](https://docs.python.org/3.4/library/re.html), not Sublime's internal regular expression engine.  If enabling `extended_back_references`, additional syntax is added which is covered in the [backrefs documentation](http://facelessuser.github.io/backrefs/usage/).
+    Remember that the regular expression engine that is used is Python's [re][re], not Sublime's internal regular expression engine.  If enabling `extended_back_references`, additional syntax is added which is covered in the [backrefs documentation][backrefs].
 
     To enable such features as case insensitivity or dotall, see [re's documentation](https://docs.python.org/3.4/library/re.html).
 
@@ -151,7 +146,7 @@ To edit, insert, or delete rules, you can use the following command palette comm
 - RegReplace: Create New Regular Expression Rule
 - RegReplace: Delete Regular Expression Rule
 
-![edit panel](https://dl.dropboxusercontent.com/u/342698/RegReplace/edit_panel.png)
+![edit panel](imgs/edit_panel.png)
 
 You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press <kbd>ctrl</kbd> + <kbd>f</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>f</kbd> on OSX) to execute.  Keep in mind, you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
 
@@ -172,7 +167,7 @@ You can also test the regular expression from the edit panel.  At the bottom of 
 #       action to results under selections.
 ```
 
-![test variable](https://dl.dropboxusercontent.com/u/342698/RegReplace/test.png)
+![test variable](imgs/test.png)
 
 Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing <kbd>esc</kbd> or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
 
@@ -485,8 +480,8 @@ RegReplace comes with a very simple example you can test with found at `/Package
 
 ## Regex Module
 
-By default, RegReplace uses Python's [re](https://docs.python.org/3.3/library/re.html) module.  But if you prefer the  
-more advanced [regex](https://pypi.python.org/pypi/regex) regular expression module, you can enable it with the  
+By default, RegReplace uses Python's [re][re] module.  But if you prefer the  
+more advanced [regex][regex] regular expression module, you can enable it with the  
 following setting:
 
 ```js
@@ -529,7 +524,7 @@ When enabled, you can apply the back references to your search and/or replace pa
     }
 ```
 
-You can read more about the backrefs' features in the [backrefs documentation](http://facelessuser.github.io/backrefs/).
+You can read more about the backrefs' features in the [backrefs documentation][backrefs].
 
 ### Getting the Latest Backrefs
 It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package Control's `Satisfy Dependencies` command which will update to the latest release.
