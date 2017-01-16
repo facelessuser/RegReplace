@@ -29,6 +29,7 @@ For those who want to install RegReplace without package control, here are the s
     - https://github.com/packagecontrol/pygments -> pygments
     - https://github.com/facelessuser/sublime-markdown-popups -> mdpopups
     - https://github.com/facelessuser/sublime-markdown -> python-markdown
+    - https://github.com/facelessuser/sublime-backrefs -> backrefs
     - https://github.com/facelessuser/sublime-regex -> regex
 
 2. Download and unpack or git clone the latest RegReplace release and unpack as `RegReplace`:
@@ -193,6 +194,7 @@ For those who want to install RegReplace without package control, here are the s
     add_dependency('python-markdown')
     add_dependency('python-jinja2')
     add_dependency('mdpopups')
+    add_dependency('backrefs')
     add_dependency('regex')
     ```
 
