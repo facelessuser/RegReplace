@@ -213,4 +213,4 @@ For those who want to install RegReplace without package control, here are the s
 
 3. Restart Sublime Text.
 
----8<--- links.md
+--8<-- "refs.md"

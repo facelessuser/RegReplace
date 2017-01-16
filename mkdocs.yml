@@ -32,6 +32,8 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_generator: !!python/name:pymdownx.emoji.to_svg
   - pymdownx.escapeall:
+      hardbreak: true
+      nbsp: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.progressbar:

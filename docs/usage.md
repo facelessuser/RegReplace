@@ -579,3 +579,5 @@ m = bre.match(r'sometext')
 if m:
     text = bre.expand(m, r'replace pattern')
 ```
+
+--8<-- "refs.md"
