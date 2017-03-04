@@ -355,7 +355,7 @@ class FindReplace(object):
 
         return replaced
 
-    def apply_scope_regex(self, string, re_find, replace, greedy_replace, multi):
+    def apply_scope_regex(self, string, pattern, replace, greedy_replace, multi):
         """Apply regex on a scope."""
 
         replaced = 0
@@ -363,10 +363,7 @@ class FindReplace(object):
 
         scope_repl = ScopeRepl(self.plugin, replace, self.expand, self.on_replace)
         if self.extend:
-            pattern = self.extend_module.compile_search(re_find, self.regex_version_flag)
             self.template = self.extend_module.compile_replace(pattern, replace)
-        else:
-            pattern = self.normal_module.compile(re_find, self.regex_version_flag)
         if multi and not self.find_only and self.action is None:
             extraction, replaced = self.apply_multi_pass_scope_regex(
                 pattern, extraction, scope_repl.repl, greedy_replace
