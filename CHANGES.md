@@ -1,6 +1,6 @@
 # RegReplace 3.2.1
 
-> Released Mar X, 2017
+> Released Mar 5, 2017
 
 - **FIX**: Fix issue where scope search pattern could fail due to recompiling a compiled pattern.
 
