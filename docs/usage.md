@@ -4,6 +4,7 @@
     To enable such features as case insensitivity or dotall, see [re's documentation](https://docs.python.org/3.4/library/re.html).
 
 ## Create Find and Replace Sequences
+
 To use, replacements must be defined in the `reg_replace_rules.sublime-settings` file.
 
 There are two types of rules that can be created: scope rules (with optional scope qualifiers) or scope searches that apply regular expressions to the targeted scopes.  We will call these **regex** and **scope regex** rules respectively.
@@ -45,7 +46,7 @@ The second kind of rule is the **scope regex** which allows you to search for a 
     - greedy
     - greedy_scope
     - multi_pass
-    - plugn
+    - plugin
     - args
     */
 
@@ -136,6 +137,7 @@ You can also bind a replacement command to a shortcut.
 ```
 
 ## A Better Way To Create Regex Rules
+
 Recently a new feature was added that allows the editing of the regular expression rules to be done in a Python syntax highlighted panel.  This allows for a less cumbersome editing experience.  Users can even split their regular expressions on multiple lines and add comments which will all be preserved for the next time the rule is viewed.
 
 While in the edit panel, you can press <kbd>ctrl</kbd> + <kbd>s</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>s</kbd> on OSX) and the rule will be saved back to the settings file.  On save, the regex is compiled to test if it is valid; if it fails, you should be alerted and the save will be canceled.
@@ -172,6 +174,7 @@ You can also test the regular expression from the edit panel.  At the bottom of 
 Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing <kbd>esc</kbd> or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
 
 ## View Without Replacing
+
 If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting the replacements).
 
 Just add the "find_only" argument and set it to true.
@@ -191,6 +194,7 @@ If for any reason the highlights do not get cleared, you can simply run the "Reg
 Highlight color and style can be changed in the settings file.
 
 ## Override Actions
+
 If instead of replacing you would like to do something else, you can override the action. Actions are defined in commands by setting the `action` parameter.  Some actions may require additional parameters be set in the `options` parameter.  See examples below.
 
 ```javascript
@@ -223,7 +227,8 @@ If instead of replacing you would like to do something else, you can override th
     },
 ```
 
-###Supported override actions:
+### Supported override actions
+
 - fold
 - unfold
 - mark
@@ -231,6 +236,7 @@ If instead of replacing you would like to do something else, you can override th
 - select
 
 ### Fold Override
+
 ```js
 "action": "fold"
 ```
@@ -238,6 +244,7 @@ If instead of replacing you would like to do something else, you can override th
 This action folds the given find target.  This action has no parameters.
 
 ### Unfold Override
+
 ```js
 "action": "unfold"
 ```
@@ -245,6 +252,7 @@ This action folds the given find target.  This action has no parameters.
 This action unfolds the all regions that match the given find target.  This action has no parameters
 
 ### Mark Override
+
 ```js
 "action": "mark"
 ```
@@ -252,16 +260,18 @@ This action unfolds the all regions that match the given find target.  This acti
 This action highlights the regions of the given find target.
 
 #### Mark Options
+
 Action options are specified with the `options` key.
 
-#####Required Parameters:
+##### Required Parameters
+
 ```js
 "options": {"key": "name"}
 ```
 
 Unique name for highlighted regions.
 
-####Optional Parameters:
+#### Optional Parameters
 ```js
 "options": {"scope": "invalid"}
 ```
@@ -275,6 +285,7 @@ Scope name to use as the color. Default is `invalid`.
 Highlight style (solid|underline|outline). Default is `outline`.
 
 ### Unmark Override
+
 ```js
 "action": "unmark"
 ```
@@ -282,9 +293,11 @@ Highlight style (solid|underline|outline). Default is `outline`.
 This action removes the highlights of a given `key`.  Replacements can be omitted with this command.
 
 #### Unmark Options
+
 Action options are specified with the `options` key.
 
-#####Required Parameters:
+##### Required Parameters
+
 ```js
 "options": {"key": "name"}
 ```
@@ -292,6 +305,7 @@ Action options are specified with the `options` key.
 unique name of highlighted regions to clear
 
 ### Select Override
+
 ```js
 "action": "select"
 ```
@@ -299,6 +313,7 @@ unique name of highlighted regions to clear
 This action selects the regions of the given find target.
 
 ## Multi-Pass
+
 Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.  This option will cause the entire sequence to repeatedly executed until all instances are found and replaced.  To protect against a poorly constructed multi-pass regular expression looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
 
 Multi-pass is used in replaces and cannot be paired with override actions (it will be ignored), but it can be paired with `find_only` as `find_only` allows you to initiate a replace.
@@ -312,6 +327,7 @@ Multi-pass is used in replaces and cannot be paired with override actions (it wi
 ```
 
 ## Replace Only Under Selection(s)
+
 Sometimes you only want to search under selections.  This can be done by enabling the `selection_only` setting in the settings file.  By enabling this setting, regular expression targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to underline selections if `find_only` is set to ensure they will show up.
 
 ```js
@@ -324,6 +340,7 @@ Sometimes you only want to search under selections.  This can be done by enablin
 ```
 
 ## Use Regular Expressions on Entire File Buffer when Using Selections
+
 When `selection_only` is enabled, you might have a regular expression chain that lends itself better to performing the regular expression on the entire file buffer and then pick the matches under the selections as opposed to the default behavior of applying the regular expression directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
 
 ```js
@@ -342,6 +359,7 @@ When `selection_only` is enabled, you might have a regular expression chain that
 ```
 
 ## Apply Regular Expressions Right Before File Save Event
+
 If you want to automatically apply a sequence right before a file saves, you can define sequences in the `reg_replace.sublime-settings` file.  Each "on save" sequence will be applied to the files you specify by file patterns or file regular expression.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regular expression by adding the `"action": "mark"` key/value pair (supported options are `mark`, `fold`, and `unfold`). Both types can be used at the same time. Actions are performed after replacements.
 
 
@@ -383,6 +401,7 @@ Example:
 ```
 
 ## Custom Replace Plugins
+
 There are times that a simple regular expression and replace is not enough.  Since RegReplace uses Python's re regular expression engine, we can use python code to intercept the replace and do more complex things via a plugin.  Because this uses Python's re, this will only be applied when doing regular expression searches (not literal searches).
 
 In this example we are going to search for dates with the form YYYYMMDD and increment them by one day.
@@ -499,6 +518,7 @@ To select whether to use Version 0 or Version 1 of the regex module, simply chan
 ```
 
 ## Extended Back References
+
 RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for RegReplace and adds various additional backrefs that are known to some regular expression engines, but not to Python's re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and `\C`).  It even  
 adds some of the Posix style classes such as `[:ascii:]` etc.
 
@@ -527,9 +547,11 @@ When enabled, you can apply the back references to your search and/or replace pa
 You can read more about the backrefs' features in the [backrefs documentation][backrefs].
 
 ### Getting the Latest Backrefs
+
 It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package Control's `Satisfy Dependencies` command which will update to the latest release.
 
 ### Using Backrefs in RegReplace Plugin
+
 You can import backrefs into a RegReplace plugin:
 
 ```python

@@ -1,4 +1,5 @@
 ## Overview
+
 RegReplace is a plugin for Sublime Text that allows the creating of commands consisting of sequences of find and replace instructions.
 
 ![edit panel](imgs/edit_panel.png)

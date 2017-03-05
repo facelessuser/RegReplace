@@ -1,4 +1,5 @@
 ## Package Control
+
 The recommended way to install RegReplace is via [Package Control][package-control].  Package Control will install the correct branch on your system and keep it up to date.
 
 1. Ensure Package Control is installed.  Instructions are found [here][package-control-install].
