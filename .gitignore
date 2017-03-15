@@ -6,3 +6,5 @@ reg_replace.pyc
 site/*
 
 *.pyc
+
+build/*
