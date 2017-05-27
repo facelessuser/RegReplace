@@ -1,4 +1,6 @@
-Reg Replace is released under the MIT license.
+# License
+
+RegReplace is released under the MIT license.
 
 Copyright (c) 2011 - 2017 Isaac Muse <isaacmuse@gmail.com>
 

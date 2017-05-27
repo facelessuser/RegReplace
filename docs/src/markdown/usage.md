@@ -1,3 +1,5 @@
+# User Guide
+
 !!! warning "Regular Expression Engine"
     Remember that the regular expression engine that is used is Python's [re][re], not Sublime's internal regular expression engine.  If enabling `extended_back_references`, additional syntax is added which is covered in the [backrefs documentation][backrefs].
 

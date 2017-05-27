@@ -1,3 +1,10 @@
+# RegReplace 3.3.0
+
+> Released May 27, 2017
+
+- **NEW**: Limit popups/phantoms to 3124+.
+- **NEW**: Use latest settings API when viewing settings.
+
 # RegReplace 3.2.1
 
 > Released Mar 5, 2017
