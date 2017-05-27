@@ -495,7 +495,22 @@ Here is some text to test the example on:
 # Test 3: 20140101
 ```
 
-RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`.  Imported with `RegReplace.rr_modules.example`.
+RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`. Since package control zips packages, it is hard to view directly without a plugin, so it is posted below as well. Import with `#!js "plugin": "RegReplace.rr_modules.example"`.
+
+```py
+"""A simple example plugin."""
+
+
+def replace(m, **kwargs):
+    """Replace with groups."""
+
+    # pylint: disable=unused-argument
+    text = "Here are your groups: "
+    for group in m.groups():
+        if group is not None:
+            text += "(%s)" % group
+    return text
+```
 
 ## Regex Module
 
