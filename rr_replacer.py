@@ -355,7 +355,7 @@ class FindReplace(object):
 
         return replaced
 
-    def apply_scope_regex(self, string, pattern, replace, greedy_replace, multi):
+    def apply_scope_regex(self, string, pattern, replace, greedy_replace, multi, start, sub_regions):
         """Apply regex on a scope."""
 
         replaced = 0
@@ -368,6 +368,12 @@ class FindReplace(object):
             extraction, replaced = self.apply_multi_pass_scope_regex(
                 pattern, extraction, scope_repl.repl, greedy_replace
             )
+        elif self.find_only or self.action is not None:
+            for m in pattern.finditer(string):
+                sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
+                replaced += 1
+                if not greedy_replace:
+                    break
         else:
             if greedy_replace:
                 extraction, replaced = pattern.subn(scope_repl.repl, string)
@@ -397,16 +403,28 @@ class FindReplace(object):
 
         total_replaced = 0
         for region in reversed(regions):
+            sub_regions = []
+            start = region.begin()
             extraction = self.view.substr(region)
-            if greedy_replace:
-                extraction, replace_count = find.subn(replace, extraction)
+            if self.find_only or self.action is not None:
+                replace_count = 0
+                for m in find.finditer(extraction):
+                    sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
+                    replace_count += 1
+                    if not greedy_replace:
+                        break
             else:
-                extraction, replace_count = find.subn(replace, extraction, count=1)
+                if greedy_replace:
+                    extraction, replace_count = find.subn(replace, extraction)
+                    sub_regions = [region]
+                else:
+                    extraction, replace_count = find.subn(replace, extraction, count=1)
+                    sub_regions = [region]
 
             if replace_count > 0:
                 total_replaced += 1
                 if self.find_only or self.action is not None:
-                    self.target_regions.append(region)
+                    self.target_regions.extend(sub_regions)
                 else:
                     self.view_replace(region, extraction)
         return total_replaced
@@ -418,6 +436,7 @@ class FindReplace(object):
         total_replaced = 0
         last_region = len(regions) - 1
         selected_region = None
+        selected_sub_regions = None
         selected_extraction = None
 
         # See if there is a cursor and get the first selections starting point
@@ -426,14 +445,25 @@ class FindReplace(object):
         # Intialize with first qualifying region for wrapping and the case of no cursor in view
         count = 0
         for region in regions:
+            sub_regions = []
+            start = region.begin()
             extraction = self.view.substr(region)
-            if greedy_replace:
-                extraction, replace_count = find.subn(replace, extraction)
+            if self.find_only or self.action is not None:
+                replace_count = 0
+                for m in find.finditer(extraction):
+                    sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
+                    replace_count += 1
+                    if not greedy_replace:
+                        break
             else:
-                extraction, replace_count = find.subn(replace, extraction, count=1)
+                if greedy_replace:
+                    extraction, replace_count = find.subn(replace, extraction)
+                else:
+                    extraction, replace_count = find.subn(replace, extraction, count=1)
 
             if replace_count > 0:
                 selected_region = region
+                selected_sub_regions = sub_regions
                 selected_extraction = extraction
                 break
             else:
@@ -444,17 +474,28 @@ class FindReplace(object):
             # Try and find the first qualifying match contained withing the first selection or after
             reverse_count = last_region
             for region in reversed(regions):
+                sub_regions = []
+                start = region.begin()
                 # Make sure we are not checking previously checked regions
                 # And check if region contained after start of selection?
                 if reverse_count >= count and region.end() - 1 >= pt:
                     extraction = self.view.substr(region)
-                    if greedy_replace:
-                        extraction, replace_count = find.subn(replace, extraction)
+                    replace_count
+                    if self.find_only or self.action is not None:
+                        for m in find.finditer(extraction):
+                            sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
+                            replace_count += 1
+                            if not greedy_replace:
+                                break
                     else:
-                        extraction, replace_count = find.subn(replace, extraction, count=1)
+                        if greedy_replace:
+                            extraction, replace_count = find.subn(replace, extraction)
+                        else:
+                            extraction, replace_count = find.subn(replace, extraction, count=1)
 
                     if replace_count > 0:
                         selected_region = region
+                        selected_sub_regions = sub_regions
                         selected_extraction = extraction
                     reverse_count -= 1
                 else:
@@ -467,7 +508,7 @@ class FindReplace(object):
             self.view.show(selected_region.begin())
             if self.find_only or self.action is not None:
                 # If "find only" or replace action is overridden, just track regions
-                self.target_regions.append(selected_region)
+                self.target_regions.extend(selected_sub_regions)
             else:
                 # Apply replace
                 self.view_replace(selected_region, selected_extraction)
@@ -479,13 +520,16 @@ class FindReplace(object):
         total_replaced = 0
         try:
             for region in reversed(regions):
+                sub_regions = []
                 replaced = 0
                 string = self.view.substr(region)
-                extraction, replaced = self.apply_scope_regex(string, re_find, replace, greedy_replace, multi)
+                extraction, replaced = self.apply_scope_regex(
+                    string, re_find, replace, greedy_replace, multi, region.begin(), sub_regions
+                )
                 if replaced > 0:
                     total_replaced += 1
                     if self.find_only or self.action is not None:
-                        self.target_regions.append(region)
+                        self.target_regions.extend(sub_regions)
                     else:
                         self.view_replace(region, extraction)
         except Exception as err:
@@ -503,6 +547,7 @@ class FindReplace(object):
         replaced = 0
         last_region = len(regions) - 1
         selected_region = None
+        selected_sub_regions = None
         selected_extraction = None
 
         # See if there is a cursor and get the first selections starting point
@@ -512,10 +557,14 @@ class FindReplace(object):
         count = 0
         try:
             for region in regions:
+                sub_regions = []
                 string = self.view.substr(region)
-                extraction, replaced = self.apply_scope_regex(string, re_find, replace, greedy_replace, multi)
+                extraction, replaced = self.apply_scope_regex(
+                    string, re_find, replace, greedy_replace, multi, region.begin(), sub_regions
+                )
                 if replaced > 0:
                     selected_region = region
+                    selected_sub_regions = sub_regions
                     selected_extraction = extraction
                     break
                 else:
@@ -531,13 +580,17 @@ class FindReplace(object):
                 # Try and find the first qualifying match contained withing the first selection or after
                 reverse_count = last_region
                 for region in reversed(regions):
+                    sub_regions = []
                     # Make sure we are not checking previously checked regions
                     # And check if region contained after start of selection?
                     if reverse_count >= count and region.end() - 1 >= pt:
                         string = self.view.substr(region)
-                        extraction, replaced = self.apply_scope_regex(string, re_find, replace, greedy_replace, multi)
+                        extraction, replaced = self.apply_scope_regex(
+                            string, re_find, replace, greedy_replace, multi, region.begin(), sub_regions
+                        )
                         if replaced > 0:
                             selected_region = region
+                            selected_sub_regions = sub_regions
                             selected_extraction = extraction
                         reverse_count -= 1
                     else:
@@ -554,7 +607,7 @@ class FindReplace(object):
             self.view.show(selected_region.begin())
             if self.find_only or self.action is not None:
                 # If "find only" or replace action is overridden, just track regions
-                self.target_regions.append(selected_region)
+                self.target_regions.extend(selected_sub_regions)
             else:
                 # Apply replace
                 self.view_replace(selected_region, selected_extraction)

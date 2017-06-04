@@ -1,7 +1,5 @@
 [
     {
-        "caption": "Preferences",
-        "mnemonic": "n",
         "id": "preferences",
         "children":
         [
@@ -16,14 +14,11 @@
                         "children":
                         [
                             {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/RegReplace/reg_replace.sublime-settings"},
-                                "caption": "Settings – Default"
-                            },
-                            {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/User/reg_replace.sublime-settings"},
-                                "caption": "Settings – User"
+                                "command": "edit_settings", "args": {
+                                    "base_file": "${packages}/RegReplace/reg_replace.sublime-settings",
+                                    "default": "{\n$0\n}\n"
+                                },
+                                "caption": "Settings"
                             },
                             {
                                 "command": "open_file",
