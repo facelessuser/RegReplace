@@ -5,6 +5,7 @@
 - **NEW**: Scope searches will now apply highlights and actions directly to the regex find regions opposed to the whole
 scope [#58](https://github.com/facelessuser/RegReplace/issues/58).
 - **NEW**: Use new Sublime settings API for opening settings file.
+- **NEW**: Show error message when rule not found [#60](https://github.com/facelessuser/RegReplace/issues/60).
 
 # RegReplace 3.3.0
 
