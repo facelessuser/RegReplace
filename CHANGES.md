@@ -1,3 +1,11 @@
+# RegReplace 3.4.0
+
+> Released Jun 4, 2017
+
+- **NEW**: Scope searches will now apply highlights and actions directly to the regex find regions opposed to the whole
+scope [#58](https://github.com/facelessuser/RegReplace/issues/58).
+- **NEW**: Use new Sublime settings API for opening settings file.
+
 # RegReplace 3.3.0
 
 > Released May 27, 2017
