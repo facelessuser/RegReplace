@@ -393,11 +393,17 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
             # Record total regions found
             results += 'Regions Found: %d regions;' % total_replacements
         else:
+            not_found = []
             for replacement in self.replacements:
                 # Is replacement available in the list?
                 if replacement in replace_list:
                     pattern = replace_list[replacement]
                     results += result_template % (replacement, self.replace_obj.search(pattern, 'scope' in pattern))
+                else:
+                    not_found.append(replacement)
+            if not_found:
+                error("%d rules not found! See console." % len(not_found))
+                print('\n'.join(['RegReplace: "%s" not found!' % r for r in not_found]))
         return results
 
     def start_sequence(self):
