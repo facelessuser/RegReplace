@@ -1,5 +1,7 @@
 site_name: RegReplace Documentation
+site_url: https://facelessuser.github.io/RegReplace
 repo_url: https://github.com/facelessuser/RegReplace
+edit_uri: tree/master/docs/src/markdown
 site_description: A Sublime Text plugin for creating regex sequences.
 copyright: Copyright &copy; 2011 - 2017 <a href="https://github.com/facelessuser">Isaac Muse</a>
 
@@ -69,6 +71,6 @@ extra:
     - type: github
       link: https://github.com/facelessuser
 extra_css:
-  - extra-6068b97e47.css
+  - extra-9b4c72abee.css
 extra_javascript:
-  - extra-2aceccb07f.js
+  - extra-449b50d2b3.js
