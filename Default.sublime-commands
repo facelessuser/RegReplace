@@ -51,23 +51,30 @@
 
     // Preferences
     {
-        "caption": "Preferences: Reg Replace Settings – Default",
-        "command": "open_file",
-        "args": { "file": "${packages}/RegReplace/reg_replace.sublime-settings" }
+        "caption": "RegReplace: Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/RegReplace/reg_replace.sublime-settings",
+            "default": "{\n$0\n}\n"
+        }
     },
     {
-        "caption": "Preferences: Reg Replace Settings – User",
+        "caption": "RegReplace: User Rules",
         "command": "open_file",
-        "args": { "file": "${packages}/User/reg_replace.sublime-settings" }
+        "args": {"file": "${packages}/User/reg_replace_rules.sublime-settings"}
     },
     {
-        "caption": "Preferences: Reg Replace Commands – Default",
-        "command": "open_file",
-        "args": { "file": "${packages}/RegReplace/Default.sublime-commands" }
+        "caption": "RegReplace: Documentation",
+        "command": "reg_replace_open_site",
+        "args": {
+            "url": "http://facelessuser.github.io/RegReplace/"
+        }
     },
     {
-        "caption": "Preferences: Reg Replace Commands – User",
-        "command": "open_file",
-        "args": { "file": "${packages}/User/Default.sublime-commands" }
+        "caption": "RegReplace: Quick Start Guide",
+        "command": "reg_replace_doc",
+        "args": {
+            "page": "${packages}/RegReplace/quickstart.md"
+        }
     }
 ]
