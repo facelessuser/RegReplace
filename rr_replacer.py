@@ -293,7 +293,7 @@ class FindReplace(object):
 
         # Grab pattern definitions
         find = pattern['find']
-        replace = pattern.get('replace', '\\0')
+        replace = pattern.get('replace', r'\g<0>')
         greedy = bool(pattern.get('greedy', True))
         scope_filter = pattern.get('scope_filter', [])
         self.plugin = pattern.get("plugin", None)
@@ -662,7 +662,7 @@ class FindReplace(object):
         # Grab pattern definitions
         scope = pattern['scope']
         find = pattern.get('find')
-        replace = pattern.get('replace', '\\0')
+        replace = pattern.get('replace', r'\g<0>')
         greedy_scope = bool(pattern.get('greedy_scope', True))
         greedy_replace = bool(pattern.get('greedy', True))
         literal = pattern.get('literal', False)
