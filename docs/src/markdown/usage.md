@@ -73,7 +73,7 @@ A description of all the options is found below:
                         See https://docs.python.org/3.4/library/re.html for more info on regex flags.
                         Required unless "scope" is defined.
 
-    replace:            (str - default=r'\0'): Replace pattern.
+    replace:            (str - default=r'\g<0>'): Replace pattern.
 
     literal:            (bool - default=False): Preform a non-regex, literal search and replace.
 
