@@ -54,7 +54,7 @@ class FindReplace(object):
         settings = sublime.load_settings('reg_replace.sublime-settings')
         self.extend = bool(settings.get("extended_back_references", False))
         self.use_regex = bool(settings.get('use_regex_module', False)) and bregex.REGEX_SUPPORT
-        self.use_format = self.extend or self.use_regex
+        self.use_format = (self.extend or self.use_regex) and FORMAT_REPLACE
         if self.use_regex:
             regex_version = int(settings.get('regex_module_version', 0))
             if regex_version > 1:
