@@ -1,4 +1,6 @@
-# RegReplace
+# RegReplace 3.6.0
+
+Sep 30, 2017
 
 - **NEW**: Add support for optional format style replace templates. Learn more [here](http://facelessuser.github.io/backrefs/#format-replacements).
 - **FIX**: Properly set default replace to group 0 by using `\g<0>` not `\0`.
