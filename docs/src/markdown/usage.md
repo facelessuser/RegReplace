@@ -22,6 +22,7 @@ There are two types of rules that can be created: scope rules (with optional sco
     - literal_ignorecase
     - greedy
     - scope_filter
+    - format_replace
     - plugin
     - args
     */
@@ -47,6 +48,7 @@ The second kind of rule is the **scope regex** which allows you to search for a 
     - literal_ignorecase
     - greedy
     - greedy_scope
+    - format_replace
     - multi_pass
     - plugin
     - args
@@ -94,6 +96,10 @@ A description of all the options is found below:
                         Used when "find" is defined.
 
     greedy_scope:       (bool - default=True): Find all the scopes specified by "scope."
+
+    format_replace:     (bool - default=False): Use format string style replace templates.
+                        Works only for Regex (with and without Backrefs) and Re (with Backrefs).
+                        See http://facelessuser.github.io/backrefs/#format-replacements for more info.
 
     multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
                         and replace all instances of the regex when regex cannot be formatted to find

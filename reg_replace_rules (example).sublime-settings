@@ -29,6 +29,10 @@
 
     greedy_scope:       (bool - default=True): Find all the scopes specified by "scope."
 
+    format_replace:     (bool - default=False): Use format string style replace templates.
+                        Works only for Regex (with and without Backrefs) and Re (with Backrefs).
+                        See http://facelessuser.github.io/backrefs/#format-replacements for more info.
+
     multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
                         and replace all instances of the regex when regex cannot be formatted to find
                         all instances.  Since a replace can change a scope, this can be useful.
@@ -48,6 +52,7 @@
     - literal_ignorecase
     - greedy
     - scope_filter
+    - format_replace
     - plugin
     - args
 
@@ -59,6 +64,7 @@
     - literal_ignorecase
     - greedy
     - greedy_scope
+    - format_replace
     - multi_pass
     - plugn
     - args

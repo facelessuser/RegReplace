@@ -55,11 +55,12 @@ class ConvertPythonSrc2Obj(object):
     """Convert the python source to a RegReplace object."""
 
     string_keys = ('find', 'replace', 'scope', 'plugin', 'name')
-    bool_keys = ('greedy', 'greedy_scope', 'multi_pass', 'literal', 'literal_ignorecase]')
+    bool_keys = ('greedy', 'greedy_scope', 'format_replace', 'multi_pass', 'literal', 'literal_ignorecase]')
     allowed_keys = (
         'literal',
         'literal_ignorecase',
         'find',
+        'format_replace',
         'replace',
         'greedy',
         'greedy_scope',
@@ -286,7 +287,7 @@ class RegReplacePanelTestCommand(sublime_plugin.TextCommand):
                             re.compile(obj['find'])
                 test_rules[obj['name']] = obj
                 settings = sublime.load_settings('reg_replace_test.sublime-settings')
-                settings.set('format', '3.0')
+                settings.set('format', '3.1')
                 settings.set('replacements', test_rules)
                 window = sublime.active_window()
                 if window is not None:
@@ -589,6 +590,10 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += self.format_bool('greedy', rule.get('greedy'))
             text += '\n# greedy_scope (bool - default=True): Find all the scopes specified by "scope."\n'
             text += self.format_bool('greedy_scope', rule.get('greedy_scope'))
+            text += '\n# format_replace (bool - default=False): Use format string style replace templates.\n'
+            text += '#    Works only for Regex (with and without Backrefs) and Re (with Backrefs).\n'
+            text += '#    See http://facelessuser.github.io/backrefs/#format-replacements for more info.\n'
+            text += self.format_bool('format_replace', rule.get('format_replace'))
             text += '\n# multi_pass (bool - default=False): Perform multiple sweeps on the scope region to find\n'
             text += '#    and replace all instances of the regex when regex cannot be formatted to find\n'
             text += '#    all instances. Since a replace can change a scope, this can be useful.\n'
