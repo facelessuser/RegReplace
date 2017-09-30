@@ -1,9 +1,11 @@
 # User Guide
 
 !!! warning "Regular Expression Engine"
-    Remember that the regular expression engine that is used is Python's [re][re], not Sublime's internal regular expression engine.  If enabling `extended_back_references`, additional syntax is added which is covered in the [backrefs documentation][backrefs].
+    Remember that the regular expression engine that is used is Python's [Re][re], not Sublime's internal regular expression engine.  If enabling `extended_back_references`, additional syntax (and some changes to existing syntax) is added which is covered in the [backrefs documentation][backrefs].
 
-    To enable such features as case insensitivity or dotall, see [re's documentation](https://docs.python.org/3.4/library/re.html).
+    To enable such features as case insensitivity or dotall, see [Re's documentation][re]. If you've enabled the use of the [Regex][regex] library, see [Regex's documentation][regex].
+
+    Please note in the documentation the slight syntax differences in each regular expression library. Regex and Backrefs (with Regex or Re) handles things like `#!py3 r'\u0057'` in a replace template and converts it to Unicode, while Re will not and requires something like `#!py3 "\u0057"` to represent Unicode (note that one is using Python raw strings and the other is not).  What this means in respect to RegReplace is that for Re you may have to use actual Unicode characters or represent Unicode in the JSON settings file different; for Regex, you can use `#!js "\\u0057"`, and in Re you will have to use `#!js "\u0057"` (JSON's notation for a literal Unicode character). There is one exception with Regex though: "format" replace (without Backrefs) will not handle `#!js "\\u0057"`, and it will not handle `#!js "\\n"`, but will also need literal characters like `#!js "\u0057"` and `#!js "\n"`.
 
 ## Create Find and Replace Sequences
 
@@ -22,6 +24,7 @@ There are two types of rules that can be created: scope rules (with optional sco
     - literal_ignorecase
     - greedy
     - scope_filter
+    - format_replace
     - plugin
     - args
     */
@@ -47,6 +50,7 @@ The second kind of rule is the **scope regex** which allows you to search for a 
     - literal_ignorecase
     - greedy
     - greedy_scope
+    - format_replace
     - multi_pass
     - plugin
     - args
@@ -95,6 +99,10 @@ A description of all the options is found below:
 
     greedy_scope:       (bool - default=True): Find all the scopes specified by "scope."
 
+    format_replace:     (bool - default=False): Use format string style replace templates.
+                        Works only for Regex (with and without Backrefs) and Re (with Backrefs).
+                        See http://facelessuser.github.io/backrefs/#format-replacements for more info.
+
     multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
                         and replace all instances of the regex when regex cannot be formatted to find
                         all instances.  Since a replace can change a scope, this can be useful.
@@ -110,7 +118,7 @@ Once you have replacements defined, there are a number of ways you can run a seq
 
 Basic replacement command:
 
-```javascript
+```js
     {
         "caption": "Reg Replace: Remove Trailing Spaces",
         "command": "reg_replace",
@@ -120,7 +128,7 @@ Basic replacement command:
 
 Chained replacements in one command:
 
-```javascript
+```js
     {
         "caption": "Reg Replace: Remove HTML Comments and Trailing Spaces",
         "command": "reg_replace",
@@ -130,7 +138,7 @@ Chained replacements in one command:
 
 You can also bind a replacement command to a shortcut.
 
-```javascript
+```js
     {
         "keys": ["ctrl+shift+t"],
         "command": "reg_replace",
@@ -154,7 +162,7 @@ To edit, insert, or delete rules, you can use the following command palette comm
 
 You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press <kbd>ctrl</kbd> + <kbd>f</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>f</kbd> on OSX) to execute.  Keep in mind, you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
 
-```python
+```py3
 # ----------------------------------------------------------------------------------------
 # test: Here you can setup a test command.  This is not saved and is just used for this session.
 #     - replacements ([str]): A list of regex rules to sequence together.
@@ -181,7 +189,7 @@ If you would simply like to view what the sequence would find without replacing,
 
 Just add the "find_only" argument and set it to true.
 
-```javascript
+```js
     {
         "caption": "Reg Replace: Remove Trailing Spaces",
         "command": "reg_replace",
@@ -199,7 +207,7 @@ Highlight color and style can be changed in the settings file.
 
 If instead of replacing you would like to do something else, you can override the action. Actions are defined in commands by setting the `action` parameter.  Some actions may require additional parameters be set in the `options` parameter.  See examples below.
 
-```javascript
+```js
     {
         "caption": "Reg Replace: Fold HTML Comments",
         "command": "reg_replace",
@@ -430,7 +438,7 @@ Next we can define the command that will utilize the regex rule:
 
 Lastly, we can provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace` takes a python re match object, and any arguments you want to feed it.  Arguments are defined in the regular expression rule as shown above.
 
-```python
+```py3
 SHORT_MONTH = 30
 LONG_MONTH = 31
 FEB_MONTH = 28
@@ -499,7 +507,7 @@ Here is some text to test the example on:
 
 RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`. Since package control zips packages, it is hard to view directly without a plugin, so it is posted below as well. Import with `#!js "plugin": "RegReplace.rr_modules.example"`.
 
-```py
+```py3
 """A simple example plugin."""
 
 
@@ -561,7 +569,7 @@ When enabled, you can apply the back references to your search and/or replace pa
     }
 ```
 
-You can read more about the backrefs' features in the [backrefs documentation][backrefs].
+You can read more about the backrefs' features in the [Backrefs' documentation][backrefs].
 
 ### Getting the Latest Backrefs
 
@@ -571,13 +579,13 @@ It is not always clear when Package Control updates dependencies.  So to force d
 
 You can import backrefs into a RegReplace plugin:
 
-```python
+```py3
 from backrefs as bre
 ```
 
 Or use bregex for the regex module with backrefs:
 
-```python
+```py3
 from backrefs as bregex
 ```
 
@@ -585,20 +593,20 @@ Backrefs does provide a wrapper for all of re's normal functions such as `match`
 
 To use pre-compiled functions, you compile the search pattern with `compile_search`.  If you want to take advantage of replace backrefs, you need to compile the replace pattern as well.  Notice the compiled pattern is fed into the replace pattern; you can feed the replace compiler the string representation of the search pattern as well, but the compiled pattern will be faster and is the recommended way.
 
-```python
+```py3
 pattern = bre.compile_search(r'somepattern', flags)
 replace = bre.compile_replace(pattern, r'\1 some replace pattern')
 ```
 
 Then you can use the complied search pattern and replace
 
-```python
+```py3
 text = pattern.sub(replace, r'sometext')
 ```
 
 or
 
-```python
+```py3
 m = pattern.match(r'sometext')
 if m:
     text = replace(m)  # similar to m.expand(template)
@@ -606,14 +614,14 @@ if m:
 
 To use the non-compiled search/replace functions, you call them just them as you would in re; the names are the same.  Methods like `sub` and `subn` will compile the replace pattern on the fly if given a string.
 
-```python
+```py3
 for m in bre.finditer(r'somepattern', 'some text', bre.UNICODE | bre.DOTALL):
     # do something
 ```
 
 If you want to replace without compiling, you can use the `expand` method.
 
-```python
+```py3
 m = bre.match(r'sometext')
 if m:
     text = bre.expand(m, r'replace pattern')

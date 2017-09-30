@@ -7,8 +7,11 @@ Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 from RegReplace.rr_plugin import Plugin
 from backrefs import bre, bregex
+import backrefs
 import traceback
 from RegReplace.rr_notify import error
+
+FORMAT_REPLACE = backrefs.version_info >= (2, 1, 0)
 
 
 class ScopeRepl(object):
@@ -51,6 +54,7 @@ class FindReplace(object):
         settings = sublime.load_settings('reg_replace.sublime-settings')
         self.extend = bool(settings.get("extended_back_references", False))
         self.use_regex = bool(settings.get('use_regex_module', False)) and bregex.REGEX_SUPPORT
+        self.use_format = self.extend or self.use_regex
         if self.use_regex:
             regex_version = int(settings.get('regex_module_version', 0))
             if regex_version > 1:
@@ -249,6 +253,8 @@ class FindReplace(object):
 
         if self.extend:
             return self.template(m)
+        elif self.format:
+            return m.expandf(replace)
         else:
             return m.expand(replace)
 
@@ -270,7 +276,10 @@ class FindReplace(object):
             find = self.normal_module.escape(find)
         if self.extend and not literal:
             pattern = self.extend_module.compile_search(find, flags | self.regex_version_flag)
-            self.template = self.extend_module.compile_replace(pattern, replace)
+            if not self.plugin:
+                self.template = self.extend_module.compile_replace(
+                    pattern, replace, (self.extend_module.FORMAT if self.format else 0)
+                )
         else:
             pattern = self.normal_module.compile(find, flags | self.regex_version_flag)
         for m in pattern.finditer(bfr):
@@ -296,6 +305,7 @@ class FindReplace(object):
         replace = pattern.get('replace', r'\g<0>')
         greedy = bool(pattern.get('greedy', True))
         scope_filter = pattern.get('scope_filter', [])
+        self.format = bool(pattern.get('format_replace', False)) and self.use_format
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
         literal = pattern.get('literal', False)
@@ -362,8 +372,10 @@ class FindReplace(object):
         extraction = string
 
         scope_repl = ScopeRepl(self.plugin, replace, self.expand, self.on_replace)
-        if self.extend:
-            self.template = self.extend_module.compile_replace(pattern, replace)
+        if self.extend and not self.plugin:
+            self.template = self.extend_module.compile_replace(
+                pattern, replace, (self.extend_module.FORMAT if self.format else 0)
+            )
         if multi and not self.find_only and self.action is None:
             extraction, replaced = self.apply_multi_pass_scope_regex(
                 pattern, extraction, scope_repl.repl, greedy_replace
@@ -374,6 +386,11 @@ class FindReplace(object):
                 replaced += 1
                 if not greedy_replace:
                     break
+        elif self.use_regex and not self.extend and self.format:
+            if greedy_replace:
+                extraction, replaced = pattern.subfn(scope_repl.repl, string)
+            else:
+                extraction, replaced = pattern.subfn(scope_repl.repl, string, 1)
         else:
             if greedy_replace:
                 extraction, replaced = pattern.subn(scope_repl.repl, string)
@@ -389,10 +406,16 @@ class FindReplace(object):
         total_replaced = 0
         while count < self.max_sweeps:
             count += 1
-            if greedy_replace:
-                extraction, multi_replaced = pattern.subn(repl, extraction)
+            if self.use_regex and not self.extend and self.format:
+                if greedy_replace:
+                    extraction, multi_replaced = pattern.subfn(repl, extraction)
+                else:
+                    extraction, multi_replaced = pattern.subfn(repl, extraction, 1)
             else:
-                extraction, multi_replaced = pattern.subn(repl, extraction, 1)
+                if greedy_replace:
+                    extraction, multi_replaced = pattern.subn(repl, extraction)
+                else:
+                    extraction, multi_replaced = pattern.subn(repl, extraction, 1)
             if multi_replaced == 0:
                 break
             total_replaced += multi_replaced
@@ -456,10 +479,16 @@ class FindReplace(object):
                     if not greedy_replace:
                         break
             else:
-                if greedy_replace:
-                    extraction, replace_count = find.subn(replace, extraction)
+                if self.use_regex and not self.extend and self.format:
+                    if greedy_replace:
+                        extraction, replace_count = find.subfn(replace, extraction)
+                    else:
+                        extraction, replace_count = find.subfn(replace, extraction, count=1)
                 else:
-                    extraction, replace_count = find.subn(replace, extraction, count=1)
+                    if greedy_replace:
+                        extraction, replace_count = find.subn(replace, extraction)
+                    else:
+                        extraction, replace_count = find.subn(replace, extraction, count=1)
 
             if replace_count > 0:
                 selected_region = region
@@ -488,10 +517,16 @@ class FindReplace(object):
                             if not greedy_replace:
                                 break
                     else:
-                        if greedy_replace:
-                            extraction, replace_count = find.subn(replace, extraction)
+                        if self.use_regex and not self.extend and self.format:
+                            if greedy_replace:
+                                extraction, replace_count = find.subfn(replace, extraction)
+                            else:
+                                extraction, replace_count = find.subfn(replace, extraction, count=1)
                         else:
-                            extraction, replace_count = find.subn(replace, extraction, count=1)
+                            if greedy_replace:
+                                extraction, replace_count = find.subn(replace, extraction)
+                            else:
+                                extraction, replace_count = find.subn(replace, extraction, count=1)
 
                     if replace_count > 0:
                         selected_region = region
@@ -668,6 +703,7 @@ class FindReplace(object):
         literal = pattern.get('literal', False)
         literal_ignorecase = literal and bool(pattern.get('literal_ignorecase', False))
         multi = bool(pattern.get('multi_pass', False))
+        self.format = bool(pattern.get('format_replace', False)) and self.use_format
         self.plugin = pattern.get("plugin", None)
         self.plugin_args = pattern.get("args", {})
 
