@@ -7,7 +7,7 @@ install:
   - pip install pep8-naming
   - pip install pytest
   - pip install mkdocs
-  - pip install mkdocs-material
+  - pip install "mkdocs-material<1.12.0"
   - pip install pymdown-extensions
   - pip install pygments
 addons:
@@ -19,7 +19,7 @@ script:
   - py.test .
   - flake8 .
   - python tests/spellcheck.py
-  - mkdocs build --clean --verbose --strict
+  - mkdocs build --clean
 deploy:
   - provider: pages
     github_token: $GITHUB_TOKEN
