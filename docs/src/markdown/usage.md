@@ -5,15 +5,15 @@
 
     To enable such features as case insensitivity or dotall, see [Re's documentation][re]. If you've enabled the use of the [Regex][regex] library, see [Regex's documentation][regex].
 
-    Please note in the documentation the slight syntax differences in each regular expression library. Regex and Backrefs (with Regex or Re) handles things like `#!py3 r'\u0057'` in a replace template and converts it to Unicode, while Re will not and requires something like `#!py3 "\u0057"` to represent Unicode (note that one is using Python raw strings and the other is not).  What this means in respect to RegReplace is that for Re you may have to use actual Unicode characters or represent Unicode in the JSON settings file different; for Regex, you can use `#!js "\\u0057"`, and in Re you will have to use `#!js "\u0057"` (JSON's notation for a literal Unicode character). There is one exception with Regex though: "format" replace (without Backrefs) will not handle `#!js "\\u0057"`, and it will not handle `#!js "\\n"`, but will also need literal characters like `#!js "\u0057"` and `#!js "\n"`.
+    Please note in the documentation the slight syntax differences in each regular expression library. Regex and Backrefs (with Regex or Re) handles things like `#!py3 r'\u0057'` in a replace template and converts it to Unicode, while Re will not and requires something like `#!py3 "\u0057"` to represent Unicode (note that one is using Python raw strings and the other is not).  What this means in respect to RegReplace is that for Re you may have to use actual Unicode characters or represent Unicode in the JSON settings file differently; for Regex, you can use `#!js "\\u0057"`, and in Re you will have to use `#!js "\u0057"` (JSON's notation for a literal Unicode character). There is one exception with Regex though: "format" replace (without Backrefs) will not handle `#!js "\\u0057"`, and it will not handle `#!js "\\n"`, but will also need literal characters like `#!js "\u0057"` and `#!js "\n"`.
 
 ## Create Find and Replace Sequences
 
-To use, replacements must be defined in the `reg_replace_rules.sublime-settings` file.
+In order to use them, replacements must be defined in the `reg_replace_rules.sublime-settings` file.
 
-There are two types of rules that can be created: scope rules (with optional scope qualifiers) or scope searches that apply regular expressions to the targeted scopes.  We will call these **regex** and **scope regex** rules respectively.
+There are two types of rules that can be created: scope rules (with optional scope qualifiers) and scope searches that apply regular expressions to the targeted scopes.  We will call these **regex** and **scope regex** rules respectively.
 
-**Regex** rules use regular expressions to find regions, and then you can use scopes to qualify the regions before applying the replace.  These rules can use the following options:
+**Regex** rules use regular expressions to find regions, and then you can use scopes to qualify the regions before applying the replacements.  These rules can use the following options:
 
 ```js
     /*
@@ -79,7 +79,7 @@ A description of all the options is found below:
 
     replace:            (str - default=r'\g<0>'): Replace pattern.
 
-    literal:            (bool - default=False): Preform a non-regex, literal search and replace.
+    literal:            (bool - default=False): Perform a non-regex, literal search and replace.
 
     literal_ignorecase: (bool - default=False): Ignore case when "literal" is true.
 
@@ -114,7 +114,7 @@ A description of all the options is found below:
                         Only used for regex replaces and replace.
 ```
 
-Once you have replacements defined, there are a number of ways you can run a sequence.  One way is to create a command in the command palette by editing/creating a `Default.sublime-commands` in your `User` folder and then adding your command(s).
+Once you've defined replacements, there are a number of ways to run a sequence.  One way is to create a command in the command palette by editing/creating a `Default.sublime-commands` in your `User` folder and then adding your command(s).
 
 Basic replacement command:
 
@@ -136,7 +136,7 @@ Chained replacements in one command:
     }
 ```
 
-You can also bind a replacement command to a shortcut.
+You can also bind a replacement command to a keyboard shortcut:
 
 ```js
     {
@@ -146,11 +146,11 @@ You can also bind a replacement command to a shortcut.
     }
 ```
 
-## A Better Way To Create Regex Rules
+## A Better Way to Create Regex Rules
 
-Recently a new feature was added that allows the editing of the regular expression rules to be done in a Python syntax highlighted panel.  This allows for a less cumbersome editing experience.  Users can even split their regular expressions on multiple lines and add comments which will all be preserved for the next time the rule is viewed.
+A new feature was recently added that allows editing regular expression rules in a panel with Python syntax highlighting, providing a friendlier editing experience.  Users can even split their regular expressions on multiple lines and add comments which will be preserved the next time the rule is viewed.
 
-While in the edit panel, you can press <kbd>ctrl</kbd> + <kbd>s</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>s</kbd> on OSX) and the rule will be saved back to the settings file.  On save, the regex is compiled to test if it is valid; if it fails, you should be alerted and the save will be canceled.
+While in the edit panel, you can press <kbd>Ctrl</kbd> + <kbd>s</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>s</kbd> on OSX) and the rule will be saved back to the settings file.  On saving, the regex is compiled to test if it's valid; if the test fails, a warning message is displayed and the saving operation is canceled.
 
 To edit, insert, or delete rules, you can use the following command palette commands:
 
@@ -160,7 +160,7 @@ To edit, insert, or delete rules, you can use the following command palette comm
 
 ![edit panel](imgs/edit_panel.png)
 
-You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press <kbd>ctrl</kbd> + <kbd>f</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>f</kbd> on OSX) to execute.  Keep in mind, you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
+You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press <kbd>Ctrl</kbd> + <kbd>f</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>f</kbd> on OSX) to execute it.  Keep in mind that you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
 
 ```py3
 # ----------------------------------------------------------------------------------------
@@ -181,13 +181,13 @@ You can also test the regular expression from the edit panel.  At the bottom of 
 
 ![test variable](imgs/test.png)
 
-Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing <kbd>esc</kbd> or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
+Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing <kbd>Esc</kbd> or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
 
 ## View Without Replacing
 
-If you would simply like to view what the sequence would find without replacing, you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting the replacements).
+If you would like to simply view what the sequence would find, without carrying out any replacements, (aka "dry run") you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting the replacements).
 
-Just add the "find_only" argument and set it to true.
+Just add the `"find_only"` argument and set it to `true`.
 
 ```js
     {
@@ -292,7 +292,7 @@ Scope name to use as the color. Default is `invalid`.
 "options": {"style": "outline"}
 ```
 
-Highlight style (solid|underline|outline). Default is `outline`.
+Highlight style (`solid`|`underline`|`outline`). Default is `outline`.
 
 ### Unmark Override
 
@@ -324,7 +324,7 @@ This action selects the regions of the given find target.
 
 ## Multi-Pass
 
-Sometimes a regular expression cannot be made to find all instances in one pass.  In this case, you can use the multi-pass option.  This option will cause the entire sequence to repeatedly executed until all instances are found and replaced.  To protect against a poorly constructed multi-pass regular expression looping forever, there is a default max sweep threshold that will cause the sequence to kick out if it is reached.  This threshold can be tweaked in the settings file.
+Sometimes it's not possible for a regular expression to find all instances in a single pass.  In such cases, you can use the multi-pass option.  This option will cause the repeated execution of the entire sequence until all instances are found and replaced.  To protect against a poorly constructed multi-pass regular expression looping forever, there is a default max sweep threshold that will cause the sequence to kick out when reached.  This threshold can be tweaked in the settings file.
 
 Multi-pass is used in replaces and cannot be paired with override actions (it will be ignored), but it can be paired with `find_only` as `find_only` allows you to initiate a replace.
 
@@ -336,9 +336,9 @@ Multi-pass is used in replaces and cannot be paired with override actions (it wi
     },
 ```
 
-## Replace Only Under Selection(s)
+## Replace Only Within Selection(s)
 
-Sometimes you only want to search under selections.  This can be done by enabling the `selection_only` setting in the settings file.  By enabling this setting, regular expression targets will be limited to the current selection if and only if a selection exists.  Auto replace/highlight on save events ignore this setting.  If you have a command that you wish to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to underline selections if `find_only` is set to ensure they will show up.
+Sometimes you only want to search inside selections.  This can be done by enabling the `selection_only` setting in the settings file.  By enabling this setting, regular expression targets will be limited to the current selection if _and only if_ a selection exists.  Auto replace/highlight on save events ignore this setting.  If you want a given command to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to underline selections if `find_only` is set, to ensure they will show up.
 
 ```js
     // Ignore "selection_only" setting
@@ -349,7 +349,7 @@ Sometimes you only want to search under selections.  This can be done by enablin
     },
 ```
 
-## Use Regular Expressions on Entire File Buffer when Using Selections
+## Use Regular Expressions on Entire File Buffer When Using Selections
 
 When `selection_only` is enabled, you might have a regular expression chain that lends itself better to performing the regular expression on the entire file buffer and then pick the matches under the selections as opposed to the default behavior of applying the regular expression directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
 
