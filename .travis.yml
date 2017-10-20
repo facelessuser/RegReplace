@@ -19,7 +19,7 @@ script:
   - py.test .
   - flake8 .
   - python tests/spellcheck.py
-  - mkdocs build --clean --verbose --strict
+  - mkdocs build --clean
 deploy:
   - provider: pages
     github_token: $GITHUB_TOKEN
