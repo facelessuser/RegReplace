@@ -14,11 +14,9 @@ pages:
   - Contributing &amp; Support: contributing.md
   - License: license.md
 
+theme: material
 docs_dir: docs/src/markdown
-
-theme:
-  name: material
-  custom_dir: docs/theme
+theme_dir: docs/theme
 
 markdown_extensions:
   - markdown.extensions.toc:
