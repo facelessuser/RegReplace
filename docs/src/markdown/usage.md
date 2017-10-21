@@ -351,7 +351,7 @@ Sometimes you only want to search inside selections.  This can be done by enabli
 
 ## Use Regular Expressions on Entire File Buffer When Using Selections
 
-When `selection_only` is enabled, you might have a regular expression chain that lends itself better to performing the regular expression on the entire file buffer and then pick the matches under the selections as opposed to the default behavior of applying the regular expression directly to the selection buffer.  To do this, you can use the option `regex_full_file_with_selections`.
+When `selection_only` is enabled, a regular expression chain might perform better by applying the regular expression on the entire file buffer and then pick the matches under the selections — as opposed to the default behavior of applying the regular expression directly to the selection buffer.  This can be achieved via the `regex_full_file_with_selections` option:
 
 ```js
     {
@@ -368,16 +368,16 @@ When `selection_only` is enabled, you might have a regular expression chain that
     },
 ```
 
-## Apply Regular Expressions Right Before File Save Event
+## Apply Regular Expressions Right before File Save Event
 
-If you want to automatically apply a sequence right before a file saves, you can define sequences in the `reg_replace.sublime-settings` file.  Each "on save" sequence will be applied to the files you specify by file patterns or file regular expression.  Also, you must have `on_save` set to `true`.  You can also just highlight, fold, or unfold by regular expression by adding the `"action": "mark"` key/value pair (supported options are `mark`, `fold`, and `unfold`). Both types can be used at the same time. Actions are performed after replacements.
+If you want a sequence to be automatically applied before a file saves, you can define "on save" sequences in the `reg_replace.sublime-settings` file.  Each "on save" sequence will be applied to the files matched by the file patterns or file regular expressions you specify.  You must also set `on_save` to `true`.  If you want the sequence to just highlight, fold, or unfold by regular expression, add the `"action": "mark"` key/value pair (supported values: `mark`|`fold`|`unfold`). Both types can be used at the same time. Actions are performed after replacements.
 
 
 Example:
 
 ```js
     // If on_save is true, RegReplace will search through the file patterns listed below right before a file is saved,
-    // if the file name matches a file pattern, the sequence will be applied before the file is saved.
+    // If the file name matches a file pattern, the sequence will be applied before the file is saved.
     // RegReplace will apply all sequences that apply to a given file in the order they appear below.
     "on_save": true,
 
@@ -412,11 +412,11 @@ Example:
 
 ## Custom Replace Plugins
 
-There are times that a simple regular expression and replace is not enough.  Since RegReplace uses Python's re regular expression engine, we can use python code to intercept the replace and do more complex things via a plugin.  Because this uses Python's re, this will only be applied when doing regular expression searches (not literal searches).
+There are times when simple regular expression replacements are not enough to get the job done.  Since RegReplace uses Python's re regular expression engine, we can use Python code to intercept the replacement and carry out more complex tasks via a plugin.  Because the plugins rely on Python's re, this will only apply to regular expression searches (not literal searches).
 
-In this example we are going to search for dates with the form YYYYMMDD and increment them by one day.
+In this example we're going to search for dates in the YYYYMMDD format, and increment them by one day.
 
-Below is the regular expression rule; notice we have defined a plugin to replace.  Plugins are defined as if you were importing a module in python.  So in this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder; it is recommended to not use one as Sublime shouldn't bother loading these files as RegReplace will load them when needed.
+Below is the regular expression rule. Notice how we have defined a plugin to carry out replacement.  Plugins are defined as if importing a Python module.  In this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder — and it's use is discouraged: Sublime shouldn't bother loading these files since RegReplace will load them when needed.
 
 ```js
 "date_up": {
@@ -436,7 +436,7 @@ Next we can define the command that will utilize the regex rule:
     },
 ```
 
-Lastly, we can provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace` takes a python re match object, and any arguments you want to feed it.  Arguments are defined in the regular expression rule as shown above.
+Lastly, we provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace` takes a python re match object, and any arguments you want to feed it.  Arguments are defined in the regular expression rule as shown above.
 
 ```py3
 SHORT_MONTH = 30
@@ -505,7 +505,7 @@ Here is some text to test the example on:
 # Test 3: 20140101
 ```
 
-RegReplace comes with a very simple example you can test with found at `/Packages/RegReplace/rr_modules/example.py`. Since package control zips packages, it is hard to view directly without a plugin, so it is posted below as well. Import with `#!js "plugin": "RegReplace.rr_modules.example"`.
+RegReplace ships with a simple example you can test with (`/Packages/RegReplace/rr_modules/example.py`). Because package control zips packages, it's hard to view its source directly, without using a plugin; therefore, I've pasted it below as well. Import it with `#!js "plugin": "RegReplace.rr_modules.example"`.
 
 ```py3
 """A simple example plugin."""
@@ -544,13 +544,9 @@ To select whether to use Version 0 or Version 1 of the regex module, simply chan
 
 ## Extended Back References
 
-RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for RegReplace and adds various additional backrefs that are known to some regular expression engines, but not to Python's re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and `\C`).  It even  
-adds some of the Posix style classes such as `[:ascii:]` etc.
+RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for RegReplace and adds various additional backrefs that are known to some regular expression engines, but not to Python's re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and `\C`).  It even adds some of the Posix style classes such as `[:ascii:]` etc.
 
-Backrefs also works with the regex module, but it enables a smaller portion of back references as the regex module implements a few of the back references already (in one form or the other).  For instance, there was no need to add  
-Unicode properties as it was already available. And since you can already use Unicode and/or Posix properties to do  
-uppercase and lowercase character classes in search patterns, and regex already reserves `\L`, it wasn't worth the  
-extra work to try and add equivalents for `\c`, `\C`, '\l' and `\L` to the search back references.
+Backrefs also works with the regex module, but it enables a smaller portion of back references as the regex module implements a few of the back references already (in one form or the other).  For instance, there was no need to add Unicode properties as it was already available. And since you can already use Unicode and/or Posix properties for uppercase and lowercase character classes in search patterns, and regex already reserves `\L`, it wasn't worth the extra work to try and add equivalents for `\c`, `\C`, '\l' and `\L` to the search back references.
 
 You can enable extended back references in the settings file:
 
@@ -575,7 +571,7 @@ You can read more about the backrefs' features in the [Backrefs' documentation][
 
 It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package Control's `Satisfy Dependencies` command which will update to the latest release.
 
-### Using Backrefs in RegReplace Plugin
+### Using Backrefs in Regreplace Plugins
 
 You can import backrefs into a RegReplace plugin:
 
@@ -589,22 +585,22 @@ Or use bregex for the regex module with backrefs:
 from backrefs as bregex
 ```
 
-Backrefs does provide a wrapper for all of re's normal functions such as `match`, `sub`, etc., but is recommended to pre-compile your search patterns **and** your replace patterns for the best performance; especially if you plan on reusing the same pattern multiple times.  As re does cache a certain amount of the non-compiled calls you will be spared from some of the performance hit, but backrefs does not cache the pre-processing of search and replace patterns.
+Backrefs does provide a wrapper for all of re's normal functions such as `match`, `sub`, etc., but it's recommended to pre-compile your search patterns **and** your replace patterns for optimal performance — especially if you plan on reusing the same pattern multiple times.  Since re does cache a certain amount of the non-compiled calls, you'll be spared from some performance hit, but backrefs does not cache the pre-processing of search and replace patterns.
 
-To use pre-compiled functions, you compile the search pattern with `compile_search`.  If you want to take advantage of replace backrefs, you need to compile the replace pattern as well.  Notice the compiled pattern is fed into the replace pattern; you can feed the replace compiler the string representation of the search pattern as well, but the compiled pattern will be faster and is the recommended way.
+To use pre-compiled functions, you compile the search pattern with `compile_search`.  If you want to take advantage of replace backrefs, you need to compile the replace pattern as well.  Notice that the compiled pattern is fed into the replace pattern; you can feed the replace compiler the string representation of the search pattern as well, but the compiled pattern will be faster and is the recommended way.
 
 ```py3
 pattern = bre.compile_search(r'somepattern', flags)
 replace = bre.compile_replace(pattern, r'\1 some replace pattern')
 ```
 
-Then you can use the complied search pattern and replace
+Then you can use the complied search pattern and replace:
 
 ```py3
 text = pattern.sub(replace, r'sometext')
 ```
 
-or
+… or:
 
 ```py3
 m = pattern.match(r'sometext')
@@ -612,7 +608,7 @@ if m:
     text = replace(m)  # similar to m.expand(template)
 ```
 
-To use the non-compiled search/replace functions, you call them just them as you would in re; the names are the same.  Methods like `sub` and `subn` will compile the replace pattern on the fly if given a string.
+To use the non-compiled search/replace functions, you call them just as you would in re; the names are the same.  Methods like `sub` and `subn` will compile the replace pattern on the fly if given a string.
 
 ```py3
 for m in bre.finditer(r'somepattern', 'some text', bre.UNICODE | bre.DOTALL):
