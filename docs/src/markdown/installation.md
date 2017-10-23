@@ -6,7 +6,7 @@ The recommended way to install RegReplace is via [Package Control][package-contr
 
 1. Ensure Package Control is installed.  Instructions are found [here][package-control-install].
 
-2. In Sublime Text, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>p</kbd> (Win, Linux) or <kbd>CMD</kbd> + <kbd>Shift</kbd> + <kbd>p</kbd> (OSX) to bring up the quick panel and start typing `Package Control: Install Package`.  Select the command and it will show a list of installable plugins.
+2. In Sublime Text, press <kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>p</kbd> (Win, Linux) or <kbd>cmd</kbd> + <kbd>shift</kbd> + <kbd>p</kbd> (OSX) to bring up the quick panel and start typing `Package Control: Install Package`.  Select the command and it will show a list of installable plugins.
 
 3. Start typing `RegReplace`; when you see it, select it.
 
