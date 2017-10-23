@@ -368,7 +368,7 @@ When `selection_only` is enabled, a regular expression chain might perform bette
     },
 ```
 
-## Apply Regular Expressions Right before File Save Event
+## Apply Regular Expressions Right Before File Save Event
 
 If you want a sequence to be automatically applied before a file saves, you can define "on save" sequences in the `reg_replace.sublime-settings` file.  Each "on save" sequence will be applied to the files matched by the file patterns or file regular expressions you specify.  You must also set `on_save` to `true`.  If you want the sequence to just highlight, fold, or unfold by regular expression, add the `"action": "mark"` key/value pair (supported values: `mark`|`fold`|`unfold`). Both types can be used at the same time. Actions are performed after replacements.
 
@@ -571,7 +571,7 @@ You can read more about the backrefs' features in the [Backrefs' documentation][
 
 It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package Control's `Satisfy Dependencies` command which will update to the latest release.
 
-### Using Backrefs in Regreplace Plugins
+### Using Backrefs in RegReplace Plugins
 
 You can import backrefs into a RegReplace plugin:
 
