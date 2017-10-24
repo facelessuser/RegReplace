@@ -21,7 +21,7 @@ The recommended way to install RegReplace is via [Package Control][package-contr
 
     If you are forking for a pull request, you should **just** clone RegReplace and run Package Control's `Satisfy Dependency` command to get all the dependencies.
 
-For those who want to install RegReplace without package control, here are the steps.  Some people prefer manual installation — and may have legitimate reasons to do so.  When going this route, you will have to keep all the packages updated yourself.
+For those who want to install RegReplace without package control, here are the steps.  Beware: when going this route, you'll have to keep all the packages updated yourself!
 
 ---
 

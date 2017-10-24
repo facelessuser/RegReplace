@@ -39,7 +39,7 @@ Take part in reviewing pull requests and/or reviewing direct commits.  Make sugg
 
 Pull requests are welcome, and if you plan on contributing directly to the code, there are a couple of things you should bare in mind.
 
-Continuous integration tests on are run on all pull requests and commits via [Travis CI][travis].  When making a pull request, the tests will be automatically run, and the request must pass to be accepted.  You can (and should) run these tests locally before pull requesting.  If it's not possible to run them locally, they will be run when the pull request is made, but it's strongly recommend that requesters make an effort to verify before requesting to allow for a quick, smooth merge.
+Continuous integration tests are run on all pull requests and commits via [Travis CI][travis].  When making a pull request, the tests will be automatically run, and the request must pass to be accepted.  You can (and should) run these tests locally before pull requesting.  If it's not possible to run them locally, they will be run when the pull request is made, but it's strongly recommended that requesters make an effort to verify before requesting to allow for a quick, smooth merge.
 
 Feel free to use a virtual environment if you are concerned about installing any of the Python packages.  In the future, I may use [tox][tox], but as I currently only test on Python 3.3, I wanted to keep things simple.
 
