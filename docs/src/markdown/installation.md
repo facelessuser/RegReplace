@@ -10,22 +10,22 @@ The recommended way to install RegReplace is via [Package Control][package-contr
 
 3. Start typing `RegReplace`; when you see it, select it.
 
-4. Restart to be sure everything is loaded proper.
+4. Restart to be sure everything is loaded properly.
 
 5. Enjoy!
 
 ## Manual Installation
 
 !!! warning "Warning"
-    This is not the recommended way to install RegReplace for the average user.  Installing this way **will not** get automatically updated.
+    This is not the recommended way to install RegReplace for the average user.  Installing it this way **will not** get automatically updated.
 
     If you are forking for a pull request, you should **just** clone RegReplace and run Package Control's `Satisfy Dependency` command to get all the dependencies.
 
-For those who want to install RegReplace without package control, here are the steps.  It understood that some people for what ever reason will prefer manually and may even have legitimate reasons to do so.  When going this route, you will have to keep all the packages updated yourself.
+For those who want to install RegReplace without package control, here are the steps.  Beware: when going this route, you'll have to keep all the packages updated yourself!
 
 ---
 
-1. Download the latest releases of the following dependencies and unpack or git clone in the `Packages` folder as shown below:
+1. Download the latest releases of the following dependencies and unpack or git clone them in the `Packages` folder as shown below:
 
     - https://bitbucket.org/teddy_beer_maniac/sublime-text-dependency-markupsafe -> markupsafe
     - https://bitbucket.org/teddy_beer_maniac/sublime-text-dependency-jinja2 -> python-jinja2
@@ -35,7 +35,7 @@ For those who want to install RegReplace without package control, here are the s
     - https://github.com/facelessuser/sublime-backrefs -> backrefs
     - https://github.com/facelessuser/sublime-regex -> regex
 
-2. Download and unpack or git clone the latest RegReplace release and unpack as `RegReplace`:
+2. Download and unpack or git clone the latest RegReplace release and unpack it as `RegReplace`:
 
     - https://github.com/facelessuser/RegReplace -> RegReplace
 
