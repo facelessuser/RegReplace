@@ -55,12 +55,15 @@ class ConvertPythonSrc2Obj(object):
     """Convert the python source to a RegReplace object."""
 
     string_keys = ('find', 'replace', 'scope', 'plugin', 'name')
-    bool_keys = ('greedy', 'greedy_scope', 'format_replace', 'multi_pass', 'literal', 'literal_ignorecase]')
+    bool_keys = (
+        'greedy', 'greedy_scope', 'format_replace', 'selection_inputs', 'multi_pass', 'literal', 'literal_ignorecase]'
+    )
     allowed_keys = (
         'literal',
         'literal_ignorecase',
         'find',
         'format_replace',
+        'selection_inputs',
         'replace',
         'greedy',
         'greedy_scope',
@@ -271,7 +274,9 @@ class RegReplacePanelTestCommand(sublime_plugin.TextCommand):
         else:
             try:
                 if obj.get('find') is not None:
-                    if obj.get('literal', False):
+                    if obj.get('selection_inputs', False):
+                        pass
+                    elif obj.get('literal', False):
                         flags = 0
                         pattern = re.escape(obj['find'])
                         if obj.get('literal_ignorecase', False):
@@ -287,7 +292,7 @@ class RegReplacePanelTestCommand(sublime_plugin.TextCommand):
                             re.compile(obj['find'])
                 test_rules[obj['name']] = obj
                 settings = sublime.load_settings('reg_replace_test.sublime-settings')
-                settings.set('format', '3.1')
+                settings.set('format', '3.2')
                 settings.set('replacements', test_rules)
                 window = sublime.active_window()
                 if window is not None:
@@ -324,7 +329,9 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
         elif not self.is_existing_name(obj['name']):
             try:
                 if obj.get('find') is not None:
-                    if obj.get('literal', False):
+                    if obj.get('selection_inputs', False):
+                        pass
+                    elif obj.get('literal', False):
                         flags = 0
                         pattern = re.escape(obj['find'])
                         if obj.get('literal_ignorecase', False):
@@ -594,6 +601,9 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += '#    Works only for Regex (with and without Backrefs) and Re (with Backrefs).\n'
             text += '#    See http://facelessuser.github.io/backrefs/#format-replacements for more info.\n'
             text += self.format_bool('format_replace', rule.get('format_replace'))
+            text += '\n# selection_inputs (bool -default=False): Use selection for inputs into find pattern.\n'
+            text += '#    Global setting "selection_only" must be disabled for this to work.\n'
+            text += self.format_bool('selection_inputs', rule.get('selection_inputs'))
             text += '\n# multi_pass (bool - default=False): Perform multiple sweeps on the scope region to find\n'
             text += '#    and replace all instances of the regex when regex cannot be formatted to find\n'
             text += '#    all instances. Since a replace can change a scope, this can be useful.\n'
