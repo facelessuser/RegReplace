@@ -9,9 +9,51 @@ from RegReplace.rr_plugin import Plugin
 from backrefs import bre, bregex
 import backrefs
 import traceback
+import string
 from RegReplace.rr_notify import error
 
 FORMAT_REPLACE = backrefs.version_info >= (2, 1, 0)
+
+
+class RegexInputFormatter(string.Formatter):
+    """Regex input formatter."""
+
+    def __init__(self, engine):
+        """Initialize."""
+
+        self._engine = engine
+        self.implicit = -1
+        self.explicit = False
+        super(RegexInputFormatter, self).__init__()
+
+    def convert_field(self, value, conversion):
+        """Convert to escaped format."""
+
+        if conversion is not None and conversion == 'e':
+            return self._engine.escape(value)
+        return super(RegexInputFormatter, self).convert_field(value, conversion)
+
+    def get_value(self, key, args, kwargs):
+        """Get value."""
+
+        if key == '':
+            if not self.explicit:
+                self.implicit += 1
+                key = self.implicit
+            else:
+                raise ValueError("Cannot change from explicit index to implicit!")
+        elif self.implicit >= 0:
+            raise ValueError("Cannot change from implict to explicit indexing!")
+        return super(RegexInputFormatter, self).get_value(key, args, kwargs)
+
+    # def format_field(self, value, spec):
+    #     """Format field for escaping."""
+
+    #     # Treat string as a literal, so escape it.
+    #     if spec.endswith('l'):
+    #         value = self._engine.escape(value)
+    #         spec = spec[:-1] + 's'
+    #     return super(RegexInputFormatter, self).format_field(value, spec)
 
 
 class ScopeRepl(object):
@@ -54,6 +96,8 @@ class FindReplace(object):
         settings = sublime.load_settings('reg_replace.sublime-settings')
         self.extend = bool(settings.get("extended_back_references", False))
         self.use_regex = bool(settings.get('use_regex_module', False)) and bregex.REGEX_SUPPORT
+        self.sel_input_max_size = int(settings.get('selection_input_max_size', 256))
+        self.sel_input_max_count = int(settings.get('selection_input_max_count', 10))
         self.use_format = (self.extend or self.use_regex) and FORMAT_REPLACE
         if self.use_regex:
             regex_version = int(settings.get('regex_module_version', 0))
@@ -303,6 +347,7 @@ class FindReplace(object):
         # Grab pattern definitions
         find = pattern['find']
         replace = pattern.get('replace', r'\g<0>')
+        selection_inputs = pattern.get('selection_inputs', False)
         greedy = bool(pattern.get('greedy', True))
         scope_filter = pattern.get('scope_filter', [])
         self.format = bool(pattern.get('format_replace', False)) and self.use_format
@@ -318,13 +363,11 @@ class FindReplace(object):
             else:
                 flags |= self.normal_module.IGNORECASE
 
-        if self.selection_only:
-            sels = self.view.sel()
-            sel_start = []
-            sel_size = []
-            for s in sels:
-                sel_start.append(s.begin())
-                sel_size.append(s.size())
+        find, sels, sel_start, sel_size, errors = self.process_selections(
+            find, self.selection_only, selection_inputs, literal
+        )
+        if errors:
+            return replace
 
         # Find and format replacements
         extractions = []
@@ -687,6 +730,43 @@ class FindReplace(object):
 
         return replaced
 
+    def process_selections(self, orig_find, selection_only, selection_inputs, literal):
+        """Process selections if necessary."""
+
+        sel_start = []
+        sel_size = []
+        find = orig_find
+        errors = False
+        sels = self.view.sel()
+
+        if selection_only and selection_inputs:
+            error("Cannot use 'selection_inputs' with global option 'selection_only'!")
+            errors = True
+        elif selection_only:
+            sel_start = []
+            sel_size = []
+            for s in sels:
+                sel_start.append(s.begin())
+                sel_size.append(s.size())
+        elif selection_inputs:
+            try:
+                sel_inputs = []
+                count = 0
+                for s in sels:
+                    assert s.size() <= self.sel_input_max_size, "Exceeded max selection size"
+                    engine = self.normal_module
+                    if not literal and self.extend:
+                        engine = self.extend_module
+                    sel_inputs.append(self.view.substr(s))
+                    count += 1
+                    assert count <= self.sel_input_max_count
+                find = RegexInputFormatter(engine).format(orig_find, *sel_inputs, sel=sel_inputs)
+            except Exception:
+                print(str(traceback.format_exc()))
+                error('Failed to process selection inputs.')
+                errors = True
+        return find, sels, sel_start, sel_size, errors
+
     def scope_apply(self, pattern):
         """Find and replace based on scope."""
 
@@ -698,6 +778,7 @@ class FindReplace(object):
         scope = pattern['scope']
         find = pattern.get('find')
         replace = pattern.get('replace', r'\g<0>')
+        selection_inputs = pattern.get('selection_inputs', False)
         greedy_scope = bool(pattern.get('greedy_scope', True))
         greedy_replace = bool(pattern.get('greedy', True))
         literal = pattern.get('literal', False)
@@ -710,13 +791,11 @@ class FindReplace(object):
         if scope is None or scope == '':
             return replace
 
-        if self.selection_only:
-            sels = self.view.sel()
-            sel_start = []
-            sel_size = []
-            for s in sels:
-                sel_start.append(s.begin())
-                sel_size.append(s.size())
+        find, sels, sel_start, sel_size, errors = self.process_selections(
+            find, self.selection_only, selection_inputs, literal
+        )
+        if errors:
+            return replace
 
         regions = self.view.find_by_selector(scope)
 

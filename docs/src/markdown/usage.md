@@ -25,6 +25,7 @@ There are two types of rules that can be created: scope rules (with optional sco
     - greedy
     - scope_filter
     - format_replace
+    - selection_inputs
     - plugin
     - args
     */
@@ -52,6 +53,7 @@ The second kind of rule is the **scope regex** which allows you to search for a 
     - greedy_scope
     - format_replace
     - multi_pass
+    - selection_inputs
     - plugin
     - args
     */
@@ -103,6 +105,9 @@ A description of all the options is found below:
                         Works only for Regex (with and without Backrefs) and Re (with Backrefs).
                         See http://facelessuser.github.io/backrefs/#format-replacements for more info.
 
+    selection_inputs    (bool -default=False): Use selection for inputs into find pattern.
+                        Global setting "selection_only" must be disabled for this to work.
+
     multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
                         and replace all instances of the regex when regex cannot be formatted to find
                         all instances.  Since a replace can change a scope, this can be useful.
@@ -145,6 +150,31 @@ You can also bind a replacement command to a keyboard shortcut:
         "args": {"replacements": ["remove_trailing_spaces"]}
     }
 ```
+
+## Selection Inputs
+
+!!! warning "Experimental"
+    This feature is experimental and is subject to change.
+
+If `selection_inputs` is set to `True`, selections will be inserted into your pattern via format string logic.
+
+So to specify to implicit variables, the following format string logic can be used: `r'Some value {} some [\w]+ {}'`.  In this example, the first two selections will be inserted in `{}`: `r'Some value selection0 some [\w]+ selection1'`.
+
+To control which selection goes where, you can explicitly set the index: `r'Some value {1} some [\w]+ {0}'` ->. `r'Some value selection1 some [\w]+ selection0'`. Or alternatively: `r'Some value {sel[1]} some [\w]+ {sel[0]}'` (`sel` is the selection list).
+
+By default, the selection is just inserted into the pattern raw.  This is fine for literal searches, but for regex this is bad if your selection is something like: `something(else)`.  This example would be interpreted as adding group containing `else`. So if this is not intended, the text would need to be escaped. So a new conversion type has been added: `!e`.  This new conversion type will insert the selection into the pattern after first escaping it.  So you could use it like so: `r'Some value {1!e} some [\w]+ {0!e}'`, and the selection inputs would be escaped.
+
+For the sake of avoiding bad situations, RegReplace will limit the length of selections to the arbitrary value of 256, but you can configure this with the global setting `selection_input_max_size` in `reg_replace.sublime-settings`. Also, the number of allowed inputs will be limited to 10, but this can be tweaked via the setting `selection_input_max_count`.
+
+```js
+    // Limit size of selections for inputs.
+    "selection_input_max_size": 256,
+
+    // Limit number of selections for inputs.
+    "selection_input_max_count": 10,
+```
+
+This should go without saying, but this is incompatible if you have the global option `selection_only` set which will search in selection content.  Though you can ignore it per command via the command parameter `no_selection`.  So if you are constructing a chain that uses selection inputs, you can temporarily disable it with `selection_only`.
 
 ## A Better Way to Create Regex Rules
 
