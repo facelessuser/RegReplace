@@ -1,5 +1,11 @@
 # RegReplace 3.6.0
 
+Nov 19, 2017
+
+- **NEW**: New experimental support for selection inputs for find patterns (#71).
+
+# RegReplace 3.6.0
+
 Sep 30, 2017
 
 - **NEW**: Add support for optional format style replace templates. Learn more [here](http://facelessuser.github.io/backrefs/#format-replacements).
@@ -18,9 +24,9 @@ Aug 13, 2017
 Jun 4, 2017
 
 - **NEW**: Scope searches will now apply highlights and actions directly to the regex find regions opposed to the whole
-scope [#58](https://github.com/facelessuser/RegReplace/issues/58).
+scope (#58).
 - **NEW**: Use new Sublime settings API for opening settings file.
-- **NEW**: Show error message when rule not found [#60](https://github.com/facelessuser/RegReplace/issues/60).
+- **NEW**: Show error message when rule not found (#60).
 
 # RegReplace 3.3.0
 
@@ -39,7 +45,7 @@ Mar 5, 2017
 
 Dec 28, 2016
 
-- **NEW**: Add support for regex regular expression module [#52](https://github.com/facelessuser/RegReplace/pull/52)
+- **NEW**: Add support for regex regular expression module (!52).
 
 # RegReplace 3.1.0
 

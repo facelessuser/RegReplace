@@ -27,17 +27,17 @@ For those who want to install RegReplace without package control, here are the s
 
 1. Download the latest releases of the following dependencies and unpack or git clone in the `Packages` folder as shown below:
 
-    - https://bitbucket.org/teddy_beer_maniac/sublime-text-dependency-markupsafe -> markupsafe
-    - https://bitbucket.org/teddy_beer_maniac/sublime-text-dependency-jinja2 -> python-jinja2
-    - https://github.com/packagecontrol/pygments -> pygments
-    - https://github.com/facelessuser/sublime-markdown-popups -> mdpopups
-    - https://github.com/facelessuser/sublime-markdown -> python-markdown
-    - https://github.com/facelessuser/sublime-backrefs -> backrefs
-    - https://github.com/facelessuser/sublime-regex -> regex
+    - @bitbucket:teddy_beer_maniac/sublime-text-dependency-markupsafe -> markupsafe
+    - @bitbucket:teddy_beer_maniac/sublime-text-dependency-jinja2 -> python-jinja2
+    - @packagecontrol/pygments -> pygments
+    - @facelessuser/sublime-markdown-popups -> mdpopups
+    - @facelessuser/sublime-markdown -> python-markdown
+    - @facelessuser/sublime-backrefs -> backrefs
+    - @facelessuser/sublime-regex -> regex
 
 2. Download and unpack or git clone the latest RegReplace release and unpack as `RegReplace`:
 
-    - https://github.com/facelessuser/RegReplace -> RegReplace
+    - @facelessuser/RegReplace -> RegReplace
 
 3. Create a folder under `Packages` called `00-dependencies` and under that folder create a file called `00-dependencies.py`:
 

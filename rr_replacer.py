@@ -765,7 +765,7 @@ class FindReplace(object):
                 print(str(traceback.format_exc()))
                 error('Failed to process selection inputs.')
                 errors = True
-        return find, sel_start, sel_size, errors
+        return find, sels, sel_start, sel_size, errors
 
     def scope_apply(self, pattern):
         """Find and replace based on scope."""
