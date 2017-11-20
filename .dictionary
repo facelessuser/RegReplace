@@ -45,6 +45,7 @@ multi
 packagecontrol
 plugin
 plugins
+popups
 pre
 pycqa
 pygments
