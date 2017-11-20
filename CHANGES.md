@@ -1,4 +1,4 @@
-# RegReplace 3.6.0
+# RegReplace 3.7.0
 
 Nov 19, 2017
 
