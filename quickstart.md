@@ -100,7 +100,6 @@ everything else will be left to the defaults in the template.  The panel templat
         "no_selection": False,
         "regex_full_file_with_selections": False
     }
-    '''
     ```
 
 4. Press <kbd>ctrl</kbd> + <kbd>s</kbd> (or <kbd>cmd</kbd> + <kbd>s</kbd> in OSX) to save.  The rule will be added to  
