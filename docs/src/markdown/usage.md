@@ -158,11 +158,11 @@ You can also bind a replacement command to a keyboard shortcut:
 
 If `selection_inputs` is set to `True`, selections will be inserted into your pattern via format string logic.
 
-So to specify to implicit variables, the following format string logic can be used: `r'Some value {} some [\w]+ {}'`.  In this example, the first two selections will be inserted in `{}`: `r'Some value selection0 some [\w]+ selection1'`.
+So to specify two implicit variables, the following format string logic can be used: `r'Some value {} some [\w]+ {}'`.  In this example, the first two selections will be inserted in `{}`: `r'Some value selection0 some [\w]+ selection1'`.
 
-To control which selection goes where, you can explicitly set the index: `r'Some value {1} some [\w]+ {0}'` ->. `r'Some value selection1 some [\w]+ selection0'`. Or alternatively: `r'Some value {sel[1]} some [\w]+ {sel[0]}'` (`sel` is the selection list).
+To control which selection goes where, you can explicitly set the index: `r'Some value {1} some [\w]+ {0}'` -->. `r'Some value selection1 some [\w]+ selection0'`. Or alternatively: `r'Some value {sel[1]} some [\w]+ {sel[0]}'` (`sel` is the selection list).
 
-By default, the selection is just inserted into the pattern raw.  This is fine for literal searches, but for regex this is bad if your selection is something like: `something(else)`.  This example would be interpreted as adding group containing `else`. So if this is not intended, the text would need to be escaped. So a new conversion type has been added: `!e`.  This new conversion type will insert the selection into the pattern after first escaping it.  So you could use it like so: `r'Some value {1!e} some [\w]+ {0!e}'`, and the selection inputs would be escaped.
+By default, the selection is just inserted into the pattern raw.  This is fine for literal searches, but for regex this is bad if your selection is something like: `something(else)`.  This example would be interpreted as adding a group containing `else`. So if this is not intended, the text would need to be escaped. So a new conversion type has been added to the format template: `!e`.  This new conversion type will insert the selection into the pattern after first escaping it.  So you could use it like so: `r'Some value {1!e} some [\w]+ {0!e}'`, and the selection inputs would be escaped.
 
 For the sake of avoiding bad situations, RegReplace will limit the length of selections to the arbitrary value of 256, but you can configure this with the global setting `selection_input_max_size` in `reg_replace.sublime-settings`. Also, the number of allowed inputs will be limited to 10, but this can be tweaked via the setting `selection_input_max_count`.
 
@@ -174,13 +174,13 @@ For the sake of avoiding bad situations, RegReplace will limit the length of sel
     "selection_input_max_count": 10,
 ```
 
-This should go without saying, but this is incompatible if you have the global option `selection_only` set which will search in selection content.  Though you can ignore it per command via the command parameter `no_selection`.  So if you are constructing a chain that uses selection inputs, you can temporarily disable it with `selection_only`.
+This should go without saying, but this is incompatible if you have the global option `selection_only` set which will search in selection content.  Though you can ignore it per command via the command parameter [`no_selection`](#replace-only-within-selections).  So if you are constructing a chain that uses selection inputs, you can temporarily disable it with `no_selection`.
 
 ## A Better Way to Create Regex Rules
 
 A new feature was recently added that allows editing regular expression rules in a panel with Python syntax highlighting, providing a friendlier editing experience.  Users can even split their regular expressions on multiple lines and add comments which will be preserved the next time the rule is viewed.
 
-While in the edit panel, you can press <kbd>Ctrl</kbd> + <kbd>s</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>s</kbd> on OSX) and the rule will be saved back to the settings file.  On saving, the regex is compiled to test if it's valid; if the test fails, a warning message is displayed and the saving operation is canceled.
+While in the edit panel, you can press ++ctrl+s++ on Windows/Linux (or ++cmd+s++ on OSX) and the rule will be saved back to the settings file.  On saving, the regex is compiled to test if it's valid; if the test fails, a warning message is displayed and the saving operation is canceled.
 
 To edit, insert, or delete rules, you can use the following command palette commands:
 
@@ -190,7 +190,7 @@ To edit, insert, or delete rules, you can use the following command palette comm
 
 ![edit panel](imgs/edit_panel.png)
 
-You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press <kbd>Ctrl</kbd> + <kbd>f</kbd> on Windows/Linux (or <kbd>super</kbd> + <kbd>f</kbd> on OSX) to execute it.  Keep in mind that you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
+You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press ++ctrl+f++ on Windows/Linux (or ++cmd+f++ on OSX) to execute it.  Keep in mind that you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
 
 ```py3
 # ----------------------------------------------------------------------------------------
@@ -211,7 +211,7 @@ You can also test the regular expression from the edit panel.  At the bottom of 
 
 ![test variable](imgs/test.png)
 
-Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing <kbd>Esc</kbd> or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
+Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing ++esc++ or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
 
 ## View Without Replacing
 
