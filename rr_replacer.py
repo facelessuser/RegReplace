@@ -7,6 +7,8 @@ Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 from RegReplace.rr_plugin import Plugin
 from backrefs import bre, bregex
+import re
+import regex
 import backrefs
 import traceback
 import string
@@ -45,15 +47,6 @@ class RegexInputFormatter(string.Formatter):
         elif self.implicit >= 0:
             raise ValueError("Cannot change from implict to explicit indexing!")
         return super(RegexInputFormatter, self).get_value(key, args, kwargs)
-
-    # def format_field(self, value, spec):
-    #     """Format field for escaping."""
-
-    #     # Treat string as a literal, so escape it.
-    #     if spec.endswith('l'):
-    #         value = self._engine.escape(value)
-    #         spec = spec[:-1] + 's'
-    #     return super(RegexInputFormatter, self).format_field(value, spec)
 
 
 class ScopeRepl(object):
@@ -107,7 +100,7 @@ class FindReplace(object):
         else:
             self.regex_version_flag = 0
         self.extend_module = bregex if self.use_regex else bre
-        self.normal_module = bregex.regex if self.use_regex else bre.re
+        self.normal_module = regex if self.use_regex else re
 
     def view_replace(self, region, replacement):
         """
