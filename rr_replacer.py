@@ -5,6 +5,7 @@ Licensed under MIT
 Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 """
 import sublime
+import backrefs
 from RegReplace.rr_plugin import Plugin
 from backrefs import bre
 import re
