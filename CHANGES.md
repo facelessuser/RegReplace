@@ -1,3 +1,7 @@
+# RegReplace 3.7.2
+
+- **FIX**: Internal changes to support new backrefs 3.0.3.
+
 # RegReplace 3.7.1
 
 Jan 21, 2018

@@ -6,13 +6,19 @@ Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 """
 import sublime
 from RegReplace.rr_plugin import Plugin
-from backrefs import bre, bregex
+from backrefs import bre
 import re
-import regex
-import backrefs
 import traceback
 import string
 from RegReplace.rr_notify import error
+try:
+    import regex
+    from backrefs import bregex
+    REGEX_SUPPORT = True
+except ImportError:
+    regex = None
+    bregex = None
+    REGEX_SUPPORT = False
 
 FORMAT_REPLACE = backrefs.version_info >= (2, 1, 0)
 
@@ -88,7 +94,7 @@ class FindReplace(object):
         self.plugin = None
         settings = sublime.load_settings('reg_replace.sublime-settings')
         self.extend = bool(settings.get("extended_back_references", False))
-        self.use_regex = bool(settings.get('use_regex_module', False)) and bregex.REGEX_SUPPORT
+        self.use_regex = bool(settings.get('use_regex_module', False)) and REGEX_SUPPORT
         self.sel_input_max_size = int(settings.get('selection_input_max_size', 256))
         self.sel_input_max_count = int(settings.get('selection_input_max_count', 10))
         self.use_format = (self.extend or self.use_regex) and FORMAT_REPLACE
