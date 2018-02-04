@@ -1,6 +1,9 @@
 # RegReplace 3.7.2
 
+Feb 4, 2018
+
 - **FIX**: Internal changes to support new backrefs 3.0.3.
+- **FIX**: Issue related to freezing due to changing tab to space setting on every region replace.  Now do it once for whole operation.
 
 # RegReplace 3.7.1
 
