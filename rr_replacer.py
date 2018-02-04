@@ -116,12 +116,7 @@ class FindReplace(object):
         Account for tab settings that can interfere with the replace.
         """
 
-        tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
-        if tabs_to_spaces:
-            self.view.settings().set('translate_tabs_to_spaces', False)
         self.view.replace(self.edit, region, replacement)
-        if tabs_to_spaces:
-            self.view.settings().set('translate_tabs_to_spaces', True)
 
     def close(self):
         """Clean up for the object.  Mainly clean up the tracked loaded plugins."""
@@ -221,6 +216,9 @@ class FindReplace(object):
         count = len(regions) - 1
 
         # Step through all targets and qualify them for replacement
+        tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', False)
         for region in reversed(regions):
             # Does the scope qualify?
             qualify = self.qualify_by_scope(region, scope_filter) if scope_filter is not None else True
@@ -233,6 +231,8 @@ class FindReplace(object):
                     # Apply replace
                     self.view_replace(region, replace[count])
             count -= 1
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', True)
         return replaced
 
     def non_greedy_replace(self, replace, regions, scope_filter):
@@ -289,7 +289,12 @@ class FindReplace(object):
                 self.target_regions.append(selected_region)
             else:
                 # Apply replace
+                tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
+                if tabs_to_spaces:
+                    self.view.settings().set('translate_tabs_to_spaces', False)
                 self.view_replace(selected_region, replace[selection_index])
+                if tabs_to_spaces:
+                    self.view.settings().set('translate_tabs_to_spaces', True)
         return replaced
 
     def expand(self, m, replace):
@@ -468,6 +473,9 @@ class FindReplace(object):
         """Greedy literal scope replace."""
 
         total_replaced = 0
+        tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', False)
         for region in reversed(regions):
             sub_regions = []
             start = region.begin()
@@ -493,6 +501,8 @@ class FindReplace(object):
                     self.target_regions.extend(sub_regions)
                 else:
                     self.view_replace(region, extraction)
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', True)
         return total_replaced
 
     def non_greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
@@ -589,13 +599,21 @@ class FindReplace(object):
                 self.target_regions.extend(selected_sub_regions)
             else:
                 # Apply replace
+                tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
+                if tabs_to_spaces:
+                    self.view.settings().set('translate_tabs_to_spaces', False)
                 self.view_replace(selected_region, selected_extraction)
+                if tabs_to_spaces:
+                    self.view.settings().set('translate_tabs_to_spaces', True)
         return total_replaced
 
     def greedy_scope_replace(self, regions, re_find, replace, greedy_replace, multi):
         """Greedy scope replace."""
 
         total_replaced = 0
+        tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', False)
         try:
             for region in reversed(regions):
                 sub_regions = []
@@ -614,6 +632,8 @@ class FindReplace(object):
             print(str(traceback.format_exc()))
             error('REGEX ERROR: %s' % str(err))
             return total_replaced
+        if tabs_to_spaces:
+            self.view.settings().set('translate_tabs_to_spaces', True)
 
         return total_replaced
 
@@ -688,7 +708,12 @@ class FindReplace(object):
                 self.target_regions.extend(selected_sub_regions)
             else:
                 # Apply replace
+                tabs_to_spaces = self.view.settings().get('translate_tabs_to_spaces', False)
+                if tabs_to_spaces:
+                    self.view.settings().set('translate_tabs_to_spaces', False)
                 self.view_replace(selected_region, selected_extraction)
+                if tabs_to_spaces:
+                    self.view.settings().set('translate_tabs_to_spaces', True)
         return total_replaced
 
     def select_scope_regions(self, regions, greedy_scope):
