@@ -12,6 +12,7 @@ import re
 import traceback
 import string
 from RegReplace.rr_notify import error
+from collections import deque
 try:
     import regex
     from backrefs import bregex
@@ -310,7 +311,7 @@ class FindReplace(object):
     def regex_findall(self, find, flags, replace, extractions, literal=False, sel=None):
         """Findall with regex."""
 
-        regions = []
+        regions = deque()
         offset = 0
         if sel is not None:
             offset = sel.begin()
@@ -331,14 +332,27 @@ class FindReplace(object):
                 )
         else:
             pattern = self.normal_module.compile(find, flags | self.regex_version_flag)
+        if self.use_regex:
+            reverse = bool(pattern.flags & regex.REVERSE)
+        else:
+            reverse = False
         for m in pattern.finditer(bfr):
-            regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
-            if literal:
-                extractions.append(replace)
-            elif self.plugin is not None:
-                extractions.append(self.on_replace(m))
+            if reverse:
+                regions.appendleft(sublime.Region(offset + m.start(0), offset + m.end(0)))
+                if literal:
+                    extractions.appendleft(replace)
+                elif self.plugin is not None:
+                    extractions.appendleft(self.on_replace(m))
+                else:
+                    extractions.appendleft(self.expand(m, replace))
             else:
-                extractions.append(self.expand(m, replace))
+                regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
+                if literal:
+                    extractions.append(replace)
+                elif self.plugin is not None:
+                    extractions.append(self.on_replace(m))
+                else:
+                    extractions.append(self.expand(m, replace))
         return regions
 
     def apply(self, pattern):
@@ -375,7 +389,7 @@ class FindReplace(object):
             return replace
 
         # Find and format replacements
-        extractions = []
+        extractions = deque()
         try:
             # regions = self.view.find_all(find, flags, replace, extractions)
             if self.selection_only and not self.full_file:
@@ -429,45 +443,72 @@ class FindReplace(object):
                 pattern, extraction, scope_repl.repl, greedy_replace
             )
         elif self.find_only or self.action is not None:
-            for m in pattern.finditer(string):
-                sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
-                replaced += 1
-                if not greedy_replace:
-                    break
-        elif self.use_regex and not self.extend and self.format:
-            if greedy_replace:
-                extraction, replaced = pattern.subfn(scope_repl.repl, string)
-            else:
-                extraction, replaced = pattern.subfn(scope_repl.repl, string, 1)
+            replaced = self.scope_find(pattern, string, start, sub_regions, greedy_replace)
         else:
-            if greedy_replace:
-                extraction, replaced = pattern.subn(scope_repl.repl, string)
-            else:
-                extraction, replaced = pattern.subn(scope_repl.repl, string, 1)
+            extraction, replaced = self.scope_sub(pattern, scope_repl.repl, extraction, greedy_replace)
+
         return extraction, replaced
 
     def apply_multi_pass_scope_regex(self, pattern, extraction, repl, greedy_replace):
         """Use a multi-pass scope regex."""
 
-        multi_replaced = 0
         count = 0
         total_replaced = 0
         while count < self.max_sweeps:
             count += 1
-            if self.use_regex and not self.extend and self.format:
-                if greedy_replace:
-                    extraction, multi_replaced = pattern.subfn(repl, extraction)
-                else:
-                    extraction, multi_replaced = pattern.subfn(repl, extraction, 1)
-            else:
-                if greedy_replace:
-                    extraction, multi_replaced = pattern.subn(repl, extraction)
-                else:
-                    extraction, multi_replaced = pattern.subn(repl, extraction, 1)
+            extraction, multi_replaced = self.scope_sub(pattern, repl, extraction, greedy_replace)
             if multi_replaced == 0:
                 break
             total_replaced += multi_replaced
         return extraction, total_replaced
+
+    def scope_find(self, pattern, string, offset, sub_regions, greedy_replace):
+        """Find in scopes."""
+
+        if self.use_regex:
+            reverse = bool(pattern.flags & regex.REVERSE)
+        else:
+            reverse = False
+
+        replaced = 0
+        for m in pattern.finditer(string):
+            if reverse:
+                sub_regions.appendleft(sublime.Region(offset + m.start(0), offset + m.end(0)))
+            else:
+                sub_regions.append(sublime.Region(offset + m.start(0), offset + m.end(0)))
+            replaced += 1
+            if not greedy_replace:
+                break
+        return replaced
+
+    def scope_sub(self, pattern, replace, string, greedy_replace):
+        """Substitute replace."""
+
+        if self.use_regex:
+            reverse = bool(pattern.flags & regex.REVERSE)
+        else:
+            reverse = False
+
+        offset = len(string) if reverse else 0
+        text = deque()
+        replaced = 0
+        for m in pattern.finditer(string):
+            if reverse:
+                text.appendleft(string[m.end(0):offset])
+                text.appendleft(replace(m))
+                offset = m.start(0)
+            else:
+                text.append(string[offset:m.start(0)])
+                text.append(replace(m))
+                offset = m.end(0)
+            replaced += 1
+            if not greedy_replace:
+                break
+        if reverse:
+            text.appendleft(string[:offset])
+        else:
+            text.append(string[offset:])
+        return ''.join(text), replaced
 
     def greedy_scope_literal_replace(self, regions, find, replace, greedy_replace):
         """Greedy literal scope replace."""
@@ -477,23 +518,14 @@ class FindReplace(object):
         if tabs_to_spaces:
             self.view.settings().set('translate_tabs_to_spaces', False)
         for region in reversed(regions):
-            sub_regions = []
+            sub_regions = deque()
             start = region.begin()
             extraction = self.view.substr(region)
             if self.find_only or self.action is not None:
-                replace_count = 0
-                for m in find.finditer(extraction):
-                    sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
-                    replace_count += 1
-                    if not greedy_replace:
-                        break
+                replace_count = self.scope_find(find, extraction, start, sub_regions, greedy_replace)
             else:
-                if greedy_replace:
-                    extraction, replace_count = find.subn(replace, extraction)
-                    sub_regions = [region]
-                else:
-                    extraction, replace_count = find.subn(replace, extraction, count=1)
-                    sub_regions = [region]
+                extraction, replace_count = self.scope_sub(find, replace, extraction, greedy_replace)
+                sub_regions = deque([region])
 
             if replace_count > 0:
                 total_replaced += 1
@@ -521,27 +553,13 @@ class FindReplace(object):
         # Intialize with first qualifying region for wrapping and the case of no cursor in view
         count = 0
         for region in regions:
-            sub_regions = []
+            sub_regions = deque()
             start = region.begin()
             extraction = self.view.substr(region)
             if self.find_only or self.action is not None:
-                replace_count = 0
-                for m in find.finditer(extraction):
-                    sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
-                    replace_count += 1
-                    if not greedy_replace:
-                        break
+                replace_count = self.scope_find(find, extraction, start, sub_regions, greedy_replace)
             else:
-                if self.use_regex and not self.extend and self.format:
-                    if greedy_replace:
-                        extraction, replace_count = find.subfn(replace, extraction)
-                    else:
-                        extraction, replace_count = find.subfn(replace, extraction, count=1)
-                else:
-                    if greedy_replace:
-                        extraction, replace_count = find.subn(replace, extraction)
-                    else:
-                        extraction, replace_count = find.subn(replace, extraction, count=1)
+                extraction, replace_count = self.scope_sub(find, replace, extraction, greedy_replace)
 
             if replace_count > 0:
                 selected_region = region
@@ -556,30 +574,16 @@ class FindReplace(object):
             # Try and find the first qualifying match contained withing the first selection or after
             reverse_count = last_region
             for region in reversed(regions):
-                sub_regions = []
+                sub_regions = deque()
                 start = region.begin()
                 # Make sure we are not checking previously checked regions
                 # And check if region contained after start of selection?
                 if reverse_count >= count and region.end() - 1 >= pt:
                     extraction = self.view.substr(region)
-                    replace_count
                     if self.find_only or self.action is not None:
-                        for m in find.finditer(extraction):
-                            sub_regions.append(sublime.Region(start + m.start(0), start + m.end(0)))
-                            replace_count += 1
-                            if not greedy_replace:
-                                break
+                        replace_count = self.scope_find(find, extraction, start, sub_regions, greedy_replace)
                     else:
-                        if self.use_regex and not self.extend and self.format:
-                            if greedy_replace:
-                                extraction, replace_count = find.subfn(replace, extraction)
-                            else:
-                                extraction, replace_count = find.subfn(replace, extraction, count=1)
-                        else:
-                            if greedy_replace:
-                                extraction, replace_count = find.subn(replace, extraction)
-                            else:
-                                extraction, replace_count = find.subn(replace, extraction, count=1)
+                        extraction, replace_count = self.scope_sub(find, replace, extraction, greedy_replace)
 
                     if replace_count > 0:
                         selected_region = region
@@ -616,7 +620,7 @@ class FindReplace(object):
             self.view.settings().set('translate_tabs_to_spaces', False)
         try:
             for region in reversed(regions):
-                sub_regions = []
+                sub_regions = deque()
                 replaced = 0
                 string = self.view.substr(region)
                 extraction, replaced = self.apply_scope_regex(
@@ -655,7 +659,7 @@ class FindReplace(object):
         count = 0
         try:
             for region in regions:
-                sub_regions = []
+                sub_regions = deque()
                 string = self.view.substr(region)
                 extraction, replaced = self.apply_scope_regex(
                     string, re_find, replace, greedy_replace, multi, region.begin(), sub_regions
@@ -678,7 +682,7 @@ class FindReplace(object):
                 # Try and find the first qualifying match contained withing the first selection or after
                 reverse_count = last_region
                 for region in reversed(regions):
-                    sub_regions = []
+                    sub_regions = deque()
                     # Make sure we are not checking previously checked regions
                     # And check if region contained after start of selection?
                     if reverse_count >= count and region.end() - 1 >= pt:
