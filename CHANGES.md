@@ -1,3 +1,9 @@
+# RegReplace 3.8.0
+
+Mar 6, 2018
+
+- **NEW**: Add support for `regex` module's `REVERSE` flag.
+
 # RegReplace 3.7.2
 
 Feb 4, 2018
