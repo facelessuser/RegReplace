@@ -1,10 +1,5 @@
-
-reg_replace.pyc
-
+.tox/*
 .DS_Store
-
 site/*
-
 *.pyc
-
 build/*
