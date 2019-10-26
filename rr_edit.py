@@ -575,7 +575,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += '#    See https://docs.python.org/3.4/library/re.html for more info on regex flags.\n'
             text += '#    Required unless "scope" is defined.\n'
             text += self.format_regex_string('find', rule.get('find'))
-            text += '\n# replace (str - default=r\'\g<0>\'): Replace pattern.\n'
+            text += '\n# replace (str - default=r\'\\g<0>\'): Replace pattern.\n'
             text += self.format_regex_string('replace', rule.get('replace'))
             text += '\n# literal (bool - default=False): Preform a non-regex, literal search and replace.\n'
             text += self.format_bool('literal', rule.get('literal'))
