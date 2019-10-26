@@ -1,10 +1,8 @@
 name: pull request
-
 on: [pull_request]
 
 jobs:
   tests:
-
     env:
       TOXENV: py37
 
@@ -24,7 +22,6 @@ jobs:
         python -m tox
 
   lint:
-
     env:
       TOXENV: lint
 
@@ -44,7 +41,6 @@ jobs:
         python -m tox
 
   documents:
-
     env:
       TOXENV: documents
 

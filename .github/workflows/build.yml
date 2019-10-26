@@ -1,5 +1,4 @@
 name: build
-
 on:
   push:
     branches:
@@ -7,7 +6,6 @@ on:
 
 jobs:
   tests:
-
     env:
       TOXENV: py37
 
@@ -27,7 +25,6 @@ jobs:
         python -m tox
 
   lint:
-
     env:
       TOXENV: lint
 
@@ -47,7 +44,6 @@ jobs:
         python -m tox
 
   documents:
-
     env:
       TOXENV: documents
 
