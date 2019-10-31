@@ -37,6 +37,18 @@ rules:
   - labels: [settings]
     patterns: ['*.sublime-@(keymap|menu|settings|commands)']
 
+# Triage
+
+triage_add: 'triage'
+triage_skip: ['skip-triage']
+triage_remove: ['confirmed']
+
+# Review
+
+review_add: 'needs-review'
+review_skip: ['skip-review']
+review_remove: ['approved']
+
 # WIP
 
 wip:
@@ -46,6 +58,28 @@ wip:
   - needs-confirmation
   - requires-changes
   - rejected
+  - duplicate
+  - invalid
+  - triage
+  - wontfix
+
+# LGTM
+
+lgtm_add:
+  pull_request: [approved]
+  issue: []
+
+lgtm_remove:
+  - work-in-progress
+  - needs-review
+  - needs-decision
+  - needs-confirmation
+  - requires-changes
+  - rejected
+  - duplicate
+  - invalid
+  - triage
+  - wontfix
 
 # Label management
 
