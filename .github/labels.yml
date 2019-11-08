@@ -6,66 +6,73 @@ brace_expansion: true
 extended_glob: true
 
 rules:
-  - labels: [infrastructure]
+  - labels: ['C: infrastructure']
     patterns: ['*|-@(*.md|*.py|*.sublime-@(keymap|menu|settings|commands))', '@(requirements|.github)/**']
 
-  - labels: [source]
+  - labels: ['C: source']
     patterns: ['**/*.py|-tests']
 
-  - labels: [docs]
+  - labels: ['C: docs']
     patterns: ['**/*.md|docs/**']
 
-  - labels: [tests]
+  - labels: ['C: tests']
     patterns: ['tests/**']
 
-  - labels: [plugins]
+  - labels: ['C: plugins']
     patterns: ['rr_modules/**|rr_plugin.py']
 
-  - labels: [edit]
+  - labels: ['C: edit']
     patterns: ['rr_edit.py']
 
-  - labels: [notify]
+  - labels: ['C: notify']
     patterns: ['rr_notify.py']
 
-  - labels: [replacer]
+  - labels: ['C: replacer']
     patterns: ['rr_replacer.py']
 
-  - labels: [sequencer]
+  - labels: ['C: sequencer']
     patterns: ['rr_sequencer.py']
 
-  - labels: [upgrade]
+  - labels: ['C: upgrade']
     patterns: ['rr_upgrade.py']
 
-  - labels: [settings]
+  - labels: ['C: settings']
     patterns: ['*.sublime-@(keymap|menu|settings|commands)']
 
 # Label management
 
 labels:
-- name: plugins
+- name: 'C: plugins'
+  renamed: plugins
   color: subcategory
   description: Related to plugins.
 
-- name: edit
+- name: 'C: edit'
+  renamed: edit
   color: subcategory
   description: Related to the edit library.
 
-- name: notify
+- name: 'C: notify'
+  renamed: notify
   color: subcategory
   description: Related to the notify library.
 
-- name: replacer
+- name: 'C: replacer'
+  renamed: replacer
   color: subcategory
   description: Related to the replacer library.
 
-- name: sequencer
+- name: 'C: sequencer'
+  renamed: sequencer
   color: subcategory
   description: Related to the sequencer library.
 
-- name: upgrade
+- name: 'C: upgrade'
+  renamed: upgrade
   color: subcategory
   description: Related to upgrade library.
 
-- name: settings
+- name: 'C: settings'
+  renamed: settings
   color: subcategory
   description: Related to Sublime settings files.
