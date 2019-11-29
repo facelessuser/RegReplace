@@ -17,7 +17,7 @@ ST_LANGUAGES = ('.sublime-syntax', '.tmLanguage') if USE_ST_SYNTAX else ('.tmLan
 
 
 def ast_class(cl):
-    """Get the ast_class name."""
+    """Get the `ast_class` name."""
 
     return cl.__class__.__name__
 
@@ -29,10 +29,10 @@ def compile_expr(exp):
 
 
 class RegReplaceEventListener(sublime_plugin.EventListener):
-    """Listen for save event in regreplace edit panel."""
+    """Listen for save event in `regreplace` edit panel."""
 
     def on_query_context(self, view, key, operator, operand, match_all):
-        """Check if save shortcut occured in output panel for regreplace."""
+        """Check if save shortcut occurred in output panel for `regreplace`."""
 
         okay = False
         if key == 'reg_replace_panel_save' and view.settings().get('reg_replace.edit_view', False):
@@ -76,7 +76,7 @@ class ConvertPythonSrc2Obj(object):
     )
 
     def eval_value(self, v):
-        """Evaluate the value io see if it is safe to execute."""
+        """Evaluate the value to see if it is safe to execute."""
         okay = False
         if ast_class(v) == 'Dict':
             # dict
@@ -90,7 +90,7 @@ class ConvertPythonSrc2Obj(object):
             # string
             okay = True
         elif ast_class(v) == 'Name' and v.id in ('True', 'False', 'None'):
-            # boleans or None
+            # booleans or None
             okay = True
         elif ast_class(v) == 'Num':
             # numbers
@@ -136,9 +136,9 @@ class ConvertPythonSrc2Obj(object):
         test = {}
         try:
             # Examine the python code to ensure it it is safe to evaluate.
-            # We will evalute each statement and see if it is safe.
-            # None and numbers are ignored unless it is in the arg dictionary.
-            # All the top level variables are either string, bool, list of strings, or dict.
+            # We will evaluate each statement and see if it is safe.
+            # None and numbers are ignored unless it is in the `arg` dictionary.
+            # All the top level variables are either string, boolean, list of strings, or dictionary.
             code = ast.parse(text)
             for snippet in code.body:
                 if ast_class(snippet) == 'Assign' and len(snippet.targets) == 1:
@@ -308,7 +308,7 @@ class RegReplacePanelSaveCommand(sublime_plugin.TextCommand):
     """Handle the panel save shortcut."""
 
     def is_existing_name(self, name):
-        """Confirm if name already exists and if user is okay with overwritting an existing name."""
+        """Confirm if name already exists and if user is okay with overwriting an existing name."""
 
         original_name = self.view.settings().get('regreplace.name', None)
         rules = sublime.load_settings('reg_replace_rules.sublime-settings').get('replacements', {})

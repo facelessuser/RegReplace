@@ -7,7 +7,6 @@ Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 import sublime
 import imp
 import sys
-# import traceback
 from os.path import join, normpath
 import re
 

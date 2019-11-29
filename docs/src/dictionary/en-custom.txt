@@ -1,4 +1,5 @@
 Backrefs
+Changelog
 Control's
 EmojiOne
 GitHub
@@ -23,8 +24,11 @@ Sublime's
 Unmark
 YYYYMMDD
 backrefs
+boolean
+booleans
 bregex
 builtins
+changelog
 cmd
 ctrl
 ctrl
@@ -36,6 +40,7 @@ emoji
 esc
 facelessuser
 facelessuser
+formatter
 gforcada
 installable
 jinja

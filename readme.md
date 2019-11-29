@@ -37,6 +37,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 [travis-image]: https://img.shields.io/travis/facelessuser/RegReplace/master.svg
 [travis-link]: https://travis-ci.org/facelessuser/RegReplace
-[pc-image]: https://img.shields.io/packagecontrol/dt/RegReplace.svg
+[pc-image]: https://img.shields.io/packagecontrol/dt/RegReplace.svg?logo=sublime%20text&logoColor=cccccc
 [pc-link]: https://packagecontrol.io/packages/RegReplace
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg

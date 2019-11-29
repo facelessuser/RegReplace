@@ -70,7 +70,6 @@ matrix:
   - pyspelling.filters.url:
 
 - name: python
-  hidden: true
   sources:
   - './**/*.py'
   aspell:

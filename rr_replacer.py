@@ -203,7 +203,7 @@ class FindReplace(object):
                             qualify = True
                             break
                         pt += 1
-                # If qualificatin of one fails, bail
+                # If qualification of one fails, bail
                 if qualify is False:
                     return qualify
         # Qualification completed successfully
@@ -248,7 +248,7 @@ class FindReplace(object):
         # See if there is a cursor and get the first selections starting point
         pt = self.get_sel_point()
 
-        # Intialize with first qualifying region for wrapping and the case of no cursor in view
+        # Initialize with first qualifying region for wrapping and the case of no cursor in view
         count = 0
         for region in regions:
             # Does the scope qualify?
@@ -309,7 +309,7 @@ class FindReplace(object):
             return m.expand(replace)
 
     def regex_findall(self, find, flags, replace, extractions, literal=False, sel=None):
-        """Findall with regex."""
+        """Find all with regex."""
 
         regions = deque()
         offset = 0
@@ -550,7 +550,7 @@ class FindReplace(object):
         # See if there is a cursor and get the first selections starting point
         pt = self.get_sel_point()
 
-        # Intialize with first qualifying region for wrapping and the case of no cursor in view
+        # Initialize with first qualifying region for wrapping and the case of no cursor in view
         count = 0
         for region in regions:
             sub_regions = deque()
@@ -655,7 +655,7 @@ class FindReplace(object):
         # See if there is a cursor and get the first selections starting point
         pt = self.get_sel_point()
 
-        # Intialize with first qualifying region for wrapping and the case of no cursor in view
+        # Initialize with first qualifying region for wrapping and the case of no cursor in view
         count = 0
         try:
             for region in regions:

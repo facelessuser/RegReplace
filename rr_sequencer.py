@@ -53,16 +53,16 @@ class RegReplaceApplyCommand(sublime_plugin.TextCommand):
     """Command to replace text in a view."""
 
     def run(self, edit):
-        """Workaround replace text with info from RegReplaceGlobal."""
+        """Workaround replace text with info from `RegReplaceGlobal`."""
 
         self.view.replace(edit, RegReplaceGlobal.region, RegReplaceGlobal.bfr)
 
 
 class RegReplaceListenerCommand(sublime_plugin.EventListener):
-    """Event listner command."""
+    """Event listener command."""
 
     def find_replacements(self, view):
-        """Retreive on save replacement rules."""
+        """Retrieve on save replacement rules."""
 
         match = False
         file_name = view.file_name()
@@ -246,14 +246,14 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         # Process highlight style
         highlight_style = 0
         if (self.find_only and self.selection_only) or style == 'underline':
-            # Use underline if explicity requested,
+            # Use underline if explicitly requested,
             # or if doing a find only when under a selection only (only underline can be seen through a selection)
             self.replace_obj.target_regions = underline(self.replace_obj.target_regions)
             highlight_style = sublime.DRAW_EMPTY_AS_OVERWRITE
         elif style == 'outline':
             highlight_style = sublime.DRAW_OUTLINED
 
-        # higlight all of the found regions
+        # highlight all of the found regions
         self.view.erase_regions(key)
         self.view.add_regions(
             key,
@@ -304,7 +304,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         window = self.view.window()
         view = window.get_output_panel('reg_replace_results')
 
-        # Turn off stylings in panel
+        # Turn off styles in panel
         view.settings().set('draw_white_space', 'none')
         view.settings().set('draw_indent_guides', False)
         view.settings().set('gutter', 'none')
@@ -322,7 +322,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         view.sel().clear()
 
     def perform_action(self):
-        """Perform action on targed text."""
+        """Perform action on targeted text."""
 
         status = True
         if self.action == 'fold':
@@ -367,7 +367,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         results = ''
 
         # Walk the sequence
-        # Multi-pass only if requested and will be occuring
+        # Multi-pass only if requested and will be occurring
         if self.multi_pass and not self.find_only and self.action is None:
             # Multi-pass initialization
             current_replacements = 0
@@ -413,7 +413,7 @@ class RegReplaceCommand(sublime_plugin.TextCommand):
         results = self.find_and_replace()
 
         if self.find_only:
-            # Higlight regions
+            # Highlight regions
             style = rrsettings.get('find_highlight_style', DEFAULT_HIGHLIGHT_STYLE)
             color = rrsettings.get('find_highlight_color', DEFAULT_HIGHLIGHT_COLOR)
             self.set_highlights(MODULE_NAME, style, color)

@@ -13,7 +13,7 @@ except Exception:
 
         @classmethod
         def is_ready(cls):
-            """Return false to effectively disable SubNotify."""
+            """Return false to effectively disable `SubNotify`."""
 
             return False
 
@@ -24,7 +24,7 @@ Please consider using "(?s)" for case insensitive searches.
 
 
 def notify(msg):
-    """Notify msg."""
+    """Notify message."""
 
     settings = sublime.load_settings("reg_replace.sublime-settings")
     if settings.get("use_sub_notify", False) and Notify.is_ready():
@@ -34,7 +34,7 @@ def notify(msg):
 
 
 def error(msg):
-    """Error msg."""
+    """Error message."""
 
     settings = sublime.load_settings("reg_replace.sublime-settings")
     if settings.get("use_sub_notify", False) and Notify.is_ready():
