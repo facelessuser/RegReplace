@@ -67,8 +67,8 @@ markdown_extensions:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.escapeall:
-      hardbreak: True
-      nbsp: True
+      hardbreak: true
+      nbsp: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.progressbar:
