@@ -21,6 +21,7 @@ RegReplace
 Regex
 Regex's
 Sublime's
+Twemoji
 Unmark
 YYYYMMDD
 backrefs

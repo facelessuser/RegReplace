@@ -22,7 +22,7 @@ except ImportError:
     bregex = None
     REGEX_SUPPORT = False
 
-FORMAT_REPLACE = backrefs.version_info >= (2, 1, 0)
+FORMAT_REPLACE = backrefs.__version_info__ >= (2, 1, 0)
 
 
 class RegexInputFormatter(string.Formatter):
