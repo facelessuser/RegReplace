@@ -2,7 +2,7 @@
 
 ## 3.8.2
 
--**FIX**: Fix bad links.
+- **FIX**: Fix bad links.
 
 ## 3.8.1
 
