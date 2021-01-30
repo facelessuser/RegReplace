@@ -31,7 +31,7 @@
 
     format_replace:     (bool - default=False): Use format string style replace templates.
                         Works only for Regex (with and without Backrefs) and Re (with Backrefs).
-                        See http://facelessuser.github.io/backrefs/#format-replacements for more info.
+                        See https://facelessuser.github.io/backrefs/usage/#format-replacements for more info.
 
     multi_pass:         (bool - default=False): Perform multiple sweeps on the scope region to find
                         and replace all instances of the regex when regex cannot be formatted to find

@@ -1,5 +1,9 @@
 # RegReplace
 
+## 3.8.2
+
+-**FIX**: Fix bad links.
+
 ## 3.8.1
 
 - **NEW**: Update internal references to`backrefs` to prevent breakage with new version.
@@ -23,7 +27,7 @@
 
 ## 3.6.0
 
-- **NEW**: Add support for optional format style replace templates. Learn more [here](http://facelessuser.github.io/backrefs/#format-replacements).
+- **NEW**: Add support for optional format style replace templates. Learn more [here](https://facelessuser.github.io/backrefs/usage/#format-replacements).
 - **FIX**: Properly set default replace to group 0 by using `\g<0>` not `\0`.
 - **FIX**: Explain better some basic syntax differences between Re, Regex, and Backrefs with Re and Regex.
 

@@ -599,7 +599,7 @@ class RegReplaceEditRegexCommand(sublime_plugin.WindowCommand):
             text += self.format_bool('greedy_scope', rule.get('greedy_scope'))
             text += '\n# format_replace (bool - default=False): Use format string style replace templates.\n'
             text += '#    Works only for Regex (with and without Backrefs) and Re (with Backrefs).\n'
-            text += '#    See http://facelessuser.github.io/backrefs/#format-replacements for more info.\n'
+            text += '#    See https://facelessuser.github.io/backrefs/usage/#format-replacements for more info.\n'
             text += self.format_bool('format_replace', rule.get('format_replace'))
             text += '\n# selection_inputs (bool -default=False): Use selection for inputs into find pattern.\n'
             text += '#    Global setting "selection_only" must be disabled for this to work.\n'
