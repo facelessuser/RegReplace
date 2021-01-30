@@ -103,7 +103,7 @@ A description of all the options is found below:
 
     format_replace:     (bool - default=False): Use format string style replace templates.
                         Works only for Regex (with and without Backrefs) and Re (with Backrefs).
-                        See http://facelessuser.github.io/backrefs/#format-replacements for more info.
+                        See https://facelessuser.github.io/backrefs/usage/#format-replacements for more info.
 
     selection_inputs    (bool -default=False): Use selection for inputs into find pattern.
                         Global setting "selection_only" must be disabled for this to work.
