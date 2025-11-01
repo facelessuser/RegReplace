@@ -4,7 +4,7 @@ repo_url: https://github.com/facelessuser/RegReplace
 edit_uri: tree/master/docs/src/markdown
 site_description: A Sublime Text plugin for creating regex sequences.
 copyright: |
-  Copyright &copy; 2011 - 2020 <a href="https://github.com/facelessuser"  target="_blank" rel="noopener">Isaac Muse</a>
+  Copyright &copy; 2015 - 2025 <a href="https://github.com/facelessuser"  target="_blank" rel="noopener">Isaac Muse</a>
 
 docs_dir: docs/src/markdown
 theme:
@@ -13,6 +13,7 @@ theme:
   icon:
     logo: material/book-open-page-variant
   palette:
+    scheme: dracula
     primary: deep purple
     accent: deep purple
   font:
@@ -20,6 +21,12 @@ theme:
     code: Roboto Mono
   features:
     - navigation.tabs
+    - navigation.top
+    - search.share
+    - search.highlight
+    - search.suggest
+  pymdownx:
+    sponsor: "https://github.com/sponsors/facelessuser"
 
 nav:
   - About RegReplace: index.md
@@ -27,28 +34,24 @@ nav:
   - User Guide: usage.md
   - About:
     - Contributing &amp; Support: about/contributing.md
+    - Changelog: https://github.com/facelessuser/RegReplace/blob/master/CHANGES.md
     - License: about/license.md
 
 markdown_extensions:
   - markdown.extensions.toc:
       slugify: !!python/name:pymdownx.slugs.uslugify
       permalink: ""
-  - markdown.extensions.admonition:
   - markdown.extensions.smarty:
       smart_quotes: false
   - pymdownx.betterem:
   - markdown.extensions.attr_list:
-  - markdown.extensions.def_list:
   - markdown.extensions.tables:
   - markdown.extensions.abbr:
+  - markdown.extensions.footnotes:
   - markdown.extensions.md_in_html:
   - pymdownx.superfences:
   - pymdownx.highlight:
       extend_pygments_lang:
-        - name: php-inline
-          lang: php
-          options:
-            startinline: true
         - name: pycon3
           lang: pycon
           options:
@@ -59,39 +62,85 @@ markdown_extensions:
       repo_url_shorthand: true
       social_url_shorthand: true
       user: facelessuser
-      repo: RegReplace
+      repo: ColorHelper
   - pymdownx.tilde:
   - pymdownx.caret:
   - pymdownx.smartsymbols:
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.escapeall:
       hardbreak: true
       nbsp: true
   - pymdownx.tasklist:
       custom_checkbox: true
-  - pymdownx.progressbar:
+  - pymdownx.arithmatex:
   - pymdownx.mark:
   - pymdownx.striphtml:
   - pymdownx.snippets:
       base_path: docs/src/markdown/_snippets
   - pymdownx.keys:
       separator: "\uff0b"
-  - pymdownx.details:
-  - pymdownx.tabbed:
   - pymdownx.saneheaders:
+  - pymdownx.blocks.admonition:
+      types:
+      - new
+      - settings
+      - note
+      - abstract
+      - info
+      - tip
+      - success
+      - question
+      - warning
+      - failure
+      - danger
+      - bug
+      - example
+      - quote
+  - pymdownx.blocks.details:
+      types:
+      - name: details-new
+        class: new
+      - name: details-settings
+        class: settings
+      - name: details-note
+        class: note
+      - name: details-abstract
+        class: abstract
+      - name: details-info
+        class: info
+      - name: details-tip
+        class: tip
+      - name: details-success
+        class: success
+      - name: details-question
+        class: question
+      - name: details-warning
+        class: warning
+      - name: details-failure
+        class: failure
+      - name: details-danger
+        class: danger
+      - name: details-bug
+        class: bug
+      - name: details-example
+        class: example
+      - name: details-quote
+        class: quote
+  - pymdownx.blocks.html:
+  - pymdownx.blocks.definition:
+  - pymdownx.blocks.tab:
+      alternate_style: True
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/facelessuser
-    - icon: fontawesome/brands/discord
-      link: https://discord.gg/TWs8Tgr
 
 plugins:
   - search
   - git-revision-date-localized
+  - mkdocs_pymdownx_material_extras
   - minify:
       minify_html: true
-  - mkdocs_pymdownx_material_extras

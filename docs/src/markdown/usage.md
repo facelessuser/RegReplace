@@ -1,19 +1,32 @@
 # User Guide
 
-!!! warning "Regular Expression Engine"
-    Remember that the regular expression engine that is used is Python's [Re][re], not Sublime's internal regular expression engine.  If enabling `extended_back_references`, additional syntax (and some changes to existing syntax) is added which is covered in the [backrefs documentation][backrefs].
+/// warning | Regular Expression Engine
+Remember that the regular expression engine that is used is Python's [Re][re], not Sublime's internal regular
+expression engine.  If enabling `extended_back_references`, additional syntax (and some changes to existing syntax) is
+added which is covered in the [backrefs documentation][backrefs].
 
-    To enable such features as case insensitivity or dotall, see [Re's documentation][re]. If you've enabled the use of the [Regex][regex] library, see [Regex's documentation][regex].
+To enable such features as case insensitivity or dotall, see [Re's documentation][re]. If you've enabled the use of the
+[Regex][regex] library, see [Regex's documentation][regex].
 
-    Please note in the documentation the slight syntax differences in each regular expression library. Regex and Backrefs (with Regex or Re) handles things like `#!py3 r'\u0057'` in a replace template and converts it to Unicode, while Re will not and requires something like `#!py3 "\u0057"` to represent Unicode (note that one is using Python raw strings and the other is not).  What this means in respect to RegReplace is that for Re you may have to use actual Unicode characters or represent Unicode in the JSON settings file differently; for Regex, you can use `#!js "\\u0057"`, and in Re you will have to use `#!js "\u0057"` (JSON's notation for a literal Unicode character). There is one exception with Regex though: "format" replace (without Backrefs) will not handle `#!js "\\u0057"`, and it will not handle `#!js "\\n"`, but will also need literal characters like `#!js "\u0057"` and `#!js "\n"`.
+Please note in the documentation the slight syntax differences in each regular expression library. Regex and Backrefs
+(with Regex or Re) handles things like `#!py3 r'\u0057'` in a replace template and converts it to Unicode, while Re will
+not and requires something like `#!py3 "\u0057"` to represent Unicode (note that one is using Python raw strings and the
+other is not).  What this means in respect to RegReplace is that for Re you may have to use actual Unicode characters or
+represent Unicode in the JSON settings file differently; for Regex, you can use `#!js "\\u0057"`, and in Re you will
+have to use `#!js "\u0057"` (JSON's notation for a literal Unicode character). There is one exception with Regex though:
+"format" replace (without Backrefs) will not handle `#!js "\\u0057"`, and it will not handle `#!js "\\n"`, but will also
+need literal characters like `#!js "\u0057"` and `#!js "\n"`.
+///
 
 ## Create Find and Replace Sequences
 
 In order to use them, replacements must be defined in the `reg_replace_rules.sublime-settings` file.
 
-There are two types of rules that can be created: scope rules (with optional scope qualifiers) and scope searches that apply regular expressions to the targeted scopes.  We will call these **regex** and **scope regex** rules respectively.
+There are two types of rules that can be created: scope rules (with optional scope qualifiers) and scope searches that
+apply regular expressions to the targeted scopes.  We will call these **regex** and **scope regex** rules respectively.
 
-**Regex** rules use regular expressions to find regions, and then you can use scopes to qualify the regions before applying the replacements.  These rules can use the following options:
+**Regex** rules use regular expressions to find regions, and then you can use scopes to qualify the regions before
+applying the replacements.  These rules can use the following options:
 
 ```js
     /*
@@ -39,7 +52,8 @@ There are two types of rules that can be created: scope rules (with optional sco
             },
 ```
 
-The second kind of rule is the **scope regex** which allows you to search for a scope type and then apply regular expression to the regions to filter the matches and make replacements.
+The second kind of rule is the **scope regex** which allows you to search for a scope type and then apply regular
+expression to the regions to filter the matches and make replacements.
 
 ```js
     /*
@@ -119,7 +133,8 @@ A description of all the options is found below:
                         Only used for regex replaces and replace.
 ```
 
-Once you've defined replacements, there are a number of ways to run a sequence.  One way is to create a command in the command palette by editing/creating a `Default.sublime-commands` in your `User` folder and then adding your command(s).
+Once you've defined replacements, there are a number of ways to run a sequence.  One way is to create a command in the
+command palette by editing/creating a `Default.sublime-commands` in your `User` folder and then adding your command(s).
 
 Basic replacement command:
 
@@ -153,18 +168,29 @@ You can also bind a replacement command to a keyboard shortcut:
 
 ## Selection Inputs
 
-!!! warning "Experimental"
-    This feature is experimental and is subject to change.
+/// warning | Experimental
+This feature is experimental and is subject to change.
+///
 
 If `selection_inputs` is set to `True`, selections will be inserted into your pattern via format string logic.
 
-So to specify two implicit variables, the following format string logic can be used: `r'Some value {} some [\w]+ {}'`.  In this example, the first two selections will be inserted in `{}`: `r'Some value selection0 some [\w]+ selection1'`.
+So to specify two implicit variables, the following format string logic can be used: `r'Some value {} some [\w]+ {}'`.
+In this example, the first two selections will be inserted in `{}`: `r'Some value selection0 some [\w]+ selection1'`.
 
-To control which selection goes where, you can explicitly set the index: `r'Some value {1} some [\w]+ {0}'` -->. `r'Some value selection1 some [\w]+ selection0'`. Or alternatively: `r'Some value {sel[1]} some [\w]+ {sel[0]}'` (`sel` is the selection list).
+To control which selection goes where, you can explicitly set the index: `r'Some value {1} some [\w]+ {0}'` -->.
+`r'Some value selection1 some [\w]+ selection0'`. Or alternatively: `r'Some value {sel[1]} some [\w]+ {sel[0]}'` (`sel`
+is the selection list).
 
-By default, the selection is just inserted into the pattern raw.  This is fine for literal searches, but for regex this is bad if your selection is something like: `something(else)`.  This example would be interpreted as adding a group containing `else`. So if this is not intended, the text would need to be escaped. So a new conversion type has been added to the format template: `!e`.  This new conversion type will insert the selection into the pattern after first escaping it.  So you could use it like so: `r'Some value {1!e} some [\w]+ {0!e}'`, and the selection inputs would be escaped.
+By default, the selection is just inserted into the pattern raw.  This is fine for literal searches, but for regex this
+is bad if your selection is something like: `something(else)`.  This example would be interpreted as adding a group
+containing `else`. So if this is not intended, the text would need to be escaped. So a new conversion type has been
+added to the format template: `!e`.  This new conversion type will insert the selection into the pattern after first
+escaping it.  So you could use it like so: `r'Some value {1!e} some [\w]+ {0!e}'`, and the selection inputs would be
+escaped.
 
-For the sake of avoiding bad situations, RegReplace will limit the length of selections to the arbitrary value of 256, but you can configure this with the global setting `selection_input_max_size` in `reg_replace.sublime-settings`. Also, the number of allowed inputs will be limited to 10, but this can be tweaked via the setting `selection_input_max_count`.
+For the sake of avoiding bad situations, RegReplace will limit the length of selections to the arbitrary value of 256,
+but you can configure this with the global setting `selection_input_max_size` in `reg_replace.sublime-settings`. Also,
+the number of allowed inputs will be limited to 10, but this can be tweaked via the setting `selection_input_max_count`.
 
 ```js
     // Limit size of selections for inputs.
@@ -174,23 +200,34 @@ For the sake of avoiding bad situations, RegReplace will limit the length of sel
     "selection_input_max_count": 10,
 ```
 
-This should go without saying, but this is incompatible if you have the global option `selection_only` set which will search in selection content.  Though you can ignore it per command via the command parameter [`no_selection`](#replace-only-within-selections).  So if you are constructing a chain that uses selection inputs, you can temporarily disable it with `no_selection`.
+This should go without saying, but this is incompatible if you have the global option `selection_only` set which will
+search in selection content.  Though you can ignore it per command via the command parameter
+[`no_selection`](#replace-only-within-selections). So if you are constructing a chain that uses selection inputs, you
+can temporarily disable it with `no_selection`.
 
 ## A Better Way to Create Regex Rules
 
-A new feature was recently added that allows editing regular expression rules in a panel with Python syntax highlighting, providing a friendlier editing experience.  Users can even split their regular expressions on multiple lines and add comments which will be preserved the next time the rule is viewed.
+A new feature was recently added that allows editing regular expression rules in a panel with Python syntax
+highlighting, providing a friendlier editing experience.  Users can even split their regular expressions on multiple
+lines and add comments which will be preserved the next time the rule is viewed.
 
-While in the edit panel, you can press ++ctrl+s++ on Windows/Linux (or ++cmd+s++ on OSX) and the rule will be saved back to the settings file.  On saving, the regex is compiled to test if it's valid; if the test fails, a warning message is displayed and the saving operation is canceled.
+While in the edit panel, you can press ++ctrl+s++ on Windows/Linux (or ++cmd+s++ on OSX) and the rule will be saved back
+to the settings file.  On saving, the regex is compiled to test if it's valid; if the test fails, a warning message is
+displayed and the saving operation is canceled.
 
 To edit, insert, or delete rules, you can use the following command palette commands:
 
-- RegReplace: Edit Regular Expression Rule
-- RegReplace: Create New Regular Expression Rule
-- RegReplace: Delete Regular Expression Rule
+-   RegReplace: Edit Regular Expression Rule
+-   RegReplace: Create New Regular Expression Rule
+-   RegReplace: Delete Regular Expression Rule
 
 ![edit panel](imgs/edit_panel.png)
 
-You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test` variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press ++ctrl+f++ on Windows/Linux (or ++cmd+f++ on OSX) to execute it.  Keep in mind that you can run the current rule sequenced together with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other settings, but is only good for the current session.
+You can also test the regular expression from the edit panel.  At the bottom of the panel, you should see the `test`
+variable which will allow you to configure a sequence to run from the panel.  Once configured, you can press ++ctrl+f++
+on Windows/Linux (or ++cmd+f++ on OSX) to execute it.  Keep in mind that you can run the current rule sequenced together
+with others in the test configuration to test how it plays with other rules.  `test` is not saved with the other
+settings, but is only good for the current session.
 
 ```py3
 # ----------------------------------------------------------------------------------------
@@ -211,11 +248,17 @@ You can also test the regular expression from the edit panel.  At the bottom of 
 
 ![test variable](imgs/test.png)
 
-Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by pressing ++esc++ or running some other command.  When closed, the currently opened rule is not lost and can be brought back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window (only on later versions of Sublime Text 3).
+Depending on how the test command was configured, it may cause the panel to close, or you might accidentally close it by
+pressing ++esc++ or running some other command.  When closed, the currently opened rule is not lost and can be brought
+back by running the command palette command `RegReplace: Show Edit Panel` (the command will only work if the panel has
+been opened at least once).  You can also use the panel icon in the bottom left hand corner of the Sublime Text window
+(only on later versions of Sublime Text 3).
 
 ## View Without Replacing
 
-If you would like to simply view what the sequence would find, without carrying out any replacements, (aka "dry run") you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this just shows all passes without predicting the replacements).
+If you would like to simply view what the sequence would find, without carrying out any replacements, (aka "dry run")
+you can construct a command to highlight targets without replacing them (each pass could affect the end result, but this
+just shows all passes without predicting the replacements).
 
 Just add the `"find_only"` argument and set it to `true`.
 
@@ -229,13 +272,16 @@ Just add the `"find_only"` argument and set it to `true`.
 
 A prompt will appear allowing you to replace the highlighted regions.  Regions will be cleared on cancel.
 
-If for any reason the highlights do not get cleared, you can simply run the "RegReplace: Clear Highlights" command from the command palette.
+If for any reason the highlights do not get cleared, you can simply run the "RegReplace: Clear Highlights" command from
+the command palette.
 
 Highlight color and style can be changed in the settings file.
 
 ## Override Actions
 
-If instead of replacing you would like to do something else, you can override the action. Actions are defined in commands by setting the `action` parameter.  Some actions may require additional parameters be set in the `options` parameter.  See examples below.
+If instead of replacing you would like to do something else, you can override the action. Actions are defined in
+commands by setting the `action` parameter.  Some actions may require additional parameters be set in the `options`
+parameter.  See examples below.
 
 ```js
     {
@@ -269,11 +315,11 @@ If instead of replacing you would like to do something else, you can override th
 
 ### Supported override actions
 
-- fold
-- unfold
-- mark
-- unmark
-- select
+-   fold
+-   unfold
+-   mark
+-   unmark
+-   select
 
 ### Fold Override
 
@@ -354,9 +400,14 @@ This action selects the regions of the given find target.
 
 ## Multi-Pass
 
-Sometimes it's not possible for a regular expression to find all instances in a single pass.  In such cases, you can use the multi-pass option.  This option will cause the repeated execution of the entire sequence until all instances are found and replaced.  To protect against a poorly constructed multi-pass regular expression looping forever, there is a default max sweep threshold that will cause the sequence to kick out when reached.  This threshold can be tweaked in the settings file.
+Sometimes it's not possible for a regular expression to find all instances in a single pass.  In such cases, you can use
+the multi-pass option.  This option will cause the repeated execution of the entire sequence until all instances are
+found and replaced.  To protect against a poorly constructed multi-pass regular expression looping forever, there is a
+default max sweep threshold that will cause the sequence to kick out when reached.  This threshold can be tweaked in the
+settings file.
 
-Multi-pass is used in replaces and cannot be paired with override actions (it will be ignored), but it can be paired with `find_only` as `find_only` allows you to initiate a replace.
+Multi-pass is used in replaces and cannot be paired with override actions (it will be ignored), but it can be paired
+with `find_only` as `find_only` allows you to initiate a replace.
 
 ```js
     {
@@ -368,7 +419,11 @@ Multi-pass is used in replaces and cannot be paired with override actions (it wi
 
 ## Replace Only Within Selection(s)
 
-Sometimes you only want to search inside selections.  This can be done by enabling the `selection_only` setting in the settings file.  By enabling this setting, regular expression targets will be limited to the current selection if _and only if_ a selection exists.  Auto replace/highlight on save events ignore this setting.  If you want a given command to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to underline selections if `find_only` is set, to ensure they will show up.
+Sometimes you only want to search inside selections.  This can be done by enabling the `selection_only` setting in the
+settings file.  By enabling this setting, regular expression targets will be limited to the current selection if
+_and only if_ a selection exists.  Auto replace/highlight on save events ignore this setting.  If you want a given
+command to ignore this setting, just set the `no_selection` argument to `true`.  Highlight style will be forced to
+underline selections if `find_only` is set, to ensure they will show up.
 
 ```js
     // Ignore "selection_only" setting
@@ -381,7 +436,10 @@ Sometimes you only want to search inside selections.  This can be done by enabli
 
 ## Use Regular Expressions on Entire File Buffer When Using Selections
 
-When `selection_only` is enabled, a regular expression chain might perform better by applying the regular expression on the entire file buffer and then pick the matches under the selections — as opposed to the default behavior of applying the regular expression directly to the selection buffer.  This can be achieved via the `regex_full_file_with_selections` option:
+When `selection_only` is enabled, a regular expression chain might perform better by applying the regular expression on
+the entire file buffer and then pick the matches under the selections — as opposed to the default behavior of applying
+the regular expression directly to the selection buffer.  This can be achieved via the `regex_full_file_with_selections`
+option:
 
 ```js
     {
@@ -400,7 +458,11 @@ When `selection_only` is enabled, a regular expression chain might perform bette
 
 ## Apply Regular Expressions Right Before File Save Event
 
-If you want a sequence to be automatically applied before a file saves, you can define "on save" sequences in the `reg_replace.sublime-settings` file.  Each "on save" sequence will be applied to the files matched by the file patterns or file regular expressions you specify.  You must also set `on_save` to `true`.  If you want the sequence to just highlight, fold, or unfold by regular expression, add the `"action": "mark"` key/value pair (supported values: `mark`|`fold`|`unfold`). Both types can be used at the same time. Actions are performed after replacements.
+If you want a sequence to be automatically applied before a file saves, you can define "on save" sequences in the
+`reg_replace.sublime-settings` file.  Each "on save" sequence will be applied to the files matched by the file patterns
+or file regular expressions you specify.  You must also set `on_save` to `true`.  If you want the sequence to just
+highlight, fold, or unfold by regular expression, add the `"action": "mark"` key/value pair (supported values:
+`mark`|`fold`|`unfold`). Both types can be used at the same time. Actions are performed after replacements.
 
 
 Example:
@@ -442,11 +504,17 @@ Example:
 
 ## Custom Replace Plugins
 
-There are times when simple regular expression replacements are not enough to get the job done.  Since RegReplace uses Python's re regular expression engine, we can use Python code to intercept the replacement and carry out more complex tasks via a plugin.  Because the plugins rely on Python's re, this will only apply to regular expression searches (not literal searches).
+There are times when simple regular expression replacements are not enough to get the job done.  Since RegReplace uses
+Python's re regular expression engine, we can use Python code to intercept the replacement and carry out more complex
+tasks via a plugin.  Because the plugins rely on Python's re, this will only apply to regular expression searches (not
+literal searches).
 
 In this example we're going to search for dates in the YYYYMMDD format, and increment them by one day.
 
-Below is the regular expression rule. Notice how we have defined a plugin to carry out replacement.  Plugins are defined as if importing a Python module.  In this example, we are loading it from the `User` package. You do not need an `__init__.py` file in `rr_modules` folder — and it's use is discouraged: Sublime shouldn't bother loading these files since RegReplace will load them when needed.
+Below is the regular expression rule. Notice how we have defined a plugin to carry out replacement.  Plugins are defined
+as if importing a Python module.  In this example, we are loading it from the `User` package. You do not need an
+`__init__.py` file in `rr_modules` folder — and it's use is discouraged: Sublime shouldn't bother loading these files
+since RegReplace will load them when needed.
 
 ```js
 "date_up": {
@@ -466,7 +534,9 @@ Next we can define the command that will utilize the regex rule:
     },
 ```
 
-Lastly, we provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace` takes a python re match object, and any arguments you want to feed it.  Arguments are defined in the regular expression rule as shown above.
+Lastly, we provide the plugin.  RegReplace will load the plugin and look for a function called `replace`.  `replace`
+takes a python re match object, and any arguments you want to feed it.  Arguments are defined in the regular expression
+rule as shown above.
 
 ```py3
 SHORT_MONTH = 30
@@ -535,7 +605,9 @@ Here is some text to test the example on:
 # Test 3: 20140101
 ```
 
-RegReplace ships with a simple example you can test with (`/Packages/RegReplace/rr_modules/example.py`). Because package control zips packages, it's hard to view its source directly, without using a plugin; therefore, I've pasted it below as well. Import it with `#!js "plugin": "RegReplace.rr_modules.example"`.
+RegReplace ships with a simple example you can test with (`/Packages/RegReplace/rr_modules/example.py`). Because package
+control zips packages, it's hard to view its source directly, without using a plugin; therefore, I've pasted it below as
+well. Import it with `#!js "plugin": "RegReplace.rr_modules.example"`.
 
 ```py3
 """A simple example plugin."""
@@ -574,9 +646,16 @@ To select whether to use Version 0 or Version 1 of the regex module, simply chan
 
 ## Extended Back References
 
-RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for RegReplace and adds various additional backrefs that are known to some regular expression engines, but not to Python's re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and `\C`).  It even adds some of the Posix style classes such as `[:ascii:]` etc.
+RegReplace uses a special wrapper around Python's re library called backrefs.  Backrefs was written specifically for
+RegReplace and adds various additional backrefs that are known to some regular expression engines, but not to Python's
+re.  Backrefs adds: `\p`, `\P`, `\u`, `\U`, `\l`, `\L`, `\Q` or `\E` (though `\u` and `\U` are replaced with `\c` and
+`\C`).  It even adds some of the Posix style classes such as `[:ascii:]` etc.
 
-Backrefs also works with the regex module, but it enables a smaller portion of back references as the regex module implements a few of the back references already (in one form or the other).  For instance, there was no need to add Unicode properties as it was already available. And since you can already use Unicode and/or Posix properties for uppercase and lowercase character classes in search patterns, and regex already reserves `\L`, it wasn't worth the extra work to try and add equivalents for `\c`, `\C`, '\l' and `\L` to the search back references.
+Backrefs also works with the regex module, but it enables a smaller portion of back references as the regex module
+implements a few of the back references already (in one form or the other).  For instance, there was no need to add
+Unicode properties as it was already available. And since you can already use Unicode and/or Posix properties for
+uppercase and lowercase character classes in search patterns, and regex already reserves `\L`, it wasn't worth the extra
+work to try and add equivalents for `\c`, `\C`, '\l' and `\L` to the search back references.
 
 You can enable extended back references in the settings file:
 
@@ -585,7 +664,8 @@ You can enable extended back references in the settings file:
     "extended_back_references": true
 ```
 
-When enabled, you can apply the back references to your search and/or replace patterns as you would other back references:
+When enabled, you can apply the back references to your search and/or replace patterns as you would other back
+references:
 
 ```js
     "test_case": {
@@ -599,7 +679,8 @@ You can read more about the backrefs' features in the [Backrefs' documentation][
 
 ### Getting the Latest Backrefs
 
-It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package Control's `Satisfy Dependencies` command which will update to the latest release.
+It is not always clear when Package Control updates dependencies.  So to force dependency updates, you can run Package
+Control's `Satisfy Dependencies` command which will update to the latest release.
 
 ### Using Backrefs in RegReplace Plugins
 
@@ -615,9 +696,15 @@ Or use bregex for the regex module with backrefs:
 from backrefs as bregex
 ```
 
-Backrefs does provide a wrapper for all of re's normal functions such as `match`, `sub`, etc., but it's recommended to pre-compile your search patterns **and** your replace patterns for optimal performance — especially if you plan on reusing the same pattern multiple times.  Since re does cache a certain amount of the non-compiled calls, you'll be spared from some performance hit, but backrefs does not cache the pre-processing of search and replace patterns.
+Backrefs does provide a wrapper for all of re's normal functions such as `match`, `sub`, etc., but it's recommended to
+pre-compile your search patterns **and** your replace patterns for optimal performance — especially if you plan on
+reusing the same pattern multiple times.  Since re does cache a certain amount of the non-compiled calls, you'll be
+spared from some performance hit, but backrefs does not cache the pre-processing of search and replace patterns.
 
-To use pre-compiled functions, you compile the search pattern with `compile_search`.  If you want to take advantage of replace backrefs, you need to compile the replace pattern as well.  Notice that the compiled pattern is fed into the replace pattern; you can feed the replace compiler the string representation of the search pattern as well, but the compiled pattern will be faster and is the recommended way.
+To use pre-compiled functions, you compile the search pattern with `compile_search`.  If you want to take advantage of
+replace backrefs, you need to compile the replace pattern as well.  Notice that the compiled pattern is fed into the
+replace pattern; you can feed the replace compiler the string representation of the search pattern as well, but the
+compiled pattern will be faster and is the recommended way.
 
 ```py3
 pattern = bre.compile_search(r'somepattern', flags)
@@ -638,7 +725,8 @@ if m:
     text = replace(m)  # similar to m.expand(template)
 ```
 
-To use the non-compiled search/replace functions, you call them just as you would in re; the names are the same.  Methods like `sub` and `subn` will compile the replace pattern on the fly if given a string.
+To use the non-compiled search/replace functions, you call them just as you would in re; the names are the same. Methods
+like `sub` and `subn` will compile the replace pattern on the fly if given a string.
 
 ```py3
 for m in bre.finditer(r'somepattern', 'some text', bre.UNICODE | bre.DOTALL):

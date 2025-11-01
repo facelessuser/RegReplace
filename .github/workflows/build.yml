@@ -1,4 +1,5 @@
 name: build
+
 on:
   push:
     branches:
@@ -11,58 +12,61 @@ on:
 
 jobs:
   tests:
+
     env:
-      TOXENV: py39
+      TOXENV: py311
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.9
+        python-version: 3.11
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools tox
+        python -m pip install --upgrade pip setuptools tox build
     - name: Tests
       run: |
         python -m tox
 
   lint:
+
     env:
       TOXENV: lint
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.9
+        python-version: 3.11
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools tox
+        python -m pip install --upgrade pip setuptools tox build
     - name: Lint
       run: |
         python -m tox
 
   documents:
+
     env:
       TOXENV: documents
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.9
+        python-version: 3.11
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools tox
+        python -m pip install --upgrade pip setuptools tox build
     - name: Install Aspell
       run: |
         sudo apt-get install aspell aspell-en

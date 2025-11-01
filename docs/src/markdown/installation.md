@@ -2,44 +2,52 @@
 
 ## Package Control
 
-The recommended way to install RegReplace is via [Package Control][package-control].  Package Control will install the correct branch on your system and keep it up to date.
+The recommended way to install RegReplace is via [Package Control][package-control].  Package Control will install the
+correct branch on your system and keep it up to date.
 
-1. Ensure Package Control is installed.  Instructions are found [here][package-control-install].
+1.  Ensure Package Control is installed.  Instructions are found [here][package-control-install].
 
-2. In Sublime Text, press ++ctrl+shift+p++ (Win, Linux) or ++cmd+shift+p++ (OSX) to bring up the quick panel and start typing `Package Control: Install Package`.  Select the command and it will show a list of installable plugins.
+2.  In Sublime Text, press ++ctrl+shift+p++ (Win, Linux) or ++cmd+shift+p++ (OSX) to bring up the quick panel and start
+    typing `Package Control: Install Package`.  Select the command and it will show a list of installable plugins.
 
-3. Start typing `RegReplace`; when you see it, select it.
+3.  Start typing `RegReplace`; when you see it, select it.
 
-4. Restart to be sure everything is loaded properly.
+4.  Restart to be sure everything is loaded properly.
 
-5. Enjoy!
+5.  Enjoy!
 
 ## Manual Installation
 
-!!! warning "Warning"
-    This is not the recommended way to install RegReplace for the average user.  Installing it this way **will not** get automatically updated.
+/// warning | Warning
+This is not the recommended way to install RegReplace for the average user.  Installing it this way **will not** get
+automatically updated.
 
-    If you are forking for a pull request, you should **just** clone RegReplace and run Package Control's `Satisfy Dependency` command to get all the dependencies.
+If you are forking for a pull request, you should **just** clone RegReplace and run Package Control's
+`Satisfy Dependency` command to get all the dependencies.
+///
 
-For those who want to install RegReplace without package control, here are the steps.  Beware: when going this route, you'll have to keep all the packages updated yourself!
+For those who want to install RegReplace without package control, here are the steps.  Beware: when going this route,
+you'll have to keep all the packages updated yourself!
 
 ---
 
-1. Download the latest releases of the following dependencies and unpack or git clone them in the `Packages` folder as shown below:
+1.  Download the latest releases of the following dependencies and unpack or git clone them in the `Packages` folder as
+    shown below:
 
-    - @bitbucket:teddy_beer_maniac/sublime-text-dependency-markupsafe --> markupsafe
-    - @bitbucket:teddy_beer_maniac/sublime-text-dependency-jinja2 --> python-jinja2
-    - @packagecontrol/pygments --> pygments
-    - @facelessuser/sublime-markdown-popups --> mdpopups
-    - @facelessuser/sublime-markdown --> python-markdown
-    - @facelessuser/sublime-backrefs --> backrefs
-    - @facelessuser/sublime-regex --> regex
+    -   @bitbucket:teddy_beer_maniac/sublime-text-dependency-markupsafe --> markupsafe
+    -   @bitbucket:teddy_beer_maniac/sublime-text-dependency-jinja2 --> python-jinja2
+    -   @packagecontrol/pygments --> pygments
+    -   @facelessuser/sublime-markdown-popups --> mdpopups
+    -   @facelessuser/sublime-markdown --> python-markdown
+    -   @facelessuser/sublime-backrefs --> backrefs
+    -   @facelessuser/sublime-regex --> regex
 
-2. Download and unpack or git clone the latest RegReplace release and unpack it as `RegReplace`:
+2.  Download and unpack or git clone the latest RegReplace release and unpack it as `RegReplace`:
 
-    - @facelessuser/RegReplace --> RegReplace
+    -   @facelessuser/RegReplace --> RegReplace
 
-3. Create a folder under `Packages` called `00-dependencies` and under that folder create a file called `00-dependencies.py`:
+3.  Create a folder under `Packages` called `00-dependencies` and under that folder create a file called
+    `00-dependencies.py`:
 
     Copy the following code to `00-dependencies.py` (this code was taken from Package Control):
 
@@ -201,19 +209,20 @@ For those who want to install RegReplace without package control, here are the s
     add_dependency('regex')
     ```
 
-4. Restart and enjoy.
+4.  Restart and enjoy.
 
 ## Git Cloning
 
-1. Quit Sublime Text.
+1.  Quit Sublime Text.
 
-2. Open a terminal and enter the following.  For dependencies replace the URL with the appropriate URL, and the appropriate folder to check it out to:
+2.  Open a terminal and enter the following.  For dependencies replace the URL with the appropriate URL, and the
+    appropriate folder to check it out to:
 
     ```
     cd /path/to/Sublime Text 3/Packages
     git clone https://github.com/facelessuser/RegReplace.git RegReplace
     ```
 
-3. Restart Sublime Text.
+3.  Restart Sublime Text.
 
 --8<-- "refs.md"
