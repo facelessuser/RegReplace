@@ -1,5 +1,9 @@
 # RegReplace
 
+## 3.8.3
+
+-   **FIX**: Ensure `typing` dependency for Python 3.3 host.
+
 ## 3.8.2
 
 -   **FIX**: Fix bad links.
