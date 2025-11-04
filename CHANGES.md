@@ -1,5 +1,9 @@
 # RegReplace
 
+## 3.8.4
+
+-   **FIX**: Fix support commands.
+
 ## 3.8.3
 
 -   **FIX**: Ensure `typing` dependency for Python 3.3 host.
