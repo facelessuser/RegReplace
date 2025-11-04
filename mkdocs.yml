@@ -62,7 +62,7 @@ markdown_extensions:
       repo_url_shorthand: true
       social_url_shorthand: true
       user: facelessuser
-      repo: ColorHelper
+      repo: RegReplace
   - pymdownx.tilde:
   - pymdownx.caret:
   - pymdownx.smartsymbols:
