@@ -1,5 +1,9 @@
 # RegReplace
 
+## 3.9.0
+
+-   **NEW**: Changes to support Python 3.13 on ST 4201+.
+
 ## 3.8.4
 
 -   **FIX**: Fix support commands.

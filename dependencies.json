@@ -1,14 +1,9 @@
 {
     "*": {
-        ">=3000": [
-            "backrefs",
-            "regex"
-        ],
-        ">=3124": [
+        ">=4201": [
             "mdpopups",
             "backrefs",
-            "regex",
-            "typing"
+            "regex"
         ]
     }
 }

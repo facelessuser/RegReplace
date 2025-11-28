@@ -5,7 +5,7 @@ import textwrap
 import webbrowser
 import re
 
-__version__ = "3.8.4"
+__version__ = "3.9.0"
 __pc_name__ = 'RegReplace'
 
 CSS = '''
