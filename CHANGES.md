@@ -1,5 +1,9 @@
 # RegReplace
 
+## 3.10.0
+
+-   **NEW**: Add `reg_replace_chain` command.
+
 ## 3.9.0
 
 -   **NEW**: Changes to support Python 3.13 on ST 4201+.

@@ -168,6 +168,17 @@ class RegReplaceListenerCommand(sublime_plugin.EventListener):
                 self.apply(view, self.unfolds, action="unfold")
 
 
+class RegReplaceChain(sublime_plugin.TextCommand):
+    """RegReplace chain command."""
+
+    def run(self, edit, commands):
+        """Chain multiple commands."""
+
+        for command in commands:
+            cmd = command.pop('command')
+            self.view.run_command(cmd, command)
+
+
 class RegReplaceCommand(sublime_plugin.TextCommand):
     """RegReplace command."""
 

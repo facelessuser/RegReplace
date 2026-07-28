@@ -166,6 +166,25 @@ You can also bind a replacement command to a keyboard shortcut:
     }
 ```
 
+As noted in the arguments above, `multi_pass` applies to a chain of replacements, but each replacement in a chain
+cannot be controlled individually. In some cases, it may be desired that some patterns are applied multiple times, while
+others are not. If this is the case, you can chain multiple replace commands together using the `reg_replace_chain`
+command. Then each command can can be configured separately.
+
+
+```js
+    {
+        "caption": "Reg Replace: Chained Command"
+        "command": "reg_replace_chain",
+        "args": {
+            "commands": [
+                {"command": "reg_replace", "replacements": ["replace_command_1"]},
+                {"command": "reg_replace", "replacements": ["replace_command_2"], "multi_pass": true}
+            ]
+        }
+    }
+```
+
 ## Selection Inputs
 
 /// warning | Experimental
