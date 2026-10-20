@@ -5,7 +5,7 @@ Licensed under MIT
 Copyright (c) 2011 - 2016 Isaac Muse <isaacmuse@gmail.com>
 """
 import sublime
-import imp
+import types
 import sys
 from os.path import join, normpath
 import re
@@ -44,7 +44,7 @@ class Plugin(object):
     def load_module(cls, module_name, path_name):
         """Load the requested module."""
 
-        module = imp.new_module(module_name)
+        module = types.new_module(module_name)
         sys.modules[module_name] = module
         exec(
             compile(
